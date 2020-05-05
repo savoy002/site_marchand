@@ -1,0 +1,182 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Utilisateurs {% endblock %}
+
+{% block body %}
+
+	<div class="content">
+
+		<div class="row">
+			<h1>Utilisateurs.</h1>
+		</div>
+
+		<div class="row">
+			<p>Administrateur - Utilisateurs </p>
+		</div>
+
+		<div class="row">
+
+			<form class="form" action="{{ path("users") }}" method="post">
+
+				{% if errors is not empty %}
+					<ul>
+						{% for error in errors %}
+							<li> {{ error }} </li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+
+				{# Début du formulaire de recherche #}
+
+				<input hidden="hidden" name="research" value="research">
+				<div class="row">
+					<div class="col-6">
+						<label for="usersname">Nom d'utilisateur</label>
+						<input name="username" type="text" {{ (request.username is defined)?('value=' ~ request.username ) }}>
+					</div>
+					<div class="col-6">
+						<label for="type_research_username">Type de recherche</label>
+						<select name="type_research_username">
+							<option value="contain" 
+								{{ (request.type_research_username is defined)?((request.type_research_username == 'contain') ? ('selected') ) }} >
+								Contient
+							</option>
+							<option value="equal" 
+								{{ (request.type_research_username is defined)?((request.type_research_username == 'equal')? ('selected') ) }} >
+								Égale
+							</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label for="email">Adresse mail</label>
+						<input name="email" type="text" {{ (request.email is defined)?('value=' ~ request.email ) }} >
+					</div>
+					<div class="col-6">
+						<label for="type_research_email">Type de recherche</label>
+						<select name="type_research_email">
+							<option value="contain" 
+								{{ (request.type_research_email is defined)?((request.type_research_email == 'contain')? ('selected') ) }} >
+								Contient
+							</option>
+							<option value="equal" 
+								{{ (request.type_research_email is defined)?((request.type_research_email == 'equal')? ('selected') ) }} >
+								Égale
+							</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label for="roles">Roles</label>
+						<select name="roles">
+							<option value="">N'importe</option>
+							<option value="user" {{ (request.roles is defined)?((request.roles == 'user')? ('selected') ) }} >
+								Utilisateur
+							</option>
+							<option value="admin" {{ (request.roles is defined)?((request.roles == 'admin')? ('selected') ) }} >
+								Administrateur
+							</option>
+						</select>
+					</div>
+					<div class="col-6">
+						<label for="valid">Vérifié</label>
+						<select name="valid">
+							<option value="">N'importe</option>
+							<option value="verified" {{ (request.valid is defined)?((request.valid == 'verified')? ('selected') ) }} >
+								Vérifié
+							</option>
+							<option value="notVerified" {{ (request.valid is defined)?((request.valid == 'notVerified')? ('selected') ) }} >
+								Non Vérifié
+							</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-6">
+						<label for="createdBy">Crée par</label>
+						<select name="createdBy">
+							<option value="">N'importe</option>
+							<option value="user" {{ (request.createdBy is defined)?((request.createdBy == 'user')? ('selected') ) }} >
+								Utilisateur
+							</option>
+							<option value="admin" {{ (request.createdBy is defined)?((request.createdBy == 'admin')? ('selected') ) }} >
+								Administrateur
+							</option>
+						</select>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col">
+						<label for="createdBefore">Crée avant le </label>
+						<input name="createdBefore" type="date" {{ (request.createdBefore is defined)?('value=' ~ request.createdBefore ) }} >
+					</div>
+					<div class="col">
+						<label for="createdAfter">Crée après le </label>
+						<input name="createdAfter" type="date" {{ (request.createdAfter is defined)?('value=' ~ request.createdAfter ) }} >
+					</div>
+				</div>
+				<div class="row">
+					<div class="col"><button class="btn btn-primary" type="submit">Rechercher</button></div>
+					<div class="col"><button class="btn btn-danger" type="reset">Annuler</button></div>
+				</div>
+
+				{# Fin du formulaire de recherche #}
+			
+				{# Début des résultats de recherches #}
+
+				<table class="table">
+					<tr>
+						<th></th><th>Nom d'utilisateur</th><th>Roles</th><th>Adresse mail</th><th>Date de création</th><th>Vérifié</th><th>Voir</th>
+					</tr>
+					{% for user in users %}
+						<tr>
+							<td>{% if user.imgFileName != null %}<img src="{{ asset('img/uploads/User/' ~ user.imgFileName) }}" width="60" height="60">{% endif %}</td>
+							<td>{{ user.username }}</td>
+							<td>
+								{% if 'ROLE_ADMIN' in user.roles %}
+									{% if user.superAdmin %} Super administrateur {% else %} Administrateur {% endif %} 
+								{% else %} 
+								 	Utilisateur 
+								{% endif %}
+							</td>
+							<td>{{ user.email }}</td>
+							<td>{{ user.createAt|date("d/m/Y") }}</td>
+							<td>{{ user.valid?'Vérifié':'Non vérifié' }}</td>
+							<td><a href="{{ path("user",  {id:user.id}) }}"><button class="btn btn-info">Voir</button></a></td>
+						</tr>
+					{% endfor %}
+				</table>
+
+				{# Fin des résultats de recherches #}
+
+				<a href="{{ path("admin_create_user") }}"><button class="btn btn-primary">Créer un utilisateur</button></a>
+
+				{# Début des paginations #}
+
+				<div class="row">
+					<nav aria-label="Page navigation example">
+					  <ul class="pagination">
+					    <li class="page-item">
+					      <input type="submit" value="Début" name="page">
+					    </li>
+					    {% for num in range(1, number_pages) %}
+					    	<input type="submit" value="{{ num }}" name="page">
+					    {% endfor %}
+					    <li class="page-item">
+					      <input type="submit" value="Fin" name="page">
+					    </li>
+					  </ul>
+					</nav>
+				</div>
+
+				{# Fin des paginations #}
+
+			</form>
+
+		</div>
+
+	</div>
+
+{% endblock %}

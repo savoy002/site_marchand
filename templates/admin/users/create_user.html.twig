@@ -1,0 +1,22 @@
+
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Ajout un utilisateur {% endblock %}
+
+{% block body %} 
+
+	{% if errors is not empty %}
+		<ul>
+			{% for error in errors %}
+				<li> {{ error }} </li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	<h1>Ajouter un utilisateur.</h1>
+
+	{{ form(form) }}
+
+	<a href="{{ path("users") }}"><button class="btn btn-danger">Annuler</button></a>
+
+{% endblock %}

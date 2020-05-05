@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Image d'utilisateur. {% endblock %}
+
+
+{% block body %}
+
+	{% if errors is defined %}
+		<p>Catch</p>
+	{% endif %}
+
+	<h1>Changer l'image de l'utilisateur.</h1>
+
+	{{ form(form) }}
+
+{% endblock %}

@@ -1,0 +1,19 @@
+<header class="bg-secondary">
+	<div class="container">
+		<div class="row justify-content-between">
+			<div class="col-6">
+				<a href="{{ path("users") }}"><button class="btn btn-info">Utilisateurs</button></a>
+				<a href="#"><button class="btn btn-info">Commandes</button></a>
+				<a href="#"><button class="btn btn-info">Entreprises de livraison</button></a>
+				<a href="#"><button class="btn btn-info">Produits</button></a>
+			</div>
+			<div class="col-2">
+				{% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+			    	<a href="{{ path('app_logout') }}"> <button class="btn btn-primary">Déconnexion</button></a>
+				{% else %}
+				    <a href="{{ path('app_login') }}"><button class="btn btn-primary">Connexion</button></a>
+				{% endif %}
+			</div>
+		</div>
+	</div>
+</header>
