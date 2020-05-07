@@ -21,14 +21,15 @@ class UserType extends AbstractType
 	public function buildForm(FormBuilderInterface $builder, array $options)
 	{
 		$builder
-			->add('username', TextType::class, ['label' => "Nom d'utilisateur"])
-			->add('email', EmailType::class, ['label' => 'Adresse email'])
-			->add('password', PasswordType::class, ['label' => 'Mot de passe'])
-			->add('verifyPassword', PasswordType::class, ['label' => 'Vérification de mot de passe', 'mapped' => false])
+			->add('username', TextType::class, ['label' => "Nom d'utilisateur", 'attr' => ['class' => 'form-control form-control-sm']])
+			->add('email', EmailType::class, ['label' => 'Adresse email', 'attr' => ['class' => 'form-control form-control-sm']])
+			->add('password', PasswordType::class, ['label' => 'Mot de passe', 'attr' => ['class' => 'form-control form-control-sm']])
+			->add('verifyPassword', PasswordType::class, ['label' => 'Vérification de mot de passe', 'mapped' => false, 
+				'attr' => ['class' => 'form-control form-control-sm']])
 			/*->add('roles', ChoiceType::class, ['label' => "Type d'utilisateur", 
 				'choices' => ['Utilisateur' => ['ROLE_USER'], 'Administrateur' => ['ROLE_ADMIN']]])*/
 			->add('roles', ChoiceType::class, ['label' => "Type d'utilisateur", 
-				'choices' => ['Utilisateur' => 'ROLE_USER', 'Administrateur' => 'ROLE_ADMIN']])
+				'choices' => ['Utilisateur' => 'ROLE_USER', 'Administrateur' => 'ROLE_ADMIN'], 'attr' => ['class' => 'custom-select custom-select-sm']])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 
 				'attr' => ['class' => 'btn btn-primary']]);
 

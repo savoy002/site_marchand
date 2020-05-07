@@ -92,24 +92,44 @@ class AdminController extends AbstractController
                 }
             }
 
+            if($request->request->get('orderBy_sortBy') != "" && $request->request->get('orderBy_sortBy') !== null) {
+                $criteria['orderBy'] = 
+                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
+            }
+
             if($page != "" && $page !== null) {
                 if($page === 'Début') {
                     $criteria['page'] = 0;
+                    $page = 1;
                 } else if($page === 'Fin') {
-                    $criteria['page'] = $number_pages-1;
+                    $criteria['page'] = $number_pages - 1;
+                    $page = $number_pages;
                 } else {
                     $criteria['page'] = intval($page) - 1;
                 }
-            }
+            } else
+                $page = 1;
 
             $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
         } else {
             $criteria['page'] = 0;
+            $page = 1;
             $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
         }
 
     	return $this->render('admin/users/users.html.twig', ['users' => $users, 'number_pages' => $number_pages, 'page' => $page, 
             'request' => $former_request, 'errors' => $errors]);
+    }
+
+    /**
+     * @Route("/admin/user/{id}/", name="user")
+     */
+    public function showUser($id)
+    {
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy( ['id' => $id, 'delete' => false] );
+        return $this->render('admin/users/user.html.twig', ['user' => $user]);
     }
 
     /**
@@ -145,16 +165,6 @@ class AdminController extends AbstractController
             return $this->render('admin/users/create_user.html.twig', ['form' => $form->createView(), 'errors' => $errors]);
         }
     }
-
-    /**
-     * @Route("/admin/users/{id}/", name="user")
-     */
-    public function showUser($id)
-    {
-    	$user = $this->getDoctrine()->getRepository(User::class)->findOneBy( ['id' => $id, 'delete' => false] );
-    	return $this->render('admin/users/user.html.twig', ['user' => $user]);
-    }
-
 
     /**
      * @Route("/admin/users/{id}/valid", name="valid_user")

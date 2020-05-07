@@ -12,11 +12,60 @@
 			{% endfor %}
 		</ul>
 	{% endif %}
+	<div class="row">
+		<div class="offset-sm-1">
+		<h1>Ajouter un utilisateur.</h1></div>
+	</div>
 
-	<h1>Ajouter un utilisateur.</h1>
+	{#{{ form(form) }}#}
 
-	{{ form(form) }}
+	{{ form_start(form) }}
+	<div class="row justify-content-around form-div">
+		<div class="col-5">
+			{{ form_label(form.username) }}
+			{{ form_errors(form.username) }}
+			{{ form_widget(form.username) }}
+		</div>
+		<div class="col-5">
+			{{ form_label(form.email) }}
+			{{ form_errors(form.email) }}
+			{{ form_widget(form.email) }}
+		</div>
+	</div>
 
-	<a href="{{ path("users") }}"><button class="btn btn-danger">Annuler</button></a>
+	<div class="row justify-content-around form-div">
+		<div class="col-5">
+			{{ form_label(form.password) }}
+			{{ form_errors(form.password) }}
+			{{ form_widget(form.password) }}
+		</div>
+		<div class="col-5">
+			{{ form_label(form.verifyPassword) }}
+			{{ form_errors(form.verifyPassword) }}
+			{{ form_widget(form.verifyPassword) }}
+		</div>
+	</div>
+
+	<div class="row justify-content-around form-div">
+		<div class="col-5">
+			{{ form_label(form.roles) }}
+			{{ form_errors(form.roles) }}
+			{{ form_widget(form.roles) }}
+		</div>
+		<div class="col-5"></div>
+	</div>
+	<div class="row justify-content-start form-div-button">
+		<div class="offset-sm-1">
+			{{ form_row(form.submit) }}
+		</div>
+		<div class="col-1">
+			<a href="{{ path("users") }}" class="btn btn-danger">Annuler</a>
+		</div>
+	</div>
+
+	{{ form_end(form) }}
+
+
+	
 
 {% endblock %}

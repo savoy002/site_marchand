@@ -8,11 +8,11 @@
         {{ encore_entry_link_tags('app') }}
     </head>
     <body>
+        {% include('structure/store/header.html.twig') %}
         <div class="container">
-        	{% include('structure/store/header.html.twig') %}
             {% block body %}{% endblock %}
-            {% block javascripts %}{% endblock %}
-            {% include('structure/footer.html.twig') %}
         </div>
+        {% include('structure/footer.html.twig') %}
+        {% block javascripts %}{% endblock %}
     </body>
 </html>
