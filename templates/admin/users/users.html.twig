@@ -18,7 +18,7 @@
 
 		<div class="row  justify-content-center ">
 
-			<form class="form" action="{{ path("users") }}" method="post">
+			<form class="form " action="{{ path("users") }}" method="post">
 
 				{% if errors is not empty %}
 					<ul>
@@ -32,12 +32,12 @@
 
 				<input hidden="hidden" name="research" value="research">
 				<div class="row form-div justify-content-around">
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="usersname">Nom d'utilisateur</label>
 						<input class="form-control form-control-sm" name="username" type="text" 
 							{{ (request.username is defined)?('value=' ~ request.username ) }}>
 					</div>
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="type_research_username">Type de recherche</label>
 						<select class="custom-select custom-select-sm" name="type_research_username">
 							<option value="contain" 
@@ -52,12 +52,12 @@
 					</div>
 				</div>
 				<div class="row form-div justify-content-around">
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="email">Adresse mail</label>
 						<input class="form-control form-control-sm" name="email" type="text"
 							{{ (request.email is defined)?('value=' ~ request.email ) }} >
 					</div>
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="type_research_email">Type de recherche</label>
 						<select class="custom-select custom-select-sm" name="type_research_email">
 							<option value="contain" 
@@ -72,7 +72,7 @@
 					</div>
 				</div>
 				<div class="row form-div justify-content-around">
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="roles">Roles</label>
 						<select class="custom-select custom-select-sm" name="roles">
 							<option value="">N'importe</option>
@@ -84,7 +84,7 @@
 							</option>
 						</select>
 					</div>
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="valid">Vérifié</label>
 						<select class="custom-select custom-select-sm" name="valid">
 							<option value="">N'importe</option>
@@ -98,7 +98,7 @@
 					</div>
 				</div>
 				<div class="row form-div justify-content-around">
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="createdBy">Crée par</label>
 						<select class="custom-select custom-select-sm" name="createdBy">
 							<option value="">N'importe</option>
@@ -110,22 +110,22 @@
 							</option>
 						</select>
 					</div>
-					<div class="col-5"></div>
+					<div class="col-5 col-xs-12"></div>
 				</div>
 				<div class="row form-div justify-content-around">
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="createdBefore">Crée avant le </label>
 						<input class="form-control form-control-sm" name="createdBefore" type="date" 
 							{{ (request.createdBefore is defined)?('value=' ~ request.createdBefore ) }} >
 					</div>
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="createdAfter">Crée après le </label>
 						<input class="form-control form-control-sm" name="createdAfter" type="date" 
 							{{ (request.createdAfter is defined)?('value=' ~ request.createdAfter ) }} >
 					</div>
 				</div>
 				<div class="row justify-content-around form-div">
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="orderBy_sortBy">Ordonné par</label>
 						<select class="custom-select custom-select-sm" name="orderBy_sortBy">
 							<option value="">N'importe</option>
@@ -146,7 +146,7 @@
 							</option>
 						</select>
 					</div>
-					<div class="col-5">
+					<div class="col-5 col-xs-12">
 						<label for="orderBy_sortDir">Sens</label>
 						<select class="custom-select custom-select-sm" name="orderBy_sortDir">
 							<option value="ASC" {{ (request.orderBy_sortDir is defined)?((request.orderBy_sortDir == 'ASC')? ('selected') ) }}>
@@ -168,38 +168,47 @@
 				{# Début des résultats de recherches #}
 
 				<div class="row justify-content-center">
-					<table class="table table-bordered">
-						<thead class="thead-dark">
-							<tr>
-								<th>Image</th><th>Nom d'utilisateur</th><th>Roles</th><th>Adresse mail</th><th>Date de création</th><th>Vérifié</th>
-								<th>Voir</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for user in users %}
-								<tr>
-									<td>
-										{% if user.imgFileName != null %}
-											<img src="{{ asset('img/uploads/User/' ~ user.imgFileName) }}" width="60" height="60">
-										{% endif %}
-									</td>
-									<td>{{ user.username }}</td>
-									<td>
-										{% if 'ROLE_ADMIN' in user.roles %}
-											{% if user.superAdmin %} Super administrateur {% else %} Administrateur {% endif %} 
-										{% else %} 
-										 	Utilisateur 
-										{% endif %}
-									</td>
-									<td>{{ user.email }}</td>
-									<td>{{ user.createAt|date("d/m/Y") }}</td>
-									<td>{{ user.valid?'Vérifié':'Non vérifié' }}</td>
-									<td><a href="{{ path("user",  {id:user.id}) }}" class="btn btn-info">Voir</a></td>
-								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
-					<div>
+					{% if users|length > 0 %}
+						<div class="row">
+							<table class="table table-bordered">
+								<thead class="thead-dark">
+									<tr>
+										<th>Image</th><th>Nom d'utilisateur</th><th>Roles</th><th>Adresse mail</th><th>Date de création</th><th>Vérifié</th>
+										<th>Voir</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for user in users %}
+										<tr>
+											<td>
+												{% if user.imgFileName != null %}
+													<img src="{{ asset('img/uploads/User/' ~ user.imgFileName) }}" width="60" height="60">
+												{% endif %}
+											</td>
+											<td>{{ user.username }}</td>
+											<td>
+												{% if 'ROLE_ADMIN' in user.roles %}
+													{% if user.superAdmin %} Super administrateur {% else %} Administrateur {% endif %} 
+												{% else %} 
+												 	Utilisateur 
+												{% endif %}
+											</td>
+											<td>{{ user.email }}</td>
+											<td>{{ user.createAt|date("d/m/Y") }}</td>
+											<td>{{ user.valid?'Vérifié':'Non vérifié' }}</td>
+											<td><a href="{{ path("user",  {id:user.id}) }}" class="btn btn-info">Voir</a></td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						<div class="w-100"></div>
+					{% else %}
+						<div class="col-12 justify-content-center">
+							<p>Aucun utilisateur trouvé.</p>
+						</div>
+					{% endif %}
+					<div class="{{ (users|length > 0)?('col offset-sm-1'):('col-12') }}">
 						<a href="{{ path("admin_create_user") }}" class="btn btn-primary">Créer un utilisateur</a>
 					</div>
 				</div>
@@ -208,7 +217,7 @@
 
 				{# Début des paginations #}
 
-				<div class="row justify-content-around">
+				<div class="row justify-content-around ">
 					<div class="col-5">
 						<nav aria-label="Page navigation example">
 						  <ul class="pagination">
