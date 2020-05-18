@@ -7,8 +7,13 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
+use App\Entity\Product\Category;
+use App\Entity\Product\Product;
+use App\Entity\Product\VariantProduct;
 use App\Entity\User\User;
 use App\Form\Type\User\UserType;
+use App\Form\Type\Product\CategoryType;
+
 
 
 class AdminController extends AbstractController
@@ -164,6 +169,7 @@ class AdminController extends AbstractController
             }
             return $this->render('admin/users/create_user.html.twig', ['form' => $form->createView(), 'errors' => $errors]);
         }
+        return $this->redirectToRoute('admin');
     }
 
     /**
@@ -196,7 +202,157 @@ class AdminController extends AbstractController
     	return $this->redirectToRoute('users');
     }
 
-    
+    /**
+     * @Route("/admin/categories", name="categories")
+     */
+    public function categories(Request $request) 
+    {
+        $categories = $this->getDoctrine()->getRepository(Category::class)->findAll();
+
+        return $this->render('admin/products/categories/categories.html.twig', ['categories' => $categories]);
+    }
+
+    /**
+     * @Route("/admin/category/{id}", name="category")
+     */
+    public function caterory($id) 
+    {
+        $category = $this->getDoctrine()->getRepository(Category::class)->find($id);
+
+        return $this->render('admin/products/categories/category.html.twig', ['category' => $category]);
+    }
+
+    /**
+     * @Route("/admin/categories/create", name="create_category")
+     */
+    public function createCategory(Request $request) 
+    {
+        $category = new Category();
+        $form = $this->createForm(CategoryType::class, $category);
+        $form->handleRequest($request);
+        $errors = array();
+        if($form->isSubmitted() && $form->isValid()) {
+            $valid = true;
+            if($category->getCode() === null || $category->getCode() === "") {
+                $code = str_replace(' ', '_', $category->getName());
+                $category->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
+            }
+            var_dump($category->getCode());
+            die();
+            $exist = $this->getDoctrine()->getRepository(Category::class)->findBy(['code' => $category->getCode()]);
+            if(!empty($exist)) {
+                $errors[] = "Le code de la catégorie existe déjà.";
+                $valid = false;
+            }
+            if($valid) {
+                $image = $form->get('image')->getData();
+                if($image) {
+                    $originalImagename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
+                    $safeImageName = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalImagename);
+                    $newImagename = $safeImageName.'-'.uniqid().'.'.$image->guessExtension();
+                    try {
+                        $image->move($this->getParameter('category_image_directory'), $newImagename);
+                    } catch(FileException $e) {
+                        return $this->render('store/produts/categories/create_category.html.twig', ['form' => $form->createView(), 'errors' => $e]);
+                    }
+                }
+                $this->getDoctrine()->getManager()->persist($category);
+                $this->getDoctrine()->getManager()->flush();
+                return $this->redirectToRoute("categories");
+            }
+        }
+        return $this->render('admin/products/categories/create_category.html.twig', ['form' => $form->createView(), 'errors' => $errors]);
+    }
+
+    /**
+     * @Route("/admin/category/{id}/modify", name="modify_category")
+     */
+    public function modifyCategory(Request $request, $id) 
+    {
+        return $this->render('admin/index.html.twig', [
+            'controller_name' => 'AdminController',
+        ]);
+    }
+
+    /**
+     * @Route("/admin/category/{id}/activate", name="activate_disactivate_category")
+     */
+    public function activateDisactivateCategory($id)
+    {
+        return $this->render('admin/index.html.twig', [
+            'controller_name' => 'AdminController',
+        ]);
+    }
+
+    /**
+     * @Route("/admin/category/{id}/delete", name="delete_category")
+     */
+    public function deleteCategory($id) 
+    {
+        return $this->render('admin/index.html.twig', [
+            'controller_name' => 'AdminController',
+        ]);
+    }
+
+    /*public function products(Request $request) 
+    {
+        return null;
+    }
+
+    public function product()
+    {
+        return null;
+    }
+
+    public function createProduct(Request $request) 
+    {
+        return null;
+    }
+
+    public function modifyProduct(Request $request, $id)
+    {
+        return null;
+    }
+
+    public function activateDisactivateProduct($id)
+    {
+        return null;
+    }
+
+    public function deleteProduct($id)
+    {
+        return null;
+    }
+
+    public function variantsProducts(Request $request)
+    {
+        return null;
+    }
+
+    public function variantProduct()
+    {
+        return null;
+    }
+
+    public function createVariantProduct(Reqsuest $request)
+    {
+        return null;
+    }
+
+    public function modifyVariantProduct(Request $request, $id)
+    {
+        return null;
+    }
+
+    public function activateDisactivateVariantProduct($id)
+    {
+        return null;
+    }
+
+    public function deleteVariantProduct($id)
+    {
+        return null;
+    }*/
 
 
 }

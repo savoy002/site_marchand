@@ -11,14 +11,19 @@
 		</div>
 
 		<div class="row">
-			<div class="offset-sm-1">
-				<p>Administrateur - Utilisateurs </p>
+			<div class="offset-sm-1"
+				<nav aria-label="breadcrumb">
+				  <ol class="breadcrumb">
+				    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+				    <li class="breadcrumb-item active" aria-current="page">Utilisateurs</li>
+				  </ol>
+				</nav>
 			</div>
 		</div>
 
 		<div class="row  justify-content-center ">
 
-			<form class="form " action="{{ path("users") }}" method="post">
+			<form class="form" action="{{ path("users") }}" method="post">
 
 				{% if errors is not empty %}
 					<ul>

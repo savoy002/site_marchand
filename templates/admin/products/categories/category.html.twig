@@ -1,0 +1,53 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} {{ category.name }} {% endblock %}
+
+{% block body %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>{{ category.name }}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("categories") }}">Catégories</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row  justify-content-start">
+		<div class="col-md-10 offset-md-1">
+
+			<table class="table table-bordered">
+				<thead class="thead-dark">
+					<tr><th></th><th>Nom</th><th>Code</th><th>Activitée</th></tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>
+							{% if category.imgFileName != null %}
+								<img src="{{ asset('img/uploads/Categories/' ~ category.imgFileName) }}" width="60" height="60">
+							{% endif %}
+						</td>
+						<td>{{ category.name }}</td>
+						<td>{{ category.code }}</td>
+						<td>{{ (category.activate)?('Actif'):('Inactif') }}</td>
+					</tr>
+				</tbody>
+			</table>
+			
+		</div>
+	</div>
+
+
+
+
+{% endblock %}
+

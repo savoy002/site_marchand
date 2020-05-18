@@ -4,6 +4,9 @@ namespace App\Entity\Product;
 
 use App\Entity\Command\PieceCommand;
 use App\Entity\User\Comment;
+use App\Entity\Product\Category;
+use App\Entity\Product\Product;
+
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -29,7 +32,7 @@ class VariantProduct
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="img_var_prod")
      */
-    private $img;
+    private $imgFileName;
 
     /**
      * @ORM\Column(type="text", nullable=true, name="desc_var_prod")
@@ -47,10 +50,30 @@ class VariantProduct
     private $code;
 
     /**
+     * @ORM\Column(type="integer")
+     */
+    private $price;
+
+    /**
+     * @ORM\Column(type="boolean", name="activate_var_prod", options={"default":false})
+     */
+    private $activate;
+
+    /**
+     * @ORM\Column(type="boolean", name="deleted_var_prod", options={"default":false})
+     */
+    private $delete;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Product\Product", inversedBy="variantsProducts")
      * @ORM\JoinColumn(name="prod_id_prod_var", referencedColumnName="id")
      */
     private $product;
+    
+    /**
+     * @ORM\ManyToMany(targetEntity="App\Entity\Product\Category", mappedBy="variantsProducts")
+     */
+    private $categories;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Command\PieceCommand", mappedBy="product")
@@ -64,6 +87,9 @@ class VariantProduct
 
     public function __construct()
     {
+        $this->activate = false;
+        $this->delete = false;
+        $this->categories = new ArrayCollection();
         $this->commands = new ArrayCollection();
         $this->comments = new ArrayCollection();
     }
@@ -85,14 +111,14 @@ class VariantProduct
         return $this;
     }
 
-    public function getImg(): ?string
+    public function getImgFileName(): ?string
     {
-        return $this->img;
+        return $this->imgFileName;
     }
 
-    public function setImg(?string $img): self
+    public function setImgFileName(?string $imgFileName): self
     {
-        $this->img = $img;
+        $this->imgFileName = $imgFileName;
 
         return $this;
     }
@@ -133,6 +159,42 @@ class VariantProduct
         return $this;
     }
 
+    public function getPrice(): ?int
+    {
+        return $this->price;
+    }
+
+    public function setPrice(int $price)
+    {
+        $this->price = $price;
+
+        return $this;
+    }
+
+    public function getActivate(): bool
+    {
+        return $this->activate;
+    }
+
+    public function setActivate(bool $activate): self
+    {
+        $this->activate = $activate;
+
+        return $this;
+    }
+
+    public function getDelete(): bool
+    {
+        return $this->delete;
+    }
+
+    public function setDelete(bool $delete): self
+    {
+        $this->delete = $delete;
+
+        return $this;
+    }
+
     public function getProduct(): ?Product
     {
         return $this->product;
@@ -142,6 +204,29 @@ class VariantProduct
     {
         $this->product = $product;
 
+        return $this;
+    }
+
+    public function getCategories(): Collection
+    {
+        return $this->categories;
+    }
+
+    public function addCategory(Category $category): self
+    {
+        if(!$this->categories->contains($category)) {
+            $this->categories[] = $category;
+
+        }
+        return $this;
+    }
+
+    public function removeCategory(Category $category): self
+    {
+        if($this->categories->contains($category)) {
+            $this->categories->removeElement($category);
+
+        }
         return $this;
     }
 

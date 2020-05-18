@@ -6,6 +6,9 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+use App\Entity\Product\Category;
+use App\Entity\Product\VariantProduct;
+
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Product\ProductRepository")
  * @ORM\Table(name="Product")
@@ -27,7 +30,7 @@ class Product
     /**
      * @ORM\Column(type="string", length=255, nullable=true, name="img_prod")
      */
-    private $img;
+    private $imgFileName;
 
     /**
      * @ORM\Column(type="text", nullable=true, name="desc_prod")
@@ -45,6 +48,16 @@ class Product
     private $code;
 
     /**
+     * @ORM\Column(type="boolean", name="activate_prod", options={"default":false})
+     */
+    private $activate;
+
+    /**
+     * @ORM\Column(type="boolean", name="deleted_prod", options={"default":false})
+     */
+    private $delete;
+
+    /**
      * @ORM\ManyToMany(targetEntity="App\Entity\Product\Category", mappedBy="products")
      */
     private $categories;
@@ -56,6 +69,8 @@ class Product
 
     public function __construct()
     {
+        $this->activate = false;
+        $this->delete = false;
         $this->categories = new ArrayCollection();
         $this->variantsProducts = new ArrayCollection();
     }
@@ -77,14 +92,14 @@ class Product
         return $this;
     }
 
-    public function getImg(): ?string
+    public function getImgFileName(): ?string
     {
-        return $this->img;
+        return $this->imgFileName;
     }
 
-    public function setImg(string $img): self
+    public function setImgFileName(string $imgFileName): self
     {
-        $this->img = $img;
+        $this->imgFileName = $imgFileName;
 
         return $this;
     }
@@ -113,6 +128,13 @@ class Product
         return $this;
     }
 
+    public function calculStock(): self {
+        $this->stock = 0;
+        foreach($this->variantsProducts as $variant_product)
+            $this->stock += $variant_product->getStock();
+        return $this;
+    }
+
     public function getCode(): ?string
     {
         return $this->code;
@@ -121,6 +143,30 @@ class Product
     public function setCode(string $code): self
     {
         $this->code = $code;
+
+        return $this;
+    }
+
+    public function getActivate(): bool
+    {
+        return $this->activate;
+    }
+
+    public function setActivate(bool $activate): self
+    {
+        $this->activate = $activate;
+
+        return $this;
+    }
+
+    public function getDelete(): bool
+    {
+        return $this->delete;
+    }
+
+    public function setDelete(bool $delete): self
+    {
+        $this->delete = $delete;
 
         return $this;
     }
@@ -161,7 +207,7 @@ class Product
         return $this->variantsProducts;
     }
 
-    public function addVariantsProduct(VariantProduct $variantsProduct): self
+    public function addVariantProduct(VariantProduct $variantsProduct): self
     {
         if (!$this->variantsProducts->contains($variantsProduct)) {
             $this->variantsProducts[] = $variantsProduct;
@@ -171,7 +217,7 @@ class Product
         return $this;
     }
 
-    public function removeVariantsProduct(VariantProduct $variantsProduct): self
+    public function removeVariantProduct(VariantProduct $variantsProduct): self
     {
         if ($this->variantsProducts->contains($variantsProduct)) {
             $this->variantsProducts->removeElement($variantsProduct);

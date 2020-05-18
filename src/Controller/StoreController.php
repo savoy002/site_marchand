@@ -53,9 +53,19 @@ class StoreController extends AbstractController
     }
 
     /**
+     * @Route("/store/product", name="store_product")
+     */
+    public function showArticles(Request $request)
+    {
+        $var_products = $this->getDoctrine()->getRepository(VariantProduct::class)->findAll();
+        
+        return $this->render('store/index.html.twig', ['products' => $var_products]);
+    }
+
+    /**
      * @Route("/store/user", name="store_user")
      */
-    public function info_user()
+    public function infoUser()
     {
         if($this->getUser() !== null)
             return $this->render('store/user/info_user.html.twig', ['user' => $this->getUser()]);

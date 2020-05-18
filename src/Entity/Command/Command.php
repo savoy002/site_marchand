@@ -6,6 +6,14 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
+use DateTime;
+
+use App\Entity\Command\Adress;
+use App\Entity\Command\Delivery;
+use App\Entity\Command\PieceCommand;
+use App\Entity\Product\VariantProduct;
+
+
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Command\CommandRepository")
  * @ORM\Table(name="Command")
@@ -30,6 +38,16 @@ class Command
     private $completed;
 
     /**
+     * @ORM\Column(type="datetime", nullable=true)
+     */
+    private $dateReceive;
+
+    /**
+     * @ORM\Column(type="integer")
+     */
+    private $priceTotal;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Command\Adress", inversedBy="commands")
      * @ORM\JoinColumn(name="adr_id_com", referencedColumnName="id")
      */
@@ -48,6 +66,7 @@ class Command
 
     public function __construct()
     {
+        $this->priceTotal = null;
         $this->placeDel = new ArrayCollection();
         $this->delivery = new ArrayCollection();
         $this->products = new ArrayCollection();
@@ -82,15 +101,30 @@ class Command
         return $this;
     }
 
-    public function getIsDel(): ?bool
+    public function getDateReceive(): ?DateTime
     {
-        return $this->isDel;
+        return $this->dateReceive;
     }
 
-    public function setIsDel(bool $isDel): self
+    public function setDateReceive(DateTime $dateReceive)
     {
-        $this->isDel = $isDel;
+        $this->dateReceive = $dateReceive;
 
+        return $this;
+    }
+
+    public function getPriceTotal(): ?int
+    {
+        return $this->priceTotal;
+    }
+
+    public function createPriceTotal(): self
+    {
+        if($priceTotal === null) {
+            foreach ($this->getProducts as $pieceCommand)
+                $this->priceTotal += $pieceCommand->getNbProducts * $pieceCommand->getProduct()->getPrice();
+        }
+        
         return $this;
     }
 

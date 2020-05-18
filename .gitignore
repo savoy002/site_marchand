@@ -21,10 +21,8 @@
 
 ###> symfony/webpack-encore-bundle ###
 /node_modules/
-/public/build/entrypoints.json
-/public/build/manifest.json
-/public/build/runtime.js
-/public/img/uploads/User/
+/public/build/
+/public/img/uploads/
 
 npm-debug.log
 yarn-error.log

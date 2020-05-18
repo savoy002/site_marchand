@@ -1,7 +1,7 @@
 
 {% extends 'base_admin.html.twig' %}
 
-{% block title %} Ajout un utilisateur {% endblock %}
+{% block title %} Ajout d'utilisateur {% endblock %}
 
 {% block body %} 
 
@@ -12,12 +12,23 @@
 			{% endfor %}
 		</ul>
 	{% endif %}
+
 	<div class="row">
 		<div class="offset-sm-1">
 		<h1>Ajouter un utilisateur.</h1></div>
 	</div>
 
-	{#{{ form(form) }}#}
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("users") }}">Utilisateurs</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Ajouter un utilisateur</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
 
 	{{ form_start(form) }}
 	<div class="row justify-content-around form-div">
@@ -64,8 +75,5 @@
 	</div>
 
 	{{ form_end(form) }}
-
-
-	
 
 {% endblock %}

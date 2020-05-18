@@ -4,88 +4,105 @@
 
 {% block body %}
 
-	<div class="content">
-
-		<h1>{{ user.username }}</h1>
-
-		<p>Administrateur - <a href="{{ path("users") }}"> Utilisateurs </a> - Utilisateur</p>
-
-		<table class="table">
-			<tr>
-				<th></th><th>Nom d'utilisateur</th><th>Roles</th><th>Adresse mail</th><th>Date de création</th><th>Vérifié</th>
-			</tr>
-			<tr>
-				<td>{% if user.imgFileName != null %}<img src="{{ asset('img/uploads/User/' ~ user.imgFileName) }}" width="60" height="60">{% endif %}</td>
-				<td>{{ user.username }}</td>
-				<td>
-					{% if 'ROLE_ADMIN' in user.roles %}
-						{% if user.superAdmin %} Super administrateur {% else %} Administrateur {% endif %} 
-					{% else %} 
-					 	Utilisateur 
-					{% endif %}
-				</td>
-				<td>{{ user.email }}</td>
-				<td>{{ user.createAt|date("d/m/Y") }}</td>
-				<td>{{ user.valid?'Vérifié':'Non vérifié' }}</td>
-			</tr>
-		</table>
-
-		<div class="row justify-content-start">
-			<div class="col-md-4 offset-md-1">
-
-				<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Supprimer</button>
-				
-				<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
-				  <div class="modal-dialog modal-dialog-centered" role="document">
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalCenterTitle">Supprimer</h5>
-				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				          <span aria-hidden="true">&times;</span>
-				        </button>
-				      </div>
-				      <div class="modal-body">
-				        <p>Etes vous sûr de supprimer l'utilisateur {{ user.username }} ?</p>
-				      </div>
-				      <div class="modal-footer">
-				      	<a href="{{ path("delete_user", {id:user.id}) }}"><button class="btn btn-danger">Oui</button></a>
-				        <button class="btn btn-primary" data-dismiss="modal">Non</button>
-				      </div>
-				    </div>
-				  </div>
-				</div>
-
-				<button type="button" class="btn btn-{{ user.valid ? 'danger' : 'info' }}" data-toggle="modal" data-target="#desactivate">{{ user.valid ? 'Désactiver' : 'Activer' }}</button>
-
-				<div class="modal fade" id="desactivate" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
-				  <div class="modal-dialog modal-dialog-centered" role="document">
-				    <div class="modal-content">
-				      <div class="modal-header">
-				        <h5 class="modal-title" id="exampleModalCenterTitle">{{ user.valid  ? 'Désactiver' : 'Activer' }}</h5>
-				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-				          <span aria-hidden="true">&times;</span>
-				        </button>
-				      </div>
-				      <div class="modal-body">
-				        <p>Etes vous sûr de vouloir {{ user.valid ? 'désactiver' : 'activer' }} l'utilisateur {{ user.username }} ?</p>
-				      </div>
-				      <div class="modal-footer">
-				      	<a href="{{ path("valid_user", {id:user.id}) }}"><button class="btn btn-danger">Oui</button></a>
-				        <button class="btn btn-primary" data-dismiss="modal">Non</button>
-				      </div>
-				    </div>
-				  </div>
-				</div>
-
-				{#
-				<a href="{{ path("delete_user", {id:user.id}) }}"><button class="btn btn-danger">Désactiver</button></a>
-				{% if not user.valid %}
-					<a href="{{ path("valid_user", {id:user.id}) }}"><button class="btn btn-info">Valider</button></a>
-				{% endif %}
-				#}
-			</div>
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>{{ user.username }}</h1>
 		</div>
-
 	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("users") }}">Utilisateurs</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">{{ user.username }}</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row justify-content-start">
+		<div class="col-md-10 offset-md-1">
+
+			<table class="table table-bordered">
+				<thead class="thead-dark">
+				<tr>
+					<th></th><th>Nom d'utilisateur</th><th>Roles</th><th>Adresse mail</th><th>Date de création</th><th>Vérifié</th>
+				</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>{% if user.imgFileName != null %}<img src="{{ asset('img/uploads/User/' ~ user.imgFileName) }}" width="60" height="60">{% endif %}</td>
+						<td>{{ user.username }}</td>
+						<td>
+							{% if 'ROLE_ADMIN' in user.roles %}
+								{% if user.superAdmin %} Super administrateur {% else %} Administrateur {% endif %} 
+							{% else %} 
+							 	Utilisateur 
+							{% endif %}
+						</td>
+						<td>{{ user.email }}</td>
+						<td>{{ user.createAt|date("d/m/Y") }}</td>
+						<td>{{ user.valid?'Vérifié':'Non vérifié' }}</td>
+					</tr>
+				</tbody>
+			</table>
+
+		</div>
+	</div>
+
+
+	<div class="row justify-content-start">
+		<div class="col-md-4 offset-md-1">
+
+			<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Supprimer</button>
+			
+			<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+			  <div class="modal-dialog modal-dialog-centered" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalCenterTitle">Supprimer</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			        <p>Etes vous sûr de supprimer l'utilisateur {{ user.username }} ?</p>
+			      </div>
+			      <div class="modal-footer">
+			      	<a href="{{ path("delete_user", {id:user.id}) }}"><button class="btn btn-danger">Oui</button></a>
+			        <button class="btn btn-primary" data-dismiss="modal">Non</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+
+			<button type="button" class="btn btn-{{ user.valid ? 'danger' : 'info' }}" data-toggle="modal" data-target="#desactivate">{{ user.valid ? 'Désactiver' : 'Activer' }}</button>
+
+			<div class="modal fade" id="desactivate" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+			  <div class="modal-dialog modal-dialog-centered" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalCenterTitle">{{ user.valid  ? 'Désactiver' : 'Activer' }}</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			        <p>Etes vous sûr de vouloir {{ user.valid ? 'désactiver' : 'activer' }} l'utilisateur {{ user.username }} ?</p>
+			      </div>
+			      <div class="modal-footer">
+			      	<a href="{{ path("valid_user", {id:user.id}) }}"><button class="btn btn-danger">Oui</button></a>
+			        <button class="btn btn-primary" data-dismiss="modal">Non</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+
+
+		</div>
+	</div>
+
 
 {% endblock %}
