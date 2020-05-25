@@ -6,6 +6,8 @@
 parameters:
     user_image_directory: '%kernel.project_dir%/public/img/uploads/User'
     category_image_directory: '%kernel.project_dir%/public/img/uploads/Product/Category'
+    product_image_directory: '%kernel.project_dir%/public/img/uploads/Product/Product'
+    variant_product_image_directory: '%kernel.project_dir%/public/img/uploads/Product/VariantProduct'
 
 
 services:

@@ -206,7 +206,6 @@ class StoreController extends AbstractController
                             return $this->redirectToRoute('store_user', ['errors' => $e]);
                         }
                     }
-
                     $user = $this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getId());
                     $user->setImgFileName($newImagename);
                     $this->getDoctrine()->getManager()->persist($user);

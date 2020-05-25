@@ -20,7 +20,7 @@ class UploadImageType extends AbstractType
 			'constraints' => [
 				new File(
 					['maxSize' => '1024k', 'mimeTypes' => ['image/png', 'image/jpeg', 'image/jpg'],
-						'mimeTypesMessage' => 'Veillez importer une image de format png.']
+						'mimeTypesMessage' => 'Veillez importer une image de format png, jpeg ou jpg.']
 				)
 			]
 		])

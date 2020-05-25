@@ -1,6 +1,6 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block title %} Categories {% endblock %}
+{% block title %} Catégories {% endblock %}
 
 {% block body %}
 
@@ -15,6 +15,7 @@
 				<nav aria-label="breadcrumb">
 				  <ol class="breadcrumb">
 				    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+				    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
 				    <li class="breadcrumb-item active" aria-current="page">Catégories</li>
 				  </ol>
 				</nav>
@@ -35,7 +36,7 @@
 									<tr>
 										<td>
 											{% if category.imgFileName != null %}
-												<img src="{{ asset('img/uploads/Categories/' ~ category.imgFileName) }}" width="60" height="60">
+												<img src="{{ asset('img/uploads/Product/Category/' ~ category.imgFileName) }}" width="60" height="60">
 											{% endif %}
 										</td>
 										<td>{{ category.name }}</td>

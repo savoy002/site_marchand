@@ -5,7 +5,7 @@
 				<a href="{{ path("users") }}"><button class="btn btn-info">Utilisateurs</button></a>
 				<a href="#"><button class="btn btn-info">Commandes</button></a>
 				<a href="#"><button class="btn btn-info">Entreprises de livraison</button></a>
-				<a href="#"><button class="btn btn-info">Produits</button></a>
+				<a href="{{ path("menu_product") }}"><button class="btn btn-info">Produits</button></a>
 			</div>
 			<div class="col-2">
 				{% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}

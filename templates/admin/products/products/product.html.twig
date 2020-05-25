@@ -1,12 +1,12 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block title %} {{ category.name }} {% endblock %}
+{% block title %} {{ product.name }} {% endblock %}
 
 {% block body %}
-
+	
 	<div class="row">
 		<div class="offset-sm-1">
-			<h1>{{ category.name }}</h1>
+			<h1>{{ product.name }}</h1>
 		</div>
 	</div>
 
@@ -16,46 +16,48 @@
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("categories") }}">Catégories</a></li>
-			    <li class="breadcrumb-item active" aria-current="page">{{ category.name }}</li>
+			    <li class="breadcrumb-item"><a href="{{ path("products") }}">Produits</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Produits</li>
 			  </ol>
 			</nav>
 		</div>
 	</div>
 
-	<div class="row  justify-content-start">
+	<div class="row justify-content-center">
 		<div class="col-md-10 offset-md-1">
 
 			<table class="table table-bordered">
 				<thead class="thead-dark">
-					<tr><th></th><th>Nom</th><th>Code</th><th>Activitée</th></tr>
+					<tr><th></th><th>Nom</th><th>Code</th><th>Description</th><th>Stock</th><th>Activitée</th></tr>
 				</thead>
 				<tbody>
 					<tr>
 						<td>
-							{% if category.imgFileName != null %}
-								<img src="{{ asset('img/uploads/Product/Category/' ~ category.imgFileName) }}" width="60" height="60">
+							{% if product.imgFileName != null %}
+								<img src="{{ asset('img/uploads/Product/Product/' ~ product.imgFileName) }}" width="60" height="60">
 							{% endif %}
 						</td>
-						<td>{{ category.name }}</td>
-						<td>{{ category.code }}</td>
-						<td>{{ (category.activate)?('Actif'):('Inactif') }}</td>
+						<td>{{ product.name }}</td>
+						<td>{{ product.code }}</td>
+						<td>{{ product.description }}</td>
+						<td>{{ product.stock }}</td>
+						<td>{{ (product.activate)?('Actif'):('Inactif') }}</td>
 					</tr>
 				</tbody>
 			</table>
-			
+
 		</div>
 	</div>
 
 	<div class="row justify-content-start">
 		<div class="col-md-4 offset-md-1">
 
-			<a href="{{ path("modify_category", {id:category.id}) }}" class="btn btn-primary">Modifier</a>
+			<a href="{{ path("modify_product", {id:product.id}) }}" class="btn btn-primary">Modifier</a>
 
-			<a href="{{ path("activate_disactivate_category", {id:category.id}) }}" class="btn btn-danger">
-				{{ (category.activate)?("Désactiver"):("Activer") }}
+			<a href="{{ path("activate_disactivate_product", {id:product.id}) }}" class="btn btn-danger">
+				{{ (product.activate)?("Désactiver"):("Activer") }}
 			</a>
-			
+
 			<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Supprimer</button>
 
 			<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
@@ -68,19 +70,19 @@
 			        </button>
 			      </div>
 			      <div class="modal-body">
-			        <p>Etes vous sûr de supprimer la catégorie {{ category.name }} ?</p>
+			        <p>Etes vous sûr de supprimer le produit {{ product.name }} ?</p>
 			      </div>
 			      <div class="modal-footer">
-			      	<a href="{{ path("delete_category", {id:category.id}) }}" class="btn btn-danger">Oui</a>
+			      	<a href="{{ path("delete_product", {id:product.id}) }}" class="btn btn-danger">Oui</a>
 			        <button class="btn btn-primary" data-dismiss="modal">Non</button>
 			      </div>
 			    </div>
 			  </div>
 			</div>
 
+
 		</div>
 	</div>
 
 
 {% endblock %}
-

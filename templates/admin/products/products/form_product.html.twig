@@ -1,6 +1,6 @@
-{% extends 'base.html.twig' %}
+{% extends 'base_admin.html.twig' %}
 
-{% block title %} Ajout de catégorie {% endblock %}
+{% block title %} {{(create)?("Ajout de produit"):(product_name)}} {% endblock %}
 
 {% block body %}
 
@@ -14,7 +14,8 @@
 
 	<div class="row">
 		<div class="offset-sm-1">
-		<h1>Ajouter une catégorie.</h1></div>
+			<h1>{{(create)?("Ajout de produit"):("Modification du produit " ~ product_name)}}</h1>
+		</div>
 	</div>
 
 	<div class="row">
@@ -22,8 +23,11 @@
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("categories") }}">Catégories</a></li>
-			    <li class="breadcrumb-item active" aria-current="page">Ajouter une catégorie</li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("categories") }}">Produits</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">
+			    	{{(create)?("Ajout de produit"):("Modification du produit " ~ product_name)}}
+			    </li>
 			  </ol>
 			</nav>
 		</div>
@@ -46,25 +50,30 @@
 
 		<div class="row justify-content-around form-div">
 			<div class="col-5">
+				{{ form_label(form.description) }}
+				{{ form_errors(form.description) }}
+				{{ form_widget(form.description) }}
+			</div>
+			<div class="col-5">
 				{{ form_label(form.image) }}
 				{{ form_errors(form.image) }}
 				{{ form_widget(form.image) }}
 			</div>
-			<div class="col-5"></div>
 		</div>
-
-		{# {{ form_row(form.image) }} #}
 
 		<div class="row justify-content-start form-div-button">
 			<div class="offset-sm-1">
 				{{ form_row(form.submit) }}
 			</div>
 			<div class="col-1">
-				<a href="{{ path("categories") }}" class="btn btn-danger">Annuler</a>
+				{% if create %}
+					<a href="{{ path("products") }}" class="btn btn-danger">Annuler</a>
+				{% else %}
+					<a href="{{ path("product", {id: product_id}) }}" class="btn btn-danger">Annuler</a>
+				{% endif %}
 			</div>
 		</div>
 
 	{{ form_end(form) }}
 
 {% endblock %}
-
