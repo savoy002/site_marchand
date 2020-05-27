@@ -1,0 +1,91 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} {{(create)?("Ajout de variante de produit"):(variant_product_name)}} {% endblock %}
+
+{% block body %}
+
+	{% if errors is not empty %}
+		<ul>
+			{% for error in errors %}
+				<li> {{ error }} </li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>{{(create)?("Ajout de variante de produit"):("Modification de la variante de produit " ~ variant_product_name)}}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("categories") }}">Variante de produits</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">
+			    	{{(create)?("Ajout de variante de produit"):("Modification de la variante de produit " ~ variant_product_name)}}
+			    </li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	{{ form_start(form) }}
+
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_label(form.name) }}
+				{{ form_errors(form.name) }}
+				{{ form_widget(form.name) }}
+			</div>
+			<div class="col-5">
+				{{ form_label(form.code) }}
+				{{ form_errors(form.code) }}
+				{{ form_widget(form.code) }}
+			</div>
+		</div>
+
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_label(form.price) }}
+				{{ form_errors(form.price) }}
+				{{ form_widget(form.price) }}
+			</div>
+			<div class="col-5">
+				{{ form_label(form.stock) }}
+				{{ form_errors(form.stock) }}
+				{{ form_widget(form.stock) }}
+			</div>
+		</div>
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_label(form.image) }}
+				{{ form_errors(form.image) }}
+				{{ form_widget(form.image) }}
+			</div>
+			<div class="col-5">
+				{{ form_label(form.description) }}
+				{{ form_errors(form.description) }}
+				{{ form_widget(form.description) }}
+			</div>
+		</div>
+
+		<div class="row justify-content-start form-div-button">
+			<div class="offset-sm-1">
+				{{ form_row(form.submit) }}
+			</div>
+			<div class="col-1">
+				{% if create %}
+					<a href="{{ path("variants_products") }}" class="btn btn-danger">Annuler</a>
+				{% else %}
+					<a href="{{ path("variant_product", {id: variant_product_id}) }}" class="btn btn-danger">Annuler</a>
+				{% endif %}
+			</div>
+		</div>
+
+	{{ form_end(form) }}
+
+{% endblock %}

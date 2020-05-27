@@ -1,0 +1,91 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} {{ variant_product.name }} {% endblock %}
+
+{% block body %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Variantes de produits.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Variantes de produits</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row justify-content-center">
+
+		<div class="row">
+			<div class="col-10 offset-md-1">
+				<table class="table table-bordered">
+					<thead class="thead-dark">
+						<tr><th></th><th>Nom</th><th>Code</th><th>Description</th><th>Stock</th><th>Prix</th><th>Activitée</th></tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td>
+								{% if variant_product.imgFileName != null %}
+									<img src="{{asset('img/uploads/Product/VariantProduct/' ~ variant_product.imgFileName)}}"
+										width="60" height="60">
+								{% endif %}
+							</td>
+							<td>{{ variant_product.name }}</td>
+							<td>{{ variant_product.code }}</td>
+							<td>{{ variant_product.description }}</td>
+							<td>{{ variant_product.stock }}</td>
+							<td>{{ variant_product.price|slice(0, variant_product.price|length - 2)~','~variant_product.price|slice(variant_product.price|length - 2, variant_product.price|length) }}</td>
+							<td>{{ (variant_product.activate)?('Actif'):('Inactif') }}</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+
+	</div>
+
+	<div class="row justify-content-start">
+		<div class="col-md-4 offset-md-1">
+
+			<a href="{{ path("modify_variant_product", {id:variant_product.id}) }}" class="btn btn-primary">Modifier</a>
+
+			<a href="{{ path("activate_disactivate_variant_product", {id:variant_product.id}) }}" class="btn btn-danger">
+				{{ (variant_product.activate)?("Désactiver"):("Activer") }}
+			</a>
+
+			<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Supprimer</button>
+
+			<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+			  <div class="modal-dialog modal-dialog-centered" role="document">
+			    <div class="modal-content">
+			      <div class="modal-header">
+			        <h5 class="modal-title" id="exampleModalCenterTitle">Supprimer</h5>
+			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			          <span aria-hidden="true">&times;</span>
+			        </button>
+			      </div>
+			      <div class="modal-body">
+			        <p>Etes vous sûr de supprimer la variante de produit {{ variant_product.name }} ?</p>
+			      </div>
+			      <div class="modal-footer">
+			      	<a href="{{ path("delete_variant_product", {id:variant_product.id}) }}" class="btn btn-danger">Oui</a>
+			        <button class="btn btn-primary" data-dismiss="modal">Non</button>
+			      </div>
+			    </div>
+			  </div>
+			</div>
+
+		</div>
+	</div>
+
+
+ {% endblock %}
+

@@ -89,6 +89,7 @@ class VariantProduct
     {
         $this->activate = false;
         $this->delete = false;
+        $this->stock = 0;
         $this->categories = new ArrayCollection();
         $this->commands = new ArrayCollection();
         $this->comments = new ArrayCollection();

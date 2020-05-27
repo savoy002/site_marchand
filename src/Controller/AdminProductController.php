@@ -12,6 +12,7 @@ use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
 use App\Form\Type\Product\CategoryType;
 use App\Form\Type\Product\ProductType;
+use App\Form\Type\Product\VariantProductType;
 
 
 class AdminProductController extends AbstractController
@@ -220,7 +221,7 @@ class AdminProductController extends AbstractController
                     if(gettype($res) === "string")
                     	$product->setImgFileName($res);
 					else 
-                    	return $this->render('store/produts/products/form_product.html.twig', 
+                    	return $this->render('admin/produts/products/form_product.html.twig', 
                             ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
                 }
                 $product->setStock(0);
@@ -236,7 +237,7 @@ class AdminProductController extends AbstractController
      */
     public function modifyProduct(Request $request, $id)
     {
-        $product = $this->getDoctrine()->getRepository(product::class)->find($id);
+        $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
         $form = $this->createForm(productType::class, $product);
         $form->handleRequest($request);
         $errors = array();
@@ -268,13 +269,13 @@ class AdminProductController extends AbstractController
                     		if(!$res_delete)
                     			$product->setImgFileName($res_save);
                     		else 
-                    			return $this->render('admin/produts/products/form_product.html.twig', 
+                    			return $this->render('admin/products/products/form_product.html.twig', 
                         			['form' => $form->createView(), 'errors' => $e[$res_delete], 'create' => false]);
                     	} else {
                     		$product->setImgFileName($res_save);
                     	}
                     } else 
-                    	return $this->render('admin/produts/products/form_product.html.twig', 
+                    	return $this->render('admin/products/products/form_product.html.twig', 
                         	['form' => $form->createView(), 'errors' => $e[$res_save], 'create' => false]);
                 }
                 $this->getDoctrine()->getManager()->persist($product);
@@ -318,39 +319,152 @@ class AdminProductController extends AbstractController
     }
 
 	/**
- 	 * @Route("/admin/products/variants_produts", name="variants_produts")
+ 	 * @Route("/admin/variants_products", name="variants_products")
  	 */
     public function variantsProducts(Request $request)
     {
-        return $this->render('admin/index.html.twig', [
-            'controller_name' => 'AdminProductController/variants_products',
-        ]);
+        $variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false]);
+
+        return $this->render('admin/products/variants_products/variants_products.html.twig', ['variants_products' => $variants_products]);
     }
 
-    /*public function variantProduct()
+	/**
+ 	 * @Route("/admin/variant_product/{id}", name="variant_product")
+ 	 */
+    public function variantProduct($id)
     {
-        return null;
+        $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
+        if(empty($variant_product))
+        	return $this->redirectToRoute('variants_products');
+
+        return $this->render('admin/products/variants_products/variant_product.html.twig', ['variant_product' => $variant_product[0]]);
     }
 
-    public function createVariantProduct(Reqsuest $request)
+    /**
+     * @Route("/admin/variants_products/create", name="create_variant_product")
+     */
+    public function createVariantProduct(Request $request)
     {
-        return null;
+        $variant_product = new VariantProduct();
+        $form = $this->createForm(VariantProductType::class, $variant_product);
+        $form->handleRequest($request);
+        $errors = array();
+        if($form->isSubmitted() && $form->isValid()) {
+        	$valid = true;
+        	if($variant_product->getCode() === null || $variant_product->getCode() === '') {
+       			$code = str_replace(' ', '_', $variant_product->getName());
+                $variant_product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
+       		}
+       		$exist = $this->getDoctrine()->getRepository(Product::class)->findBy(['code' => $variant_product->getCode()]);
+       		if(!empty($exist))  {
+       			$errors[] = "Le code du produit existe déjà.";
+       			$valid = false;
+       		}
+       		if($valid) {
+       			$image = $form->get('image')->getData();
+                if($image) {
+                    $res = $this->saveImage($image, 'variant_product_image_directory');
+                    if(gettype($res) === "string")
+                    	$variant_product->setImgFileName($res);
+					else 
+                    	return $this->render('admin/produts/variants_products/form_variant_product.html.twig', 
+                            ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
+                }
+                $variant_product->setStock(0);
+                $this->getDoctrine()->getManager()->persist($variant_product);
+                $this->getDoctrine()->getManager()->flush();
+                return $this->redirectToRoute("variants_products");
+       		}
+        }
+        return $this->render('admin/products/variants_products/form_variant_product.html.twig', 
+        	['form' => $form->createView(), 'errors' => $errors, 'create' => true]);
     }
 
+	/**
+     * @Route("/admin/variant_product/{id}/modify", name="modify_variant_product")
+     */
     public function modifyVariantProduct(Request $request, $id)
     {
-        return null;
+        $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->find($id);
+        $form = $this->createForm(VariantProductType::class, $variant_product);
+        $form->handleRequest($request);
+        $errors = array();
+        if($form->isSubmitted() && $form->isValid()) {
+            $valid = true;
+            if($variant_product->getCode() === null || $variant_product->getCode() === "") {
+                $code = str_replace(' ', '_', $variant_product->getName());
+                $variant_product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
+            }
+            $exists = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['code' => $variant_product->getCode()]);
+            if(!empty($exists)) {
+            	$exist = false;
+            	foreach($exists as $variant_product_exist) {
+            		if($variant_product->getId() != $variant_product_exist->getId()) 
+            			$exist = true;
+            	}
+            	if($exist) {
+            		$errors[] = "Le code du produit déjà utilisé par un autre produit.";
+                	$valid = false;
+            	}
+            }
+            if($valid) {
+                $image = $form->get('image')->getData();
+                if($image) {
+                    $res_save = $this->saveImage($image, 'variant_product_image_directory');
+                    if(gettype($res_save) === "string") {
+                    	if($variant_product->getImgFileName() != null) {
+                    		$res_delete = $this->deleteImage($variant_product->getImgFileName(), 'variant_product_image_directory');
+                    		if(!$res_delete)
+                    			$variant_product->setImgFileName($res_save);
+                    		else 
+                    			return $this->render('admin/products/variants_products/form_variant_product.html.twig', 
+                        			['form' => $form->createView(), 'errors' => $e[$res_delete], 'create' => false]);
+                    	} else {
+                    		$variant_product->setImgFileName($res_save);
+                    	}
+                    } else 
+                    	return $this->render('admin/products/variants_products/form_variant_product.html.twig', 
+                        	['form' => $form->createView(), 'errors' => $e[$res_save], 'create' => false]);
+                }
+                $this->getDoctrine()->getManager()->persist($variant_product);
+                $this->getDoctrine()->getManager()->flush();
+                return $this->redirectToRoute("variant_product", ['id' => $variant_product->getId()]);
+            }
+        }
+        return $this->render('admin/products/variants_products/form_variant_product.html.twig', 
+            ['form' => $form->createView(), 'errors' => $errors, 'create' => false, 'variant_product_name' => $variant_product->getName(), 
+            	'variant_product_id' => $variant_product->getId()]);
     }
 
+    /**
+     * @Route("/admin/variant_product/{id}/activity", name="activate_disactivate_variant_product")
+     */
     public function activateDisactivateVariantProduct($id)
     {
-        return null;
+        $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
+        if(empty($variant_product))
+        	return $this->redirectToRoute('variants_products');
+        $variant_product = $variant_product[0];
+        $variant_product->setActivate(!$variant_product->getActivate());
+        $this->getDoctrine()->getManager()->persist($variant_product);
+        $this->getDoctrine()->getManager()->flush();
+        return $this->redirectToRoute('variant_product', ['id' => $id]);
     }
 
+    /**
+     * @Route("/admin/variant_product/{id}/delete", name="delete_variant_product")
+     */
     public function deleteVariantProduct($id)
     {
-        return null;
-    }*/
+        $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
+        if(empty($variant_product))
+        	return $this->redirectToRoute('variants_products');
+        $variant_product = $variant_product[0];
+        $variant_product->setDelete(true);
+        $this->getDoctrine()->getManager()->persist($variant_product);
+        $this->getDoctrine()->getManager()->flush();
+        return $this->redirectToRoute('variants_products');
+    }
 
     public function saveImage($image, $parameter_directory) {
     	$originalImagename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);

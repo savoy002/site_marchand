@@ -1,0 +1,69 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Variantes de produits {% endblock %}
+
+{% block body %} 
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Variantes de produits.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Variantes de produits</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row justify-content-center">
+
+			{% if variants_products|length > 0 %}
+				<div class="row">
+					<div class="col-10 offset-md-1">
+						<table class="table table-bordered">
+							<thead class="thead-dark">
+								<tr><th></th><th>Nom</th><th>Code</th><th>Description</th><th>Stock</th><th>Prix</th><th>Activitée</th><th>Voir</th></tr>
+							</thead>
+							<tbody>
+								{% for variant_product in variants_products %}
+									<tr>
+										<td>
+											{% if variant_product.imgFileName != null %}
+												<img src="{{asset('img/uploads/Product/VariantProduct/' ~ variant_product.imgFileName)}}"
+												 	width="60" height="60">
+											{% endif %}
+										</td>
+										<td>{{ variant_product.name }}</td>
+										<td>{{ variant_product.code }}</td>
+										<td>{{ variant_product.description }}</td>
+										<td>{{ variant_product.stock }}</td>
+										<td>{{ variant_product.price|slice(0, variant_product.price|length - 2)~','~variant_product.price|slice(variant_product.price|length - 2, variant_product.price|length) }}</td>
+										<td>{{ (variant_product.activate)?('Actif'):('Inactif') }}</td>
+										<td><a href="{{ path("variant_product",{ id:variant_product.id } ) }}" class="btn btn-info">Voir</a></td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			{% else %}
+				<div class="col-12 justify-content-center">
+					<p>Aucune variante de produit trouvée.</p>
+				</div>
+			{% endif %}
+			<div class="{{ (variants_products|length > 0)?('col offset-sm-1'):('col-12') }}">
+				<a href="{{ path("create_variant_product") }}" class="btn btn-primary">Créer un produit.</a>
+			</div>
+
+		</div>
+
+
+
+{% endblock %}
