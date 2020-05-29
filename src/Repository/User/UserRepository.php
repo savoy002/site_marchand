@@ -70,6 +70,36 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $request->getQuery()->getResult();
     }
 
+    public function adminResearchNumberUsers(array $criteria) {
+        $request = $this->createQueryBuilder('u')->select('COUNT(u)')->where('u.delete = FALSE');
+        if(array_key_exists('username', $criteria)) {
+            if($criteria['username']['type'] == 'equal')
+                $request->andWhere('u.username = :username')->setParameter('username', $criteria['username']['value']);
+            else if($criteria['username']['type'] == 'contain')
+                $request->andWhere("u.username LIKE :username")->setParameter('username', "%".$criteria['username']['value']."%");
+        }
+        if(array_key_exists('email', $criteria)){
+            if($criteria['email']['type'] == 'equal')
+                $request->andWhere('u.email = :email')->setParameter('email', $criteria['email']['value']);
+            else if($criteria['email']['type'] == 'contain')
+                $request->andWhere("u.email LIKE :email")->setParameter('email', "%".$criteria['email']['value']."%");
+        }
+        if(array_key_exists('roles', $criteria)) 
+            $request->andWhere('u.roles = :roles')->setParameter('roles', ($criteria['roles'] === 'user')?('["ROLE_USER"]'):('["ROLE_ADMIN"]'));
+        if(array_key_exists('valid', $criteria))
+            $request->andWhere('u.valid = :valid')->setParameter('valid', ($criteria['valid'] === 'verified')?(true):(false));
+        if(array_key_exists('createdBy', $criteria))
+            $request->andWhere('u.admin = :createdBy')->setParameter('createdBy', ($criteria['createdBy'] === 'admin')?(true):(false));
+        if(array_key_exists('createdBefore', $criteria))
+            $request->andWhere('DATE_DIFF(u.createdAt, :createdBefore) >= 0')->setParameter('createdBefore', $criteria['createdBefore']);
+        if(array_key_exists('createdAfter', $criteria))
+            $request->andWhere('DATE_DIFF(u.createdAt, :createdAfter) <= 0')->setParameter('createdAfter', $criteria['createdAfter']);
+        if(array_key_exists('orderBy', $criteria))
+            $request->orderBy('u.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
+
+        return $request->getQuery()->getResult();
+    }
+
     public function countNumberUsers() {
         $request = $this->createQueryBuilder('u')->select('COUNT(u)')->where('u.delete = FALSE');
         return $request->getQuery()->getResult();

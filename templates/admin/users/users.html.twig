@@ -233,7 +233,7 @@
 						    	<input type="submit" value="{{ num }}" name="page" class="btn {{ (num != page )?("btn-primary"):("btn-secondary") }}">
 						    {% endfor %}
 						    <li class="page-item">
-						      <input type="submit" value="Fin" name="page" class="btn {{  (page != number_pages)?("btn-primary"):("btn-secondary") }}">
+						      <input type="submit" value="Fin" name="page" class="btn {{ (page != number_pages)?("btn-primary"):("btn-secondary") }}">
 						    </li>
 						  </ul>
 						</nav>

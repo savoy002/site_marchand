@@ -18,6 +18,8 @@ use App\Form\Type\Product\VariantProductType;
 class AdminProductController extends AbstractController
 {
 
+	const NUMBER_BY_PAGE = 5;
+
 	private $filesSystem;
 
 	public function __construct() {
@@ -178,9 +180,70 @@ class AdminProductController extends AbstractController
  	 */
     public function products(Request $request) 
     {
-        $products = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false]);
+    	$errors = array();
+    	$former_request = array();
+    	$criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
 
-        return $this->render('admin/products/products/products.html.twig', ['products' => $products]);
+    	$page = $request->request->get('page');
+    	$number_products = intval($this->getDoctrine()->getRepository(Product::class)->countNumberProducts()[0][1]);
+    	$number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
+
+    	if($request->request->get('research') === "research") {
+    		if($request->request->get('name') != "" && $request->request->get('name') !== null) {
+                $criteria['name'] = array('value' => $request->request->get('name'), 
+                    'type' => $request->request->get('type_research_name'));
+                $former_request['name'] = $request->request->get('name');
+                $former_request['type_research_name'] = $request->request->get('type_research_name');
+            }
+            if($request->request->get('code') != "" && $request->request->get('code') !== null) {
+                $criteria['code'] = array('value' => $request->request->get('code'), 
+                    'type' => $request->request->get('type_research_code'));
+                $former_request['code'] = $request->request->get('code');
+                $former_request['type_research_code'] = $request->request->get('type_research_code');
+            }
+            if($request->request->get('stock') != "" && $request->request->get('stock') !== null) {
+                $criteria['stock'] = array('value' => $request->request->get('stock'), 
+                    'type' => $request->request->get('type_research_stock'));
+                $former_request['stock'] = $request->request->get('stock');
+                $former_request['type_research_stock'] = $request->request->get('type_research_stock');
+            }
+            if($request->request->get('description') != "" && $request->request->get('description') !== null) {
+                $criteria['description'] = $request->request->get('description');
+                $former_request['description'] =  $request->request->get('description');
+            }
+            if($request->request->get('activate') != "none" && $request->request->get('activate') !== null) {
+                $criteria['activate'] = $request->request->get('activate');
+                $former_request['activate'] =  $request->request->get('activate');
+            }
+            if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
+            	$criteria['orderBy'] = 
+                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
+            }
+            if($page != "" && $page !== null) {
+                if($page === 'Début') {
+                    $criteria['page'] = 0;
+                    $page = 1;
+                } else if($page === 'Fin') {
+                    $criteria['page'] = $number_pages - 1;
+                    $page = $number_pages;
+                } else {
+                    $criteria['page'] = intval($page) - 1;
+                }
+            } else
+                $page = 1;
+            $products = $this->getDoctrine()->getRepository(Product::class)->adminResearchProduct($criteria);
+            $number_products = $this->getDoctrine()->getRepository(Product::class)->adminResearchNumberProducts($criteria)[0][1];
+            $number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
+    	} else {
+    		$criteria['page'] = 0;
+            $page = 1;
+    		$products = $this->getDoctrine()->getRepository(Product::class)->adminResearchProduct($criteria);
+    	}
+
+        return $this->render('admin/products/products/products.html.twig', 
+        	['products' => $products, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 'request' => $former_request]);
     }
 
     /**
@@ -323,9 +386,78 @@ class AdminProductController extends AbstractController
  	 */
     public function variantsProducts(Request $request)
     {
-        $variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false]);
+    	$errors = array();
+    	$former_request = array();
+    	$criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
 
-        return $this->render('admin/products/variants_products/variants_products.html.twig', ['variants_products' => $variants_products]);
+    	$page = $request->request->get('page');
+    	$number_products = intval($this->getDoctrine()->getRepository(VariantProduct::class)->adminCountNumberVariantsProducts()[0][1]);
+    	$number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
+
+    	if($request->request->get('research') === "research") {
+    		if($request->request->get('name') != "" && $request->request->get('name') !== null) {
+                $criteria['name'] = array('value' => $request->request->get('name'), 
+                    'type' => $request->request->get('type_research_name'));
+                $former_request['name'] = $request->request->get('name');
+                $former_request['type_research_name'] = $request->request->get('type_research_name');
+            }
+            if($request->request->get('code') != "" && $request->request->get('code') !== null) {
+                $criteria['code'] = array('value' => $request->request->get('code'), 
+                    'type' => $request->request->get('type_research_code'));
+                $former_request['code'] = $request->request->get('code');
+                $former_request['type_research_code'] = $request->request->get('type_research_code');
+            }
+            if($request->request->get('stock') != "" && $request->request->get('stock') !== null) {
+                $criteria['stock'] = array('value' => $request->request->get('stock'), 
+                    'type' => $request->request->get('type_research_stock'));
+                $former_request['stock'] = $request->request->get('stock');
+                $former_request['type_research_stock'] = $request->request->get('type_research_stock');
+            }
+            if($request->request->get('price') != "" && $request->request->get('price') !== null) {
+            	$criteria['price'] = array('value' => intval($request->request->get('price') * 100 ), 
+                    'type' => $request->request->get('type_research_price'));
+                $former_request['price'] = $request->request->get('price');
+                $former_request['type_research_price'] = $request->request->get('type_research_price');
+            }
+            if($request->request->get('description') != "" && $request->request->get('description') !== null) {
+                $criteria['description'] = $request->request->get('description');
+                $former_request['description'] =  $request->request->get('description');
+            }
+            if($request->request->get('activate') != "none" && $request->request->get('activate') !== null) {
+                $criteria['activate'] = $request->request->get('activate');
+                $former_request['activate'] =  $request->request->get('activate');
+            }
+            if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
+            	$criteria['orderBy'] = 
+                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
+            }
+            if($page != "" && $page !== null) {
+                if($page === 'Début') {
+                    $criteria['page'] = 0;
+                    $page = 1;
+                } else if($page === 'Fin') {
+                    $criteria['page'] = $number_pages - 1;
+                    $page = $number_pages;
+                } else {
+                    $criteria['page'] = intval($page) - 1;
+                }
+            } else 
+            	$page = 1;
+
+            $variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria);
+            $number_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchNumberVariantsProducts($criteria)[0][1];
+            $number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
+    	} else {
+    		$page = 1;
+    		$criteria['page'] = 0;
+    		$variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria);
+    	}
+
+        return $this->render('admin/products/variants_products/variants_products.html.twig', 
+        	['variants_products' => $variants_products, 'errors' => $errors, 'request' => $former_request, 'page' => $page, 
+        	'number_pages' => $number_pages]);
     }
 
 	/**

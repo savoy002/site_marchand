@@ -22,7 +22,172 @@
 		</div>
 	</div>
 
+
+
 	<div class="row justify-content-center">
+
+		<form class="form" action="{{ path("variants_products") }}" method="post">
+
+			{% if errors is not empty %}
+				<ul>
+					{% for error in errors %}
+						<li> {{ error }} </li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+
+			{# Début du formulaire de recherche #}
+
+			<input hidden="hidden" name="research" value="research">
+			<div class="row form-div justify-content-around">
+				<div class="col-5 col-xs-12">
+					<label for="name">Nom</label>
+					<input class="form-control form-control-sm" name="name" type="text" value="{{ (request.name is defined)?(request.name) }}">
+				</div>
+				<div class="col-5 col-xs-12">
+					<label for="type_research_name">Type de recherche</label>
+					<select class="custom-select custom-select-sm" name="type_research_name">
+						<option value="contain" 
+							{{ (request.type_research_name is defined)?((request.type_research_name == 'contain') ? ('selected') ) }}>
+							Contient
+						</option>
+						<option value="equal"
+							{{ (request.type_research_name is defined)?((request.type_research_name == 'equal') ? ('selected') ) }}>Égale</option>
+					</select>
+				</div>
+			</div>
+			<div class="row form-div justify-content-around">
+				<div class="col-5 col-xs-12">
+					<label for="code">Code</label>
+					<input class="form-control form-control-sm" name="code" type="text" value="{{ (request.code is defined)?(request.code) }}">
+				</div>
+				<div class="col-5 col-xs-12">
+					<label for="type_research_code">Type de recherche</label>
+					<select class="custom-select custom-select-sm" name="type_research_code">
+						<option value="contain"
+							{{ (request.type_research_code is defined)?((request.type_research_code == 'contain') ? ('selected') ) }}>
+							Contient
+						</option>
+						<option value="equal"
+							{{ (request.type_research_code is defined)?((request.type_research_code == 'equal') ? ('selected') ) }}>
+							Égale
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="row form-div justify-content-around">
+				<div class="col-5 col-xs-12">
+					<label for="stock">Stock</label>
+					<input class="form-control form-control-sm" name="stock" type="number" min="0" 
+						value="{{ (request.stock is defined)?(request.stock) }}">
+				</div>
+				<div class="col-5 col-xs-12">
+					<label for="type_research_stock">Type de recherche</label>
+					<select class="custom-select custom-select-sm" name="type_research_stock">
+						<option value="equal" 
+							{{ (request.type_research_stock is defined)?((request.type_research_stock == 'none') ? ('selected') ) }}>
+							Égale
+						</option>
+						<option value="inferior" 
+							{{ (request.type_research_stock is defined)?((request.type_research_stock == 'inferior') ? ('selected') ) }}>
+							Inférieur
+						</option>
+						<option value="higher"
+							{{ (request.type_research_stock is defined)?((request.type_research_stock == 'higher') ? ('selected') ) }}>
+							Supérieur
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="row form-div justify-content-around">
+				<div class="col-5 col-xs-12">
+					<label for="stock">Prix</label>
+					<input class="form-control form-control-sm" name="price" type="number" min="0" 
+						value="{{ (request.price is defined)?(request.price) }}">
+				</div>
+				<div class="col-5 col-xs-12">
+					<label for="type_research_price">Type de recherche</label>
+					<select class="custom-select custom-select-sm" name="type_research_price">
+						<option value="equal" 
+							{{ (request.type_research_price is defined)?((request.type_research_price == 'equal') ? ('selected') ) }}>
+							Égale
+						</option>
+						<option value="inferior" 
+							{{ (request.type_research_price is defined)?((request.type_research_price == 'inferior') ? ('selected') ) }}>
+							Inférieur
+						</option>
+						<option value="higher" 
+							{{ (request.type_research_price is defined)?((request.type_research_price == 'higher') ? ('selected') ) }}>
+							Supérieur
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="row form-div justify-content-around">
+				<div class="col-5 col-xs-12">
+					<label for="description">Description</label>
+					<input class="form-control form-control-sm" name="description" type="textarea"  
+						value="{{ (request.description is defined)?(request.description) }}" >
+				</div>
+				<div class="col-5 col-xs-12">
+					<label for="activate">Activité</label>
+					<select class="custom-select custom-select-sm" name="activate">
+						<option value="none" {{ (request.activate is defined)?((request.activate == 'none') ? ('selected') ) }}>N'importe</option>
+						<option value="activate" {{ (request.activate is defined)?((request.activate == 'activate') ? ('selected') ) }}>
+							Activé
+						</option>
+						<option value="desactivate" {{ (request.activate is defined)?((request.activate == 'desactivate') ? ('selected') ) }}>
+							Désactivé
+						</option>
+					</select>
+				</div>	
+			</div>
+			<div class="row justify-content-around form-div">
+				<div class="col-5 col-xs-12">
+					<label for="orderBy_sortBy">Ordonné par</label>
+					<select class="custom-select custom-select-sm" name="orderBy_sortBy">
+						<option value="none">N'importe</option>
+						<option value="name" {{ (request.orderBy_sortBy is defined)?((request.orderBy_sortBy == 'name')? ('selected') ) }}>
+							Nom
+						</option>
+						<option value="code" {{ (request.orderBy_sortBy is defined)?((request.orderBy_sortBy == 'code')? ('selected') ) }}>
+							Code
+						</option>
+						<option value="stock" {{ (request.orderBy_sortBy is defined)?((request.orderBy_sortBy == 'stock')? ('selected') ) }}>
+							Stock
+						</option>
+						<option value="description" 
+							{{ (request.orderBy_sortBy is defined)?((request.orderBy_sortBy == 'description')? ('selected') ) }}>
+							Description
+						</option>
+						<option value="price" {{ (request.orderBy_sortBy is defined)?((request.orderBy_sortBy == 'price')? ('selected') ) }}>
+							Price
+						</option>
+						<option value="activate" {{ (request.orderBy_sortBy is defined)?((request.orderBy_sortBy == 'activate')? ('selected') ) }}>
+							Activité
+						</option>
+					</select>
+				</div>
+				<div class="col-5 col-xs-12">
+					<label for="orderBy_sortDir">Sens</label>
+					<select class="custom-select custom-select-sm" name="orderBy_sortDir">
+						<option value="ASC" {{ (request.orderBy_sortDir is defined)?((request.orderBy_sortDir == 'ASC')? ('selected') ) }}>
+							Ascendant
+						</option>
+						<option value="DESC" {{ (request.orderBy_sortDir is defined)?((request.orderBy_sortDir == 'DESC')? ('selected') ) }}>
+							Descendant
+						</option>
+					</select>
+				</div>
+			</div>
+			<div class="row justify-content-around form-div-button">
+				<div class="col-5"><button class="btn btn-primary" type="submit">Rechercher</button></div>
+				<div class="col-5"><a href="{{ path("variants_products") }}" class="btn btn-danger">Annuler</a></div>
+			</div>
+
+			{# Fin du formulaire de recherche #}
+
+			{# Début des résultats de recherche #}
 
 			{% if variants_products|length > 0 %}
 				<div class="row">
@@ -62,7 +227,35 @@
 				<a href="{{ path("create_variant_product") }}" class="btn btn-primary">Créer un produit.</a>
 			</div>
 
-		</div>
+			{# Fin des résultats de recherche #}
+
+			{# Début des paginations #}
+
+			<div class="row justify-content-around ">
+				<div class="col-5">
+					<nav aria-label="Page navigation example">
+					  <ul class="pagination">
+					    <li class="page-item">
+					      <input type="submit" value="Début" name="page" class="btn {{ (page != 1)?("btn-primary"):("btn-secondary") }}">
+					    </li>
+					    {% for num in range(1, number_pages) %}
+					    	<input type="submit" value="{{ num }}" name="page" class="btn {{ (num != page )?("btn-primary"):("btn-secondary") }}">
+					    {% endfor %}
+					    <li class="page-item">
+					      	<input type="submit" value="Fin" name="page" 
+					      		class="btn {{  (page != number_pages)?("btn-primary"):("btn-secondary") }}">
+					    </li>
+					  </ul>
+					</nav>
+				</div>
+				<div class="col-5"></div>
+			</div>
+
+			{# Fin des paginations #}
+
+		</form>
+
+	</div>
 
 
 

@@ -123,6 +123,8 @@ class AdminController extends AbstractController
                 $page = 1;
 
             $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
+            $number_users = $this->getDoctrine()->getRepository(User::class)->adminResearchNumberUsers($criteria)[0][1];
+            $number_pages = intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
         } else {
             $criteria['page'] = 0;
             $page = 1;
