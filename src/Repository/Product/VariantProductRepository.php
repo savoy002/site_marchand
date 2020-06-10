@@ -3,6 +3,8 @@
 namespace App\Repository\Product;
 
 use App\Entity\Product\VariantProduct;
+use App\Entity\Product\Category;
+use App\Entity\Product\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 
@@ -17,6 +19,24 @@ class VariantProductRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, VariantProduct::class);
+    }
+
+    public function findVariantsProductsByCategory(Category $category)
+    {
+        $request = $this->createQueryBuilder('v')
+            ->innerJoin('v.categories', 'c')
+            ->where('c.id = :id')
+            ->setParameter('id', $category->getId());
+        return $request->getQuery()->getResult();
+    }
+
+    public function findVariantsProductsByProduct(Product $product) 
+    {
+        $request = $this->createQueryBuilder('v')
+            ->innerJoin('v.product', 'p')
+            ->where('p.id = :id')
+            ->setParameter('id', $product->getId());
+        return $request->getQuery()->getResult();
     }
 
     public function adminResearchVariantProduct(array $criteria)

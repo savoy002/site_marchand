@@ -203,8 +203,13 @@ class VariantProduct
 
     public function setProduct(?Product $product): self
     {
+        if($this->product != null)
+            $this->product->removeVariantProduct($this);
         $this->product = $product;
-
+        if($product != null) {
+            if(!$product->hasVariantProduct($this))
+                $product->addVariantProduct($this);
+        }
         return $this;
     }
 
@@ -213,11 +218,17 @@ class VariantProduct
         return $this->categories;
     }
 
+    public function hasCategory(Category $category): bool
+    {
+        return $this->categories->contains($category);
+    }
+
     public function addCategory(Category $category): self
     {
         if(!$this->categories->contains($category)) {
             $this->categories[] = $category;
-
+            if(!$category->hasVariantProduct($this))
+                $category->addVariantProduct($this);
         }
         return $this;
     }
@@ -226,7 +237,8 @@ class VariantProduct
     {
         if($this->categories->contains($category)) {
             $this->categories->removeElement($category);
-
+            if($category->hasVariantProduct($this))
+                $category->removeVariantProcut($this);
         }
         return $this;
     }
@@ -254,9 +266,8 @@ class VariantProduct
         if ($this->commands->contains($command)) {
             $this->commands->removeElement($command);
             // set the owning side to null (unless already changed)
-            if ($command->getProduct() === $this) {
+            if ($command->getProduct()->getId() === $this->getId())
                 $command->setProduct(null);
-            }
         }
 
         return $this;
@@ -285,9 +296,8 @@ class VariantProduct
         if ($this->comments->contains($comment)) {
             $this->comments->removeElement($comment);
             // set the owning side to null (unless already changed)
-            if ($comment->getProduct() === $this) {
+            if ($comment->getProduct()->getId() === $this->getId())
                 $comment->setProduct(null);
-            }
         }
 
         return $this;

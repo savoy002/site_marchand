@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20200515084939 extends AbstractMigration
+final class Version20200609074116 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -22,7 +22,7 @@ final class Version20200515084939 extends AbstractMigration
         // this up() migration is auto-generated, please modify it to your needs
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
-        $this->addSql('CREATE TABLE User (id INT AUTO_INCREMENT NOT NULL, adr_id_user INT DEFAULT NULL, username VARCHAR(180) NOT NULL, roles TEXT NOT NULL COMMENT \'(DC2Type:json_array)\' /*JSON NOT NULL, password VARCHAR(255) NOT NULL*/, email VARCHAR(255) NOT NULL, created_at_user DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, valid_user TINYINT(1) DEFAULT \'0\' NOT NULL, deleted_user TINYINT(1) DEFAULT \'0\' NOT NULL, admin_user TINYINT(1) DEFAULT \'0\' NOT NULL, super_admin TINYINT(1) DEFAULT \'0\' NOT NULL, img VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_2DA17977F85E0677 (username), UNIQUE INDEX UNIQ_2DA17977BBC2C8AC (img), INDEX IDX_2DA17977EB5D4312 (adr_id_user), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE User (id INT AUTO_INCREMENT NOT NULL, adr_id_user INT DEFAULT NULL, username VARCHAR(180) NOT NULL, roles TEXT NOT NULL COMMENT \'(DC2Type:json_array)\' /*JSON NOT NULL*/, password VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, created_at_user DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, valid_user TINYINT(1) DEFAULT \'0\' NOT NULL, deleted_user TINYINT(1) DEFAULT \'0\' NOT NULL, admin_user TINYINT(1) DEFAULT \'0\' NOT NULL, super_admin TINYINT(1) DEFAULT \'0\' NOT NULL, img VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_2DA17977F85E0677 (username), UNIQUE INDEX UNIQ_2DA17977BBC2C8AC (img), INDEX IDX_2DA17977EB5D4312 (adr_id_user), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE Comment (id INT AUTO_INCREMENT NOT NULL, user_id_comment INT DEFAULT NULL, prod_id_comment INT DEFAULT NULL, mark_comment INT NOT NULL, text_comment LONGTEXT NOT NULL, INDEX IDX_5BC96BF0ED8E3DF0 (user_id_comment), INDEX IDX_5BC96BF09A7C4C37 (prod_id_comment), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE Command (id INT AUTO_INCREMENT NOT NULL, adr_id_com INT DEFAULT NULL, del_id_com INT DEFAULT NULL, create_at_com DATETIME NOT NULL, completed TINYINT(1) NOT NULL, date_receive DATETIME DEFAULT NULL, price_total INT NOT NULL, INDEX IDX_4177D348AC18573C (adr_id_com), INDEX IDX_4177D348347BAB22 (del_id_com), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE PieceCommand (id INT AUTO_INCREMENT NOT NULL, com_id_piece_com INT DEFAULT NULL, prod_id_piece_com INT DEFAULT NULL, nb_prod INT NOT NULL, INDEX IDX_7A07E462D3121940 (com_id_piece_com), INDEX IDX_7A07E46274EB3D94 (prod_id_piece_com), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');

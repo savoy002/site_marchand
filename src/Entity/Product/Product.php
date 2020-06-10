@@ -63,7 +63,7 @@ class Product
     private $categories;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Product\VariantProduct", mappedBy="product", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Product\VariantProduct", mappedBy="product", orphanRemoval=false)
      */
     private $variantsProducts;
 
@@ -130,8 +130,10 @@ class Product
 
     public function calculStock(): self {
         $this->stock = 0;
-        foreach($this->variantsProducts as $variant_product)
-            $this->stock += $variant_product->getStock();
+        foreach($this->variantsProducts as $variant_product) {
+            if($variant_product->getActivate())
+                $this->stock += $variant_product->getStock();
+        }
         return $this;
     }
 
@@ -179,11 +181,17 @@ class Product
         return $this->categories;
     }
 
+    public function hasCategory(Category $category):bool
+    {
+        return $this->categories->contains($category);
+    }
+
     public function addCategory(Category $category): self
     {
         if (!$this->categories->contains($category)) {
             $this->categories[] = $category;
-            $category->addProduct($this);
+            if(!$category->hasProduct($this))
+                $category->addProduct($this);
         }
 
         return $this;
@@ -193,7 +201,8 @@ class Product
     {
         if ($this->categories->contains($category)) {
             $this->categories->removeElement($category);
-            $category->removeProduct($this);
+            if($category->hasProduct($this))
+                $category->removeProduct($this);
         }
 
         return $this;
@@ -207,23 +216,33 @@ class Product
         return $this->variantsProducts;
     }
 
-    public function addVariantProduct(VariantProduct $variantsProduct): self
+    public function hasVariantProduct(VariantProduct $variantProduct): bool
     {
-        if (!$this->variantsProducts->contains($variantsProduct)) {
-            $this->variantsProducts[] = $variantsProduct;
-            $variantsProduct->setProduct($this);
+        return $this->variantsProducts->contains($variantProduct);
+    }
+
+    public function addVariantProduct(VariantProduct $variantProduct): self
+    {
+        if (!$this->variantsProducts->contains($variantProduct)) {
+            $this->variantsProducts[] = $variantProduct;
+            if($variantProduct->getProduct() != null) {
+                if($variantProduct->getProduct()->getId() != $this->getId())
+                    $variantProduct->setProduct($this);
+            } else
+                $variantProduct->setProduct($this);
         }
 
         return $this;
     }
 
-    public function removeVariantProduct(VariantProduct $variantsProduct): self
+    public function removeVariantProduct(VariantProduct $variantProduct): self
     {
-        if ($this->variantsProducts->contains($variantsProduct)) {
-            $this->variantsProducts->removeElement($variantsProduct);
+        if ($this->variantsProducts->contains($variantProduct)) {
+            $this->variantsProducts->removeElement($variantProduct);
             // set the owning side to null (unless already changed)
-            if ($variantsProduct->getProduct() === $this) {
-                $variantsProduct->setProduct(null);
+            if($variantProduct->getProduct() !== null) {
+                if ($variantProduct->getProduct()->getId() === $this->getId())
+                    $variantProduct->setProduct(null);
             }
         }
 

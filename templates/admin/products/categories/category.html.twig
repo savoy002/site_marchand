@@ -82,5 +82,33 @@
 	</div>
 
 
+	<div class="row justify-content-start">
+		<div class="col-5 offset-1">
+			<div class="row justify-content-center"><h4>Produits<h4></div>
+			{% for product in category.products %}
+				<div class="row justify-content-center">{{ product.name }}</div>
+			{% endfor %}
+		</div>
+		<div class="col-5">
+			<div class="row justify-content-center"><h4>Variantes de produits<h4></div>
+			{% for variant_product in category.variantsProducts %}
+				<div class="row justify-content-center">{{ variant_product.name }}</div>
+			{% endfor %}
+			
+		</div>
+	</div>
+	<div class="row justify-content-start">
+		<div class="col-5 offset-1">
+			<div class="row justify-content-center">
+				<a class="btn btn-primary" href="{{ path("manage_products_category", {id:category.id}) }}">Changer les produits</a>
+			</div>
+		</div>
+		<div class="col-5">
+			<div class="row justify-content-center">
+				<a class="btn btn-primary"  href="{{ path("manage_variants_products_category", {id:category.id}) }}">Changer les variantes de produits</a>
+			</div>
+		</div>
+	</div>
+
 {% endblock %}
 

@@ -145,11 +145,17 @@ class Category
         return $this->products;
     }
 
+    public function hasProduct(Product $product): bool
+    {
+        return $this->products->contains($product);
+    }
+
     public function addProduct(Product $product): self
     {
         if (!$this->products->contains($product)) {
             $this->products[] = $product;
-            $product->addCategory($this);
+            if(!$product->hasCategory($this))
+                $product->addCategory($this);
         }
 
         return $this;
@@ -159,7 +165,8 @@ class Category
     {
         if ($this->products->contains($product)) {
             $this->products->removeElement($product);
-            $product->removeCategory($this);
+            if($product->hasCategory($this))
+                $product->removeCategory($this);
         }
 
         return $this;
@@ -170,21 +177,28 @@ class Category
         return $this->variantsProducts;
     }
 
+    public function hasVariantProduct(VariantProduct $variantProduct): bool
+    {
+        return $this->variantsProducts->contains($variantProduct);
+    }
+
     public function addVariantProduct(VariantProduct $variantProduct): self
     {
         if(!$this->variantsProducts->contains($variantProduct)) {
             $this->variantsProducts[] = $variantProduct;
-            $variantProduct->addCategory($this);
+            if(!$variantProduct->hasCategory($this))
+                $variantProduct->addCategory($this);
         }
 
         return $this;
     }
 
-    public function removeVariantProcut(VariantProduct $variantProduct): self
+    public function removeVariantProduct(VariantProduct $variantProduct): self
     {
         if($this->variantsProducts->contains($variantProduct)) {
             $this->variantsProducts->removeElement($variantProduct);
-            $variantProduct->removeCategory($this);
+            if($variantProduct->hasCategory($this))
+                $variantProduct->removeCategory($this);
         }
 
         return $this;

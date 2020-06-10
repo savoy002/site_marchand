@@ -2,6 +2,7 @@
 
 namespace App\Form\Type\Product;
 
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
@@ -13,7 +14,9 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\File;
 
+use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
+
 
 class VariantProductType extends AbstractType
 {
@@ -36,6 +39,9 @@ class VariantProductType extends AbstractType
 					)
 				]
 			])
+			->add('product', EntityType::class, 
+				['label' => "Produit associé", 'class' => Product::class, 'required' => true, 'choice_label' => 'name', 
+					'attr' => ['class' => 'form-control']])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 'attr' => ['class' => 'btn btn-primary']]);
 	}
 

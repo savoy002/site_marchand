@@ -13,6 +13,12 @@ use App\Entity\Product\VariantProduct;
 use App\Form\Type\Product\CategoryType;
 use App\Form\Type\Product\ProductType;
 use App\Form\Type\Product\VariantProductType;
+use App\Form\Type\Product\Manager\ManageCategoriesProductType;
+use App\Form\Type\Product\Manager\ManageCategoriesVariantProductType;
+use App\Form\Type\Product\Manager\ManageProductVariantProductType;
+use App\Form\Type\Product\Manager\ManageProductsCategoryType;
+use App\Form\Type\Product\Manager\ManageVariantsProductsProductType;
+use App\Form\Type\Product\Manager\ManageVariantsProductsCategoryType;
 
 
 class AdminProductController extends AbstractController
@@ -34,6 +40,10 @@ class AdminProductController extends AbstractController
 		return $this->render('admin/products/menu_product.html.twig');
 	}
 
+	//
+	//Partie Catégorie.
+	//
+
 	/**
      * @Route("/admin/categories", name="categories")
      */
@@ -52,7 +62,6 @@ class AdminProductController extends AbstractController
         $category = $this->getDoctrine()->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id]);
         if(empty($category))
         	return $this->redirectToRoute('categories');
-
         return $this->render('admin/products/categories/category.html.twig', ['category' => $category[0]]);
     }
 
@@ -151,6 +160,77 @@ class AdminProductController extends AbstractController
             'category_id' => $category->getId()]);
     }
 
+	/**
+	 * @Route("/admin/category/{id}/manageProducts", name="manage_products_category")
+	 */
+	public function manageProductsCategory(Request $request, $id) 
+	{
+		$category = $this->getDoctrine()->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id])[0];
+		//$former_products = $this->getDoctrine()->getRepository(Product::class)->findProductsByCategory($category);
+		$form = $this->createForm(ManageProductsCategoryType::class, $category);
+		$form->handleRequest($request);
+		if($form->isSubmitted() && $form->isValid()) {
+			$manager = $this->getDoctrine()->getManager();
+			/*foreach($former_products as $product) {
+				if(!$category->hasProduct($product)) {
+					$product->removeCategory($category);
+					$manager->persist($product);
+				}
+			}
+			foreach($category->getProducts() as $new_product) {
+				$contain = false;
+				foreach($former_products as $product) {
+					if($new_product->getId() === $product->getId())
+						$contain = true;
+				}
+				if(!$contain) {
+					$new_product->addCategory($category);
+					$manager->persist($new_product);
+				}
+			}*/
+			$manager->persist($category);
+			$manager->flush();
+			return $this->redirectToRoute('category', ['id' => $id]);
+		}
+		return $this->render('admin/products/categories/manage_products_category.html.twig', ['form' => $form->createView(), 'category' => $category]);
+	}
+
+	/**
+	 * @Route("/admin/category/{id}/manageVariantsProducts", name="manage_variants_products_category")
+	 */
+	public function manageVarianstProductsCategory(Request $request, $id)
+	{
+		$category = $this->getDoctrine()->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id])[0];
+		//$former_variants = $this->getDoctrine()->getRepository(VariantProduct::class)->findVariantsProductsByCategory($category);
+		$form = $this->createForm(ManageVariantsProductsCategoryType::class, $category);
+		$form->handleRequest($request);
+		if($form->isSubmitted() && $form->isValid()) {
+			$manager = $this->getDoctrine()->getManager();
+			/*foreach($former_variants as $variant_product) {
+				if(!$category->hasVariantProduct($variant_product)) {
+					$variant_product->removeCategory($category);
+					$manager->persist($variant_product);
+				}
+			}
+			foreach($category->getProducts() as $new_variant) {
+				$contain = false;
+				foreach ($former_variants as $variant_product) {
+					if($new_variant->getId() === $variant_product->getId())
+						$contain = true;
+				}
+				if(!$contain) {
+					$new_variant->addCategory($category);
+					$manager->persist($new_variant);
+				}
+			}*/
+			$manager->persist($category);
+			$manager->flush();
+			return $this->redirectToRoute('category', ['id' => $id]);
+		}
+		return $this->render('admin/products/categories/manage_variants_products_category.html.twig', 
+			['form' => $form->createView(), 'category' => $category]);
+	}
+
     /**
      * @Route("/admin/category/{id}/activate", name="activate_disactivate_category")
      */
@@ -170,10 +250,22 @@ class AdminProductController extends AbstractController
     {
         $category = $this->getDoctrine()->getRepository(Category::class)->find($id);
         $category->setDelete(true);
+        foreach($category->getProducts() as $product) {
+        	$category->removeProduct($product);
+        	$this->getDoctrine()->getManager()->persist($product);
+        }
+        foreach ($category->getVariantsProducts as $variant_product) {
+        	$category->removeVariantProduct($variant_product);
+        	$this->getDoctrine()->getManager()->persist($variant_product);
+        }
         $this->getDoctrine->getManager()->persist($category);
         $this->getDoctrine->getManager()->flush();
         return $this->redirectToRoute('categories');
     }
+
+    //
+    //Partie Produit.
+    //
 
  	/**
  	 * @Route("/admin/products", name="products")
@@ -295,6 +387,7 @@ class AdminProductController extends AbstractController
        	}
        	return $this->render('admin/products/products/form_product.html.twig', ['form' => $form->createView(), 'errors' => $errors, 'create' => true]);
     }
+
     /**
      * @Route("/admin/product/{id}/modify", name="modify_product")
      */
@@ -352,6 +445,76 @@ class AdminProductController extends AbstractController
     }
 
     /**
+     * @Route("admin/product/{id}/manageCategories", name="manage_categories_product")
+     */
+    public function manageCategoriesProduct(Request $request, $id) {
+    	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	$former_categories = $this->getDoctrine()->getRepository(Category::class)->findCategoriesByProduct($product);
+    	$form = $this->createForm(ManageCategoriesProductType::class, $product);
+    	$form->handleRequest($request);
+    	if($form->isSubmitted() && $form->isValid()) {
+    		$manager = $this->getDoctrine()->getManager();
+    		foreach($former_categories as $category) {
+    			if(!$product->hasCategory($category)) {
+    				$category->removeProduct($product);
+    				$manager->persist($category);
+    			}
+    		}
+    		foreach($product->getCategories() as $new_category) {
+    			$contain = false;
+    			foreach($former_categories as $category) {
+    				if($new_category->getId() === $category->getId())
+    					$contain = true;
+    			}
+    			if(!$contain) {
+    				$new_category->addProduct($product);
+    				$manager->persist($new_category);
+    			}
+    		}
+    		$manager->persist($product);
+    		$manager->flush();
+    		return $this->redirectToRoute('product', ['id' => $id]);
+    	}
+    	return $this->render('admin/products/products/manage_categories_product.html.twig', ['form' => $form->createView(), 'product' => $product]);
+    }
+
+    /**
+     * @Route("admin/product/{id}/manageVariantsProducts", name="manage_variants_products_product")
+     */
+    public function manageVariantsProductsProduct(Request $request, $id) {
+    	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	$former_variants = $this->getDoctrine()->getRepository(VariantProduct::class)->findVariantsProductsByProduct($product);
+    	$form = $this->createForm(ManageVariantsProductsProductType::class, $product);
+    	$form->handleRequest($request);
+    	if($form->isSubmitted() && $form->isValid()) {
+    		$manager = $this->getDoctrine()->getManager();
+    		foreach($former_variants as $variant_product) {
+    			if(!$product->hasVariantProduct($variant_product)) {
+    				$variant_product->setProduct(null);
+    				$manager->persist($variant_product);
+    			}
+    		}
+    		foreach($product->getVariantsProducts() as $new_variant) {
+    			$contain = false;
+    			foreach($former_variants as $variant_product) {
+    				if($new_variant->getId() === $variant_product->getId())
+    					$contain = true;
+    			}
+    			if(!$contain) {
+    				$new_variant->setProduct($product);
+    				$manager->persist($new_variant);
+    			}
+    		}
+    		$product->calculStock();
+    		$manager->persist($product);
+    		$manager->flush();
+    		return $this->redirectToRoute('product', ['id' =>  $id]);
+    	}
+    	return $this->render('admin/products/products/manage_variants_products_product.html.twig', 
+    		['form' => $form->createView(), 'product' => $product]);
+    }
+
+    /**
      * @Route("/admin/product/{id}/activate", name="activate_disactivate_product")
      */
     public function activateDisactivateProduct($id)
@@ -376,10 +539,22 @@ class AdminProductController extends AbstractController
     		return $this->redirectToRoute("products");
     	$product = $product[0];
     	$product->setDelete(true);
+    	foreach($product->getVariantsProducts() as $variant_product) {
+    		$product->removeVariantProduct($variant_product);
+    		$this->getDoctrine()->getManager()->persist($variant_product);
+    	}
+    	foreach($product->getCategories() as $category) {
+    		$product->removeCategory($category);
+    		$this->getDoctrine()->getManager()->persist($category);
+    	}
     	$this->getDoctrine()->getManager()->persist($product);
     	$this->getDoctrine()->getManager()->flush();
         return $this->redirectToRoute('products');
     }
+
+    //
+    //Partie VariantProduct.
+    //
 
 	/**
  	 * @Route("/admin/variants_products", name="variants_products")
@@ -468,7 +643,6 @@ class AdminProductController extends AbstractController
         $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
         if(empty($variant_product))
         	return $this->redirectToRoute('variants_products');
-
         return $this->render('admin/products/variants_products/variant_product.html.twig', ['variant_product' => $variant_product[0]]);
     }
 
@@ -503,6 +677,7 @@ class AdminProductController extends AbstractController
                             ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
                 }
                 $variant_product->setStock(0);
+                $this->getDoctrine()->getManager()->persist($variant_product->getProduct());
                 $this->getDoctrine()->getManager()->persist($variant_product);
                 $this->getDoctrine()->getManager()->flush();
                 return $this->redirectToRoute("variants_products");
@@ -518,6 +693,7 @@ class AdminProductController extends AbstractController
     public function modifyVariantProduct(Request $request, $id)
     {
         $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->find($id);
+        $former_product = $this->getDoctrine()->getRepository(Product::class)->findProductByVariantProduct($variant_product)[0];
         $form = $this->createForm(VariantProductType::class, $variant_product);
         $form->handleRequest($request);
         $errors = array();
@@ -558,6 +734,11 @@ class AdminProductController extends AbstractController
                     	return $this->render('admin/products/variants_products/form_variant_product.html.twig', 
                         	['form' => $form->createView(), 'errors' => $e[$res_save], 'create' => false]);
                 }
+                if($former_product != null) {
+                	if($former_product->getId() != $variant_product->getProduct()->getId())
+			        	$this->getDoctrine()->getManager()->persist($former_product);
+                }
+                $this->getDoctrine()->getManager()->persist($variant_product->getProduct());
                 $this->getDoctrine()->getManager()->persist($variant_product);
                 $this->getDoctrine()->getManager()->flush();
                 return $this->redirectToRoute("variant_product", ['id' => $variant_product->getId()]);
@@ -566,6 +747,70 @@ class AdminProductController extends AbstractController
         return $this->render('admin/products/variants_products/form_variant_product.html.twig', 
             ['form' => $form->createView(), 'errors' => $errors, 'create' => false, 'variant_product_name' => $variant_product->getName(), 
             	'variant_product_id' => $variant_product->getId()]);
+    }
+
+    /**
+     * @Route("admin/variant_product/{id}/manageCategories", name="manage_categories_variant_product")
+     */
+    public function manageCategoriesVariantProduct(Request $request, $id)
+    {
+    	$variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	$former_categories = $this->getDoctrine()->getRepository(Category::class)->findCategoriesByVariantProduct($variant_product);
+    	$form = $this->createForm(ManageCategoriesVariantProductType::class, $variant_product);
+    	$form->handleRequest($request);
+    	if($form->isSubmitted() && $form->isValid()) {
+    		$manager = $this->getDoctrine()->getManager();
+    		foreach($former_categories as $category) {
+    			if(!$variant_product->hasCategory($category)) {
+    				$category->removeVariantProduct($variant_product);
+    				$manager->persist($category);
+    			}
+    		}
+    		foreach($variant_product->getCategories() as $new_category) {
+    			$contain = false;
+    			foreach($former_categories as $category) {
+    				if($new_category->getId() === $category->getId())
+    					$contain = true;
+    			}
+    			if(!$contain) {
+    				$new_category->addVariantProduct($variant_product);
+    				$manager->persist($new_category);
+    			}
+    		}
+    		$manager->persist($variant_product);
+    		$manager->flush();
+    		return $this->redirectToRoute('variant_product', ['id' => $id]);
+    	}
+    	return $this->render('admin/products/variants_products/manage_categories_variant_product.html.twig', 
+    		['form' => $form->createView(), 'variant_product' => $variant_product]);
+    }
+
+    /**
+     * @Route("admin/variant_product/{id}/manageProducts", name="manage_products_variant_product")
+     */
+    public function manageProductsVariantProduct(Request $request, $id)
+    {
+    	$variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	$former_product = $this->getDoctrine()->getRepository(Product::class)->findProductByVariantProduct($variant_product);
+    	if(!empty($former_products)) 
+    		$former_product = $former_product[0];
+    	else 
+    		$former_product = null;
+    	$form = $this->createForm(ManageProductVariantProductType::class, $variant_product);
+    	$form->handleRequest($request);
+    	if($form->isSubmitted() && $form->isValid()) {
+			//$this->getDoctrine()->getManager()->persist($variant_product->getProduct());
+    		if($former_product !== null){
+    			$former_product->calculStock();
+    			$this->getDoctrine()->getManager()->persist($former_product);
+    		}
+    		$variant_product->getProduct()->calculStock();
+    		$this->getDoctrine()->getManager()->persist($variant_product);
+    		$this->getDoctrine()->getManager()->flush();
+			return $this->redirectToRoute('variant_product', ['id' => $id]);
+    	}
+    	return $this->render('admin/products/variants_products/manage_product_variant_product.html.twig',
+    		['form' => $form->createView(), 'variant_product' => $variant_product]);
     }
 
     /**
@@ -593,10 +838,24 @@ class AdminProductController extends AbstractController
         	return $this->redirectToRoute('variants_products');
         $variant_product = $variant_product[0];
         $variant_product->setDelete(true);
+        if($variant_product->getProduct() !== null) {
+        	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $variant_product->getProduct()->getId()]);
+        	$variant_product->setProduct(null);
+        	$product->calculStock();
+        	$this->getDoctrine()->getManager()->persist($product);
+        }
+        foreach($variant_product->getCategories() as $category) {
+        	$variant_product->removeCategory($category);
+        	$this->getDoctrine()->getManager()->persist($category);
+        }
         $this->getDoctrine()->getManager()->persist($variant_product);
         $this->getDoctrine()->getManager()->flush();
         return $this->redirectToRoute('variants_products');
     }
+
+    //
+    //Les méthodes pour sauvegarder les images.
+    //
 
     public function saveImage($image, $parameter_directory) {
     	$originalImagename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
@@ -618,6 +877,7 @@ class AdminProductController extends AbstractController
             return $e;
         }
     }
+
 
 }
 

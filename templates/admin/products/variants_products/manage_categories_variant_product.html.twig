@@ -1,0 +1,56 @@
+{% extends 'base_admin.html.twig' %}
+
+
+{% block title %} {{ variant_product.name }} {% endblock %}
+
+
+{% block body %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Gestion des catégories de {{ variant_product.name }}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("variants_products") }}">Variantes de produits</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("variant_product", {id: variant_product.id}) }}">{{ variant_product.name }}</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Gestion des catégories</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+	
+	<div class="row justify-content-center">
+		{{ form_start(form, {'attr' : {'class' : 'form-group'}}) }}
+
+			<div class="row">
+				<div class="offset-1">
+					{{ form_label(form.categories) }}
+				</div>
+			</div>
+			<div class="row">
+				{% for choice in form.categories.children %}
+					<div class="offset-1 col-5">
+						<div class="form-check">
+							{{ form_widget(choice) }}
+				            {{ form_label(choice) }}
+				            {{ form_errors(choice) }}
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+			<div class="offset-1">
+				{{ form_row(form.submit) }}
+			</div>
+
+		{{ form_end(form) }}
+	</div>
+
+{% endblock %}
+

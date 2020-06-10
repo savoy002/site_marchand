@@ -24,7 +24,7 @@
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("categories") }}">Variante de produits</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("variants_products") }}">Variante de produits</a></li>
 			    <li class="breadcrumb-item active" aria-current="page">
 			    	{{(create)?("Ajout de variante de produit"):("Modification de la variante de produit " ~ variant_product_name)}}
 			    </li>
@@ -67,10 +67,18 @@
 				{{ form_widget(form.image) }}
 			</div>
 			<div class="col-5">
+				{{ form_label(form.product) }}
+				{{ form_errors(form.product) }}
+				{{ form_widget(form.product) }}
+			</div>
+		</div>
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
 				{{ form_label(form.description) }}
 				{{ form_errors(form.description) }}
 				{{ form_widget(form.description) }}
 			</div>
+			<div class="col-5"></div>
 		</div>
 
 		<div class="row justify-content-start form-div-button">

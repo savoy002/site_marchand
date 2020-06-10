@@ -6,7 +6,7 @@
 
 	<div class="row">
 		<div class="offset-sm-1">
-			<h1>Variantes de produits.</h1>
+			<h1>{{ variant_product.name }}</h1>
 		</div>
 	</div>
 
@@ -16,7 +16,7 @@
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("menu_product") }}">Menu produit</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("products") }}">Variantes de produits</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("variants_products") }}">Variantes de produits</a></li>
 			    <li class="breadcrumb-item active" aria-current="page">{{ variant_product.name }}</li>
 			  </ol>
 			</nav>
@@ -87,6 +87,36 @@
 		</div>
 	</div>
 
+	<div class="row justify-content-start">
+		<div class="col-1"></div>
+		<div class="col-5">
+			<div class="row justify-content-center"><h4>Catégories<h4></div>
+			{% for category in variant_product.categories %}
+				<div class="row justify-content-center">{{ category.name }}</div>
+			{% endfor %}
+		</div>
+		<div class="col-5">
+			<div class="row justify-content-center"><h4>Produit<h4></div>
+			{% if variant_product.product is not null %}
+				<div class="row justify-content-center">{{ variant_product.product.name }}</div>
+			{% else %}
+				<div class="row justify-content-center">Aucun produit attitré.</div>
+			{% endif %}
+		</div>
+	</div>
+	<div class="row justify-content-start">
+		<div class="col-1"></div>
+		<div class="col-5">
+			<div class="row justify-content-center">
+				<a class="btn btn-primary" href="{{ path("manage_categories_variant_product", {id:variant_product.id}) }}">Changer les catégories</a>
+			</div>
+		</div>
+		<div class="col-5">
+			<div class="row justify-content-center">
+				<a class="btn btn-primary"  href="{{ path("manage_products_variant_product", {id:variant_product.id}) }}">Changer le produit</a>
+			</div>
+		</div>
+	</div>
 
  {% endblock %}
 

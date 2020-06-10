@@ -22,9 +22,7 @@
 	{{ form_row(form.verifyPassword) }}
 	{{ form_row(form.submit) }}
 
-	{{ form_widget(form.roles, { 'attr' : { 'hidden' : '' } }) }}
-
-	{{ form_end(form) }}
+	{{ form_end(form, {'render_rest': false}) }}
 
 	<a href="{{ path("store") }}"><button class="btn btn-danger">Annuler</button></a>
 
