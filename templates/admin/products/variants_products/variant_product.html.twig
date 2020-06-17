@@ -88,25 +88,27 @@
 	</div>
 
 	<div class="row justify-content-start">
-		<div class="col-1"></div>
-		<div class="col-5">
+		<div class="col-5 offset-1">
 			<div class="row justify-content-center"><h4>Catégories<h4></div>
 			{% for category in variant_product.categories %}
-				<div class="row justify-content-center">{{ category.name }}</div>
+				<div class="row justify-content-center">
+					<a class="btn btn-success" href="{{ path("category", {id:category.id}) }}">{{ category.name }}</a>
+				</div>
 			{% endfor %}
 		</div>
 		<div class="col-5">
 			<div class="row justify-content-center"><h4>Produit<h4></div>
 			{% if variant_product.product is not null %}
-				<div class="row justify-content-center">{{ variant_product.product.name }}</div>
+				<div class="row justify-content-center">
+					<a class="btn btn-success" href="{{ path("product", {id:variant_product.product.id}) }}">{{ variant_product.product.name }}</a>
+				</div>
 			{% else %}
 				<div class="row justify-content-center">Aucun produit attitré.</div>
 			{% endif %}
 		</div>
 	</div>
 	<div class="row justify-content-start">
-		<div class="col-1"></div>
-		<div class="col-5">
+		<div class="col-5 offset-1">
 			<div class="row justify-content-center">
 				<a class="btn btn-primary" href="{{ path("manage_categories_variant_product", {id:variant_product.id}) }}">Changer les catégories</a>
 			</div>

@@ -24,6 +24,7 @@ use App\Form\Type\Product\Manager\ManageVariantsProductsCategoryType;
 class AdminProductController extends AbstractController
 {
 
+	//Le nombre Products ou VariantsProduct par page.
 	const NUMBER_BY_PAGE = 5;
 
 	private $filesSystem;
@@ -41,7 +42,7 @@ class AdminProductController extends AbstractController
 	}
 
 	//
-	//Partie Catégorie.
+	//Partie Category.
 	//
 
 	/**
@@ -76,16 +77,19 @@ class AdminProductController extends AbstractController
         $errors = array();
         if($form->isSubmitted() && $form->isValid()) {
             $valid = true;
+            //Création de l'attribut code si il n'a pas été crée par l'utilisateur.
             if($category->getCode() === null || $category->getCode() === "") {
                 $code = str_replace(' ', '_', $category->getName());
                 $category->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
             }
+            //Vérification qu'aucune autre Category n'a le même code.
             $exist = $this->getDoctrine()->getRepository(Category::class)->findBy(['code' => $category->getCode()]);
             if(!empty($exist)) {
                 $errors[] = "Le code de la catégorie est déjà utilisé par une autre catégorie.";
                 $valid = false;
             }
             if($valid) {
+            	//Ajout de l'image dans le dossier public/img/uploads/Product/Category .
                 $image = $form->get('image')->getData();
                 if($image) {
                     $res = $this->saveImage($image, 'category_image_directory');
@@ -115,10 +119,12 @@ class AdminProductController extends AbstractController
         $errors = array();
         if($form->isSubmitted() && $form->isValid()) {
             $valid = true;
+            //Création de l'attribut code si il n'a pas été crée par l'utilisateur.
             if($category->getCode() === null || $category->getCode() === "") {
                 $code = str_replace(' ', '_', $category->getName());
                 $category->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
             }
+            //Vérification qu'aucune autre catégorie n'a le même code.
             $exists = $this->getDoctrine()->getRepository(Category::class)->findBy(['code' => $category->getCode()]);
             if(!empty($exists)) {
             	$exit = false;
@@ -132,6 +138,7 @@ class AdminProductController extends AbstractController
             	}
             }
             if($valid) {
+            	//Suppression dans l'ancienne image si elle existe et ajout de la nouvelle image dans le dossier public/img/uploads/Product/Category .
                 $image = $form->get('image')->getData();
                 if($image) {
                     $res_save = $this->saveImage($image, 'category_image_directory');
@@ -171,6 +178,7 @@ class AdminProductController extends AbstractController
 		$form->handleRequest($request);
 		if($form->isSubmitted() && $form->isValid()) {
 			$manager = $this->getDoctrine()->getManager();
+			//Décommenter les ligne suivantes si la Category et les Products ne se modifient pas.
 			/*foreach($former_products as $product) {
 				if(!$category->hasProduct($product)) {
 					$product->removeCategory($category);
@@ -206,6 +214,7 @@ class AdminProductController extends AbstractController
 		$form->handleRequest($request);
 		if($form->isSubmitted() && $form->isValid()) {
 			$manager = $this->getDoctrine()->getManager();
+			//Décommenter les ligne suivantes si la Category et les VariantsProducts ne se modifient pas.
 			/*foreach($former_variants as $variant_product) {
 				if(!$category->hasVariantProduct($variant_product)) {
 					$variant_product->removeCategory($category);
@@ -250,10 +259,12 @@ class AdminProductController extends AbstractController
     {
         $category = $this->getDoctrine()->getRepository(Category::class)->find($id);
         $category->setDelete(true);
+        //Enlève les lien entre la Category et les Products.
         foreach($category->getProducts() as $product) {
         	$category->removeProduct($product);
         	$this->getDoctrine()->getManager()->persist($product);
         }
+        //Enlève les lien entre la Category et les VariantsProducts.
         foreach ($category->getVariantsProducts as $variant_product) {
         	$category->removeVariantProduct($variant_product);
         	$this->getDoctrine()->getManager()->persist($variant_product);
@@ -264,7 +275,7 @@ class AdminProductController extends AbstractController
     }
 
     //
-    //Partie Produit.
+    //Partie Product
     //
 
  	/**
@@ -274,13 +285,14 @@ class AdminProductController extends AbstractController
     {
     	$errors = array();
     	$former_request = array();
+    	//Place le nombre de Produts par page dans les paramètre de la recherche.
     	$criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
-
+    	//Recherche la demande de page de l'administrateur si elle existe.
     	$page = $request->request->get('page');
-    	$number_products = intval($this->getDoctrine()->getRepository(Product::class)->countNumberProducts()[0][1]);
-    	$number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
 
+    	//Gestion de la sélection si il y an a une.
     	if($request->request->get('research') === "research") {
+    		//Création des différents paramètres de la recherche.
     		if($request->request->get('name') != "" && $request->request->get('name') !== null) {
                 $criteria['name'] = array('value' => $request->request->get('name'), 
                     'type' => $request->request->get('type_research_name'));
@@ -307,12 +319,14 @@ class AdminProductController extends AbstractController
                 $criteria['activate'] = $request->request->get('activate');
                 $former_request['activate'] =  $request->request->get('activate');
             }
+            //Ajout des ordres de recherches.
             if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
             	$criteria['orderBy'] = 
                     array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
                 $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
+            //Ajout du numéro de page.
             if($page != "" && $page !== null) {
                 if($page === 'Début') {
                     $criteria['page'] = 0;
@@ -325,14 +339,19 @@ class AdminProductController extends AbstractController
                 }
             } else
                 $page = 1;
-            $products = $this->getDoctrine()->getRepository(Product::class)->adminResearchProduct($criteria);
+            //Calcul le nombre de produits.
             $number_products = $this->getDoctrine()->getRepository(Product::class)->adminResearchNumberProducts($criteria)[0][1];
-            $number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
     	} else {
+    		//Ajout le nombre de pages.
     		$criteria['page'] = 0;
             $page = 1;
-    		$products = $this->getDoctrine()->getRepository(Product::class)->adminResearchProduct($criteria);
+            //Calcul le nombre de produits.
+	    	$number_products = intval($this->getDoctrine()->getRepository(Product::class)->countNumberProducts()[0][1]);
     	}
+    	//Cacul le nombre de pages.
+    	$number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
+    	//Recherche les produits à retourner.
+		$products = $this->getDoctrine()->getRepository(Product::class)->adminResearchProduct($criteria);
 
         return $this->render('admin/products/products/products.html.twig', 
         	['products' => $products, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 'request' => $former_request]);
@@ -360,10 +379,12 @@ class AdminProductController extends AbstractController
        	$errors = array();
        	if($form->isSubmitted() && $form->isValid()) {
        		$valid = true;
+       		//Création de l'attribut code si il n'a pas été crée par l'utilisateur.
        		if($product->getCode() === null || $product->getCode() === '') {
        			$code = str_replace(' ', '_', $product->getName());
                 $product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
        		}
+       		//Vérification qu'aucun autre Product n'a le même code.
        		$exist = $this->getDoctrine()->getRepository(Product::class)->findBy(['code' => $product->getCode()]);
        		if(!empty($exist))  {
        			$errors[] = "Le code du produit existe déjà.";
@@ -371,6 +392,7 @@ class AdminProductController extends AbstractController
        		}
        		if($valid) {
        			$image = $form->get('image')->getData();
+       			//Ajout de l'image dans le dossier public/img/uploads/Product/Product .
                 if($image) {
                     $res = $this->saveImage($image, 'product_image_directory');
                     if(gettype($res) === "string")
@@ -399,10 +421,12 @@ class AdminProductController extends AbstractController
         $errors = array();
         if($form->isSubmitted() && $form->isValid()) {
             $valid = true;
+            //Création de l'attribut code si il n'a pas été crée par l'utilisateur.
             if($product->getCode() === null || $product->getCode() === "") {
                 $code = str_replace(' ', '_', $product->getName());
                 $product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
             }
+            //Vérification qu'aucun autre Product n'a le même code.
             $exists = $this->getDoctrine()->getRepository(Product::class)->findBy(['code' => $product->getCode()]);
             if(!empty($exists)) {
             	$exist = false;
@@ -417,6 +441,7 @@ class AdminProductController extends AbstractController
             }
             if($valid) {
                 $image = $form->get('image')->getData();
+                //Suppression dans l'ancienne image si elle existe et ajout de la nouvelle image dans le dossier public/img/uploads/Product/Product .
                 if($image) {
                     $res_save = $this->saveImage($image, 'product_image_directory');
                     if(gettype($res_save) === "string") {
@@ -454,12 +479,14 @@ class AdminProductController extends AbstractController
     	$form->handleRequest($request);
     	if($form->isSubmitted() && $form->isValid()) {
     		$manager = $this->getDoctrine()->getManager();
+    		//Enlève le Product aux Categories enlevées.
     		foreach($former_categories as $category) {
     			if(!$product->hasCategory($category)) {
     				$category->removeProduct($product);
     				$manager->persist($category);
     			}
     		}
+    		//Ajoute le Product aux Categories ajoutées.
     		foreach($product->getCategories() as $new_category) {
     			$contain = false;
     			foreach($former_categories as $category) {
@@ -488,12 +515,14 @@ class AdminProductController extends AbstractController
     	$form->handleRequest($request);
     	if($form->isSubmitted() && $form->isValid()) {
     		$manager = $this->getDoctrine()->getManager();
+    		//Enlève le Product aux VariantsProducts enlevées.
     		foreach($former_variants as $variant_product) {
     			if(!$product->hasVariantProduct($variant_product)) {
     				$variant_product->setProduct(null);
     				$manager->persist($variant_product);
     			}
     		}
+    		//Enlève le Product aux VariantsProducts ajoutées.
     		foreach($product->getVariantsProducts() as $new_variant) {
     			$contain = false;
     			foreach($former_variants as $variant_product) {
@@ -539,10 +568,12 @@ class AdminProductController extends AbstractController
     		return $this->redirectToRoute("products");
     	$product = $product[0];
     	$product->setDelete(true);
+    	//Change le Product des VariantsProducts contenuent par le Product.
     	foreach($product->getVariantsProducts() as $variant_product) {
     		$product->removeVariantProduct($variant_product);
     		$this->getDoctrine()->getManager()->persist($variant_product);
     	}
+    	//Enlève le Product des Categories contenuent par le Product.
     	foreach($product->getCategories() as $category) {
     		$product->removeCategory($category);
     		$this->getDoctrine()->getManager()->persist($category);
@@ -564,12 +595,12 @@ class AdminProductController extends AbstractController
     	$errors = array();
     	$former_request = array();
     	$criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
-
+    	//Recherche la demande de page de l'administrateur si elle existe.
     	$page = $request->request->get('page');
-    	$number_products = intval($this->getDoctrine()->getRepository(VariantProduct::class)->adminCountNumberVariantsProducts()[0][1]);
-    	$number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
 
+    	//Gestion de la sélection si il y an a une.
     	if($request->request->get('research') === "research") {
+    		//Création des différents paramètres de la recherche.
     		if($request->request->get('name') != "" && $request->request->get('name') !== null) {
                 $criteria['name'] = array('value' => $request->request->get('name'), 
                     'type' => $request->request->get('type_research_name'));
@@ -602,12 +633,14 @@ class AdminProductController extends AbstractController
                 $criteria['activate'] = $request->request->get('activate');
                 $former_request['activate'] =  $request->request->get('activate');
             }
+            //Ajout des ordres de recherches.
             if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
             	$criteria['orderBy'] = 
                     array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
                 $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
+            //Ajout du numéro de page.
             if($page != "" && $page !== null) {
                 if($page === 'Début') {
                     $criteria['page'] = 0;
@@ -620,15 +653,19 @@ class AdminProductController extends AbstractController
                 }
             } else 
             	$page = 1;
-
-            $variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria);
+            //Calcul le nombre de VariantsProduts.
             $number_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchNumberVariantsProducts($criteria)[0][1];
-            $number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
     	} else {
+    		//Ajout du numéro de page.
     		$page = 1;
     		$criteria['page'] = 0;
-    		$variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria);
+    		//Calcul le nombre de VariantsProduts.
+    		$number_products = intval($this->getDoctrine()->getRepository(VariantProduct::class)->adminCountNumberVariantsProducts()[0][1]);
     	}
+    	//Cacul le nombre de pages.
+    	$variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria);
+    	//Recherche les produits à retourner.
+    	$number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
 
         return $this->render('admin/products/variants_products/variants_products.html.twig', 
         	['variants_products' => $variants_products, 'errors' => $errors, 'request' => $former_request, 'page' => $page, 
@@ -657,10 +694,12 @@ class AdminProductController extends AbstractController
         $errors = array();
         if($form->isSubmitted() && $form->isValid()) {
         	$valid = true;
+        	//Création de l'attribut code si il n'a pas été crée par l'utilisateur.
         	if($variant_product->getCode() === null || $variant_product->getCode() === '') {
        			$code = str_replace(' ', '_', $variant_product->getName());
                 $variant_product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
        		}
+       		//Vérification qu'aucune autre VariantProduct n'a le même code.
        		$exist = $this->getDoctrine()->getRepository(Product::class)->findBy(['code' => $variant_product->getCode()]);
        		if(!empty($exist))  {
        			$errors[] = "Le code du produit existe déjà.";
@@ -668,6 +707,7 @@ class AdminProductController extends AbstractController
        		}
        		if($valid) {
        			$image = $form->get('image')->getData();
+       			//Ajout de l'image dans le dossier public/img/uploads/Product/VariantProduct .
                 if($image) {
                     $res = $this->saveImage($image, 'variant_product_image_directory');
                     if(gettype($res) === "string")
@@ -699,10 +739,12 @@ class AdminProductController extends AbstractController
         $errors = array();
         if($form->isSubmitted() && $form->isValid()) {
             $valid = true;
+        	//Création de l'attribut code si il n'a pas été crée par l'utilisateur.
             if($variant_product->getCode() === null || $variant_product->getCode() === "") {
                 $code = str_replace(' ', '_', $variant_product->getName());
                 $variant_product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
             }
+            //Vérification qu'aucune autre VariantProduct n'a le même code.
             $exists = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['code' => $variant_product->getCode()]);
             if(!empty($exists)) {
             	$exist = false;
@@ -717,6 +759,8 @@ class AdminProductController extends AbstractController
             }
             if($valid) {
                 $image = $form->get('image')->getData();
+                //Suppression dans l'ancienne image si elle existe et ajout de la nouvelle image dans le dossier 
+                // public/img/uploads/Product/VariantProduct.
                 if($image) {
                     $res_save = $this->saveImage($image, 'variant_product_image_directory');
                     if(gettype($res_save) === "string") {
@@ -760,12 +804,14 @@ class AdminProductController extends AbstractController
     	$form->handleRequest($request);
     	if($form->isSubmitted() && $form->isValid()) {
     		$manager = $this->getDoctrine()->getManager();
+    		//Enlève la VariantProduct aux Categories enlevées.
     		foreach($former_categories as $category) {
     			if(!$variant_product->hasCategory($category)) {
     				$category->removeVariantProduct($variant_product);
     				$manager->persist($category);
     			}
     		}
+    		//Ajoute la VariantProduct aux Categories ajoutées.
     		foreach($variant_product->getCategories() as $new_category) {
     			$contain = false;
     			foreach($former_categories as $category) {
@@ -791,6 +837,7 @@ class AdminProductController extends AbstractController
     public function manageProductsVariantProduct(Request $request, $id)
     {
     	$variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	//Regarde si la VariantProduct a un ancien Product.
     	$former_product = $this->getDoctrine()->getRepository(Product::class)->findProductByVariantProduct($variant_product);
     	if(!empty($former_products)) 
     		$former_product = $former_product[0];
@@ -800,6 +847,7 @@ class AdminProductController extends AbstractController
     	$form->handleRequest($request);
     	if($form->isSubmitted() && $form->isValid()) {
 			//$this->getDoctrine()->getManager()->persist($variant_product->getProduct());
+			//Enlève la VariantProduct de l'ancien Product.
     		if($former_product !== null){
     			$former_product->calculStock();
     			$this->getDoctrine()->getManager()->persist($former_product);
@@ -838,12 +886,14 @@ class AdminProductController extends AbstractController
         	return $this->redirectToRoute('variants_products');
         $variant_product = $variant_product[0];
         $variant_product->setDelete(true);
+        //Enlève la VariantProduct au Product contenu par la VariantProduct.
         if($variant_product->getProduct() !== null) {
         	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $variant_product->getProduct()->getId()]);
         	$variant_product->setProduct(null);
         	$product->calculStock();
         	$this->getDoctrine()->getManager()->persist($product);
         }
+        //Enlève la VariantProduct des Categories contenu par la VariantProduct.
         foreach($variant_product->getCategories() as $category) {
         	$variant_product->removeCategory($category);
         	$this->getDoctrine()->getManager()->persist($category);
@@ -854,7 +904,7 @@ class AdminProductController extends AbstractController
     }
 
     //
-    //Les méthodes pour sauvegarder les images.
+    //Les méthodes pour sauvegarder et supprimer les images.
     //
 
     public function saveImage($image, $parameter_directory) {
@@ -878,6 +928,4 @@ class AdminProductController extends AbstractController
         }
     }
 
-
 }
-

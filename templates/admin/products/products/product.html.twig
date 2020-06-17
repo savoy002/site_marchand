@@ -88,13 +88,17 @@
 		<div class="col-5">
 			<div class="row justify-content-center"><h4>Catégories<h4></div>
 			{% for category in product.categories %}
-				<div class="row justify-content-center">{{ category.name }}</div>
+				<div class="row justify-content-center">
+					<a class="btn btn-success" href="{{ path("category", {id:category.id}) }}">{{ category.name }}</a>
+				</div>
 			{% endfor %}
 		</div>
 		<div class="col-5">
 			<div class="row justify-content-center"><h4>Variantes de produits<h4></div>
 			{% for variant_product in product.variantsProducts %}
-				<div class="row justify-content-center">{{ variant_product.name }}</div>
+				<div class="row justify-content-center">
+					<a class="btn btn-success" href="{{ path("variant_product", {id:variant_product.id}) }}">{{ variant_product.name }}</a>
+				</div>
 			{% endfor %}
 			
 		</div>

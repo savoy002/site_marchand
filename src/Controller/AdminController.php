@@ -52,9 +52,6 @@ class AdminController extends AbstractController
         $errors = array();
         $criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
 
-        $number_users = intval($this->getDoctrine()->getRepository(User::class)->countNumberUsers()[0][1]);
-        $number_pages = intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
-
         if($request->request->get('research') === "research") {
             if($request->request->get('username') != "" && $request->request->get('username') !== null) {
                 $criteria['username'] = array('value' => $request->request->get('username'), 
@@ -129,6 +126,8 @@ class AdminController extends AbstractController
             $criteria['page'] = 0;
             $page = 1;
             $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
+            $number_users = intval($this->getDoctrine()->getRepository(User::class)->countNumberUsers()[0][1]);
+            $number_pages = intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
 
     	return $this->render('admin/users/users.html.twig', ['users' => $users, 'number_pages' => $number_pages, 'page' => $page, 
@@ -156,11 +155,13 @@ class AdminController extends AbstractController
             $errors = array();
             if($form->isSubmitted() && $form->isValid()) {
                 $valid = true;
+                //Regarde si le nom d'utilisateur n'a pas déjà été choisie.
                 $exist = $this->getDoctrine()->getRepository(User::class)->findBy(['username' => $user->getUsername()]);
                 if(!empty($exist)) {
                     $errors[] = "Le nom d'utilisateur existe déjà.";
                     $valid = false;
                 }
+                //Regarde si les deux mot de passes sont identiques.
                 if($user->getPassword() != $form->get('verifyPassword')->getData()) {
                     $errors[] = "La vérification du mot de passe et le mot de passe sont différents.";
                     $valid = false;
@@ -168,6 +169,7 @@ class AdminController extends AbstractController
                 if($valid) {
                     $user->setAdmin(true);
                     $user->setValid(true);
+                    //Cryte le mot de passe.
                     $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPassword()));
                     $this->getDoctrine()->getManager()->persist($user);
                     $this->getDoctrine()->getManager()->flush();
