@@ -12,6 +12,8 @@ use Doctrine\Table;
 use DateTime;
 
 use App\Entity\Command\Adress;
+use App\Entity\Command\Command;
+use App\Entity\User\Comment;
 
 
 /**
@@ -89,6 +91,11 @@ class User implements UserInterface
      */
     private $comments;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="user", orphanRemoval=false)
+     */
+    private $commands;
+
     public function __construct() {
         $this->createdAt = new DateTime();
         $this->valid = false;
@@ -96,6 +103,7 @@ class User implements UserInterface
         $this->admin = false;
         $this->superAdmin = false;
         $this->comments = new ArrayCollection();
+        $this->commands = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -259,7 +267,8 @@ class User implements UserInterface
     {
         if (!$this->comments->contains($comment)) {
             $this->comments[] = $comment;
-            $comment->setUser($this);
+            if($comment->getUser() != $this)
+                $comment->setUser($this);
         }
 
         return $this;
@@ -277,5 +286,39 @@ class User implements UserInterface
 
         return $this;
     }
+
+    public function getCommands(): Collection
+    {
+        return $this->commands;
+    }
+
+    public function hasCommands(Command $command): bool
+    {
+        return $this->commands->contains($command);
+    }
+
+    public function addCommands(Command $command): self 
+    {
+        if(!$this->commands->contains($command)) {
+            $this->commands[] = $command;
+            if($command->getUser() != $this)
+                $command->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommands(Command $command): self
+    {
+        if($this->commands->contains($command)) {
+            $this->commands->removeElement($command);
+            if($command->getUser() === $this)
+                $command->setUser(null);
+        }
+
+        return $this;
+    }
+
+
 
 }

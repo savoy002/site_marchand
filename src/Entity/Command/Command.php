@@ -64,6 +64,12 @@ class Command
      */
     private $products;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User\User", inversedBy="commands")
+     * @ORM\JoinColumn(name="user_id_com", referencedColumnName="id")
+     */
+    private $user;
+
     public function __construct()
     {
         $this->priceTotal = null;
@@ -118,45 +124,35 @@ class Command
         return $this->priceTotal;
     }
 
-    public function createPriceTotal(): self
+    public function calculPriceTotal(): self
     {
-        if($priceTotal === null) {
-            foreach ($this->getProducts as $pieceCommand)
+        if(!empty($this->products) && $this->typeDelivery !== null) {
+            if($this->priceTotal !== null) 
+                $this->priceTotal = 0;
+
+            foreach ($this->products as $pieceCommand)
                 $this->priceTotal += $pieceCommand->getNbProducts * $pieceCommand->getProduct()->getPrice();
+
+            $this->priceTotal += $this->typeDelivery->getPrice();
         }
-        
+
         return $this;
     }
 
-    /**
-     * @return Collection|Adress[]
-     */
-    public function getPlaceDel(): Collection
+    public function getPlaceDel(): ?Adress
     {
         return $this->placeDel;
     }
 
-    public function addPlaceDel(Adress $placeDel): self
+    public function setPlaceDel(?Adress $adress): self
     {
-        if (!$this->placeDel->contains($placeDel)) {
-            $this->placeDel[] = $placeDel;
-            $placeDel->setCommands($this);
-        }
+        if($this->placeDel != null)
+            $this->placeDel->removeCommand($this);
+        $this->placeDel = $adress;
+        if(!$adress->hasCommand($this))
+            $adress->addCommand($this);
 
-        return $this;
-    }
-
-    public function removePlaceDel(Adress $placeDel): self
-    {
-        if ($this->placeDel->contains($placeDel)) {
-            $this->placeDel->removeElement($placeDel);
-            // set the owning side to null (unless already changed)
-            if ($placeDel->getCommands() === $this) {
-                $placeDel->setCommands(null);
-            }
-        }
-
-        return $this;
+        return self;
     }
 
     public function getTypeDelivery(): ?Delivery
@@ -166,7 +162,11 @@ class Command
 
     public function setTypeDelivery(?Delivery $typeDelivery): self
     {
+        if($this->typeDelivery != null)
+            $this->typeDelivery->setCommand(null);
         $this->typeDelivery = $typeDelivery;
+        if($typeDelivery->getCommand() != $this)
+            $typeDelivery->setCommand($this);
 
         return $this;
     }
@@ -177,6 +177,11 @@ class Command
     public function getProducts(): Collection
     {
         return $this->products;
+    }
+
+    public function hasProducts(PieceCommand $pieceCommand): bool
+    {
+        return $this->products->contains($pieceCommand);
     }
 
     public function addProduct(PieceCommand $product): self
@@ -198,6 +203,22 @@ class Command
                 $product->setCommand(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        if($this->user != $user && $this->user != null)
+            $this->user->removeCommand($this);
+        $this->user = $user;
+        if(!$user->hasCommand($user))
+            $user->addCommand($this);
 
         return $this;
     }

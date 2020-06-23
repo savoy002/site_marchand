@@ -59,7 +59,11 @@ class PieceCommand
 
     public function setCommand(?Command $command): self
     {
+        if($this->command != $command && $this->command != null)
+            $this->command->removeProduct($this);
         $this->command = $command;
+        if(!$command->hasProduct($this))
+            $command->addProduct($this);
 
         return $this;
     }
@@ -71,7 +75,11 @@ class PieceCommand
 
     public function setProduct(?VariantProduct $product): self
     {
+        if($this->product != $product && $this->product != null)
+            $this->product->removeCommand($this);
         $this->product = $product;
+        if(!$product->hasCommand($this))
+            $product->addCommand($this);
 
         return $this;
     }

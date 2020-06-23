@@ -92,9 +92,36 @@ class Adress
         return $this;
     }
 
-    public function getCommands(): ?Command
+    public function getCommands(): Collections
     {
         return $this->commands;
+    }
+
+    public function hasCommand(Command $command): bool
+    {
+        return $this->commands->contains($command);
+    }
+
+    public function addCommand(Command $command): self
+    {
+        if(!$this->commands->contains($command)) {
+            $this->commands[] = $command;
+            if($command->getPlaceDel() != $this) 
+                $command->setPlaceDel($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommand(Command $command): self
+    {
+        if($this->commands->contains($command)) {
+            $this->commands->removeElement($command);
+            if($command->getPlaceDel() === $this)
+                $command->setPlaceDel($this);
+        }
+
+        return $this;
     }
 
     public function setCommands(?Command $commands): self

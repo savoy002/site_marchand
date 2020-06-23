@@ -251,6 +251,11 @@ class VariantProduct
         return $this->commands;
     }
 
+    public function hasCommand(PieceCommand $pieceCommand): bool
+    {
+        return $this->commands->contains($pieceCommand);
+    }
+
     public function addCommand(PieceCommand $command): self
     {
         if (!$this->commands->contains($command)) {

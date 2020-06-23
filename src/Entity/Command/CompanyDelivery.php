@@ -30,7 +30,7 @@ class CompanyDelivery
     private $area = [];
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Command\Delivery", mappedBy="companyDelivery", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\Delivery", mappedBy="companyDelivery", orphanRemoval=false)
      */
     private $deliveries;
 

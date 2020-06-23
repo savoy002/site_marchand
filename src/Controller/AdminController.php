@@ -11,11 +11,10 @@ use App\Entity\User\User;
 use App\Form\Type\User\UserType;
 
 
-
-
 class AdminController extends AbstractController
 {
 
+    //Le nombre d'utilisateurs affichés par page.
     const NUMBER_BY_PAGE = 5;
 
     private $passwordEncoder;

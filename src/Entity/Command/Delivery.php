@@ -30,9 +30,9 @@ class Delivery
     private $price;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="typeDelivery")
+     * @ORM\OneToOne(targetEntity="App\Entity\Command\Command", mappedBy="typeDelivery")
      */
-    private $commands;
+    private $command;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Command\CompanyDelivery", inversedBy="deliveries")
@@ -74,36 +74,22 @@ class Delivery
         return $this;
     }
 
-    /**
-     * @return Collection|Command[]
-     */
-    public function getCommands(): Collection
+    public function getCommand(): ?Command
     {
-        return $this->commands;
+        return $this->command;
     }
 
-    public function addCommand(Command $command): self
+    public function setCommand(?Command $command): self
     {
-        if (!$this->commands->contains($command)) {
-            $this->commands[] = $command;
+        if($this->command != null)
+            $this->command->setTypeDelivery(null);
+        $this->command = $command;
+        if($command->getTypeDelivery() != $this) 
             $command->setTypeDelivery($this);
-        }
 
-        return $this;
+        return self;
     }
 
-    public function removeCommand(Command $command): self
-    {
-        if ($this->commands->contains($command)) {
-            $this->commands->removeElement($command);
-            // set the owning side to null (unless already changed)
-            if ($command->getTypeDelivery() === $this) {
-                $command->setTypeDelivery(null);
-            }
-        }
-
-        return $this;
-    }
 
     public function getCompanyDelivery(): ?CompanyDelivery
     {

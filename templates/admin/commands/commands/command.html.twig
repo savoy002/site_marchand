@@ -1,0 +1,49 @@
+{% extends 'base_admin.html.twig' %}
+
+
+{% block title %} Commande {% endblock %}
+
+
+{% block body %}
+
+		<div class="row">
+			<div class="offset-sm-1">
+				<h1>Commande.</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="offset-sm-1"
+				<nav aria-label="breadcrumb">
+				  <ol class="breadcrumb">
+				    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+				    <li class="breadcrumb-item"><a href="{{ path("commands") }}">Commandes</a></li>
+				    <li class="breadcrumb-item active" aria-current="page">Commande</li>
+				  </ol>
+				</nav>
+			</div>
+		</div>
+
+		<div class="row justify-content-start">
+
+			<div class="row">
+				<div class="col-10 offset-2 table-responsive">
+					<table class="table table-bordered">
+						<thead class="thead-dark">
+							<tr><th>Date de création</th><th>Complète</th><th>Date de réception</th><th>Prix total</th></tr>
+						</thead>
+						<tbody>
+							<tr>
+								<td>{{ command.createAt|date("d/m/Y") }}</td>
+								<td>{{ (command.compteted)?('Oui'):('Non') }}</td>
+								<td>{{ command.dateReceive|date("d/m/Y") }}</td>
+								<td>{{ command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) }}</td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+			
+		</div>
+
+{% endblock %}
