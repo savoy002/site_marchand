@@ -12,7 +12,7 @@ use App\Entity\Command\Adress;
 use App\Entity\Command\Delivery;
 use App\Entity\Command\PieceCommand;
 use App\Entity\Product\VariantProduct;
-
+use App\Entity\User\User;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Command\CommandRepository")
@@ -72,8 +72,9 @@ class Command
 
     public function __construct()
     {
+        $this->createAt = new DateTime();
+        $this->completed = false;
         $this->priceTotal = null;
-        $this->placeDel = new ArrayCollection();
         $this->delivery = new ArrayCollection();
         $this->products = new ArrayCollection();
     }
@@ -83,14 +84,14 @@ class Command
         return $this->id;
     }
 
-    public function getDateCom(): ?\DateTimeInterface
+    public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->dateCom;
+        return $this->createAt;
     }
 
-    public function setDateCom(\DateTimeInterface $dateCom): self
+    public function setCreatedAt(\DateTimeInterface $createAt): self
     {
-        $this->dateCom = $dateCom;
+        $this->createAt = $createAt;
 
         return $this;
     }
@@ -126,15 +127,17 @@ class Command
 
     public function calculPriceTotal(): self
     {
-        if(!empty($this->products) && $this->typeDelivery !== null) {
-            if($this->priceTotal !== null) 
-                $this->priceTotal = 0;
+        $this->priceTotal = 0;
+
+        if(!empty($this->products)) {
 
             foreach ($this->products as $pieceCommand)
-                $this->priceTotal += $pieceCommand->getNbProducts * $pieceCommand->getProduct()->getPrice();
+                $this->priceTotal += $pieceCommand->getNbProducts() * $pieceCommand->getProduct()->getPrice();
 
-            $this->priceTotal += $this->typeDelivery->getPrice();
         }
+
+        if($this->typeDelivery !== null)
+            $this->priceTotal += $this->typeDelivery->getPrice();
 
         return $this;
     }
@@ -152,7 +155,7 @@ class Command
         if(!$adress->hasCommand($this))
             $adress->addCommand($this);
 
-        return self;
+        return $this;
     }
 
     public function getTypeDelivery(): ?Delivery
@@ -179,7 +182,7 @@ class Command
         return $this->products;
     }
 
-    public function hasProducts(PieceCommand $pieceCommand): bool
+    public function hasProduct(PieceCommand $pieceCommand): bool
     {
         return $this->products->contains($pieceCommand);
     }
@@ -217,7 +220,7 @@ class Command
         if($this->user != $user && $this->user != null)
             $this->user->removeCommand($this);
         $this->user = $user;
-        if(!$user->hasCommand($user))
+        if(!$user->hasCommand($this))
             $user->addCommand($this);
 
         return $this;

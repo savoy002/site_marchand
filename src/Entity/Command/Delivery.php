@@ -87,7 +87,7 @@ class Delivery
         if($command->getTypeDelivery() != $this) 
             $command->setTypeDelivery($this);
 
-        return self;
+        return $this;
     }
 
 

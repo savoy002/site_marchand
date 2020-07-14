@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 use App\Entity\User\User;
+use App\Entity\Command\Command;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Command\AdressRepository")
@@ -48,7 +49,8 @@ class Adress
 
     public function __construct() 
     {
-        $this->belongs = ArrayCollection();
+        $this->commands = new ArrayCollection();
+        $this->belongs = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -118,15 +120,8 @@ class Adress
         if($this->commands->contains($command)) {
             $this->commands->removeElement($command);
             if($command->getPlaceDel() === $this)
-                $command->setPlaceDel($this);
+                $command->setPlaceDel(null);
         }
-
-        return $this;
-    }
-
-    public function setCommands(?Command $commands): self
-    {
-        $this->commands = $commands;
 
         return $this;
     }

@@ -2,6 +2,9 @@
 
 namespace App\DataFixtures;
 
+use DateTime;
+
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\Persistence\ObjectManager;
 
@@ -13,14 +16,14 @@ use App\DataFixtures\UserFixtures;
 
 use App\Entity\Command\Command;
 use App\Entity\Command\Adress;
-use App\Entity\Command\CompanyDelivery;
-use App\Entity\Command\Delevery;
+use App\Entity\Command\Companydelivery;
+use App\Entity\Command\delivery;
 use App\Entity\Command\PieceCommand;
 use App\Entity\Product\VariantProduct;
 use App\Entity\User\User;
 
 
-class CommandFixtures extends Fixture implements ContainerAwareInterface
+class CommandFixtures extends Fixture implements ContainerAwareInterface, DependentFixtureInterface
 {
 
 	private $container;
@@ -36,12 +39,26 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 		//Création des Commands.
 
 		$command1 = new Command();
+		$command1->setCreatedAt(new DateTime('2020-06-07'));
+
 		$command2 = new Command();
+		$command2->setCreatedAt(new DateTime('2019-03-26'));
+
 		$command3 = new Command();
+		$command3->setCreatedAt(new DateTime('2019-11-12'));
+
 		$command4 = new Command();
+		$command4->setCreatedAt(new DateTime('2020-05-18'));
+
 		$command5 = new Command();
+		$command5->setCreatedAt(new DateTime('2019-12-16'));
+
 		$command6 = new Command();
+		$command6->setCreatedAt(new DateTime('2020-01-23'));
+
 		$command7 = new Command();
+		$command7->setCreatedAt(new DateTime('2020-03-06'));
+
 		$command8 = new Command();
 
 		//Création des Adress.
@@ -78,48 +95,48 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 
 		//Création des CompaniesDeliveries.
 
-		$companyDelivery1 = new CompanyDelivery();
-		$companyDelivery1->setName('UPR');
-		$companyDelivery1->setArea(['All']);
+		$companydelivery1 = new Companydelivery();
+		$companydelivery1->setName('UPR');
+		$companydelivery1->setArea(['All']);
 
-		$companyDelivery2 = new CompanyDelivery();
-		$companyDelivery2->setName('Faux livreur Grand EST');
-		$companyDelivery2->setArea(['08', '10', '51', '52', '54', '55', '57', '67', '68', '88']);
+		$companydelivery2 = new Companydelivery();
+		$companydelivery2->setName('Faux livreur Grand EST');
+		$companydelivery2->setArea(['08', '10', '51', '52', '54', '55', '57', '67', '68', '88']);
 
 		//Création des Deleveries.
 
-		$delevery1 = new Delevery();
-		$delevery1->setDate(new DateTime('now'));
-		$delevery1->setPrice(700);
+		$delivery1 = new delivery();
+		$delivery1->setDate(new DateTime('now'));
+		$delivery1->setPrice(700);
 
-		$delevery2 = new Delevery();
-		$delevery2->setDate(new DateTime('23-06-2020'));
-		$delevery2->setPrice(700);
+		$delivery2 = new delivery();
+		$delivery2->setDate(new DateTime('23-06-2020'));
+		$delivery2->setPrice(700);
 
-		$delevery3 = new Delevery();
-		$delevery3->setDate(new DateTime('12-04-2020'));
-		$delevery3->setPrice(1200);
+		$delivery3 = new delivery();
+		$delivery3->setDate(new DateTime('12-04-2020'));
+		$delivery3->setPrice(1200);
 
-		$delevery4 = new Delevery();
-		$delevery4->setDate(new DateTime('30-05-2020'));
-		$delevery4->setPrice(1200);
+		$delivery4 = new delivery();
+		$delivery4->setDate(new DateTime('30-05-2020'));
+		$delivery4->setPrice(1200);
 
-		$delevery5 = new Delevery();
-		$delevery5->setDate(new DateTime('12-05-2020'));
-		$delevery5->setPrice(1200);
+		$delivery5 = new delivery();
+		$delivery5->setDate(new DateTime('12-05-2020'));
+		$delivery5->setPrice(1200);
 
-		$delevery6 = new Delevery();
-		$delevery6->setDate(new DateTime('18-06-2020'));
-		$delevery6->setPrice(1200);
+		$delivery6 = new delivery();
+		$delivery6->setDate(new DateTime('18-06-2020'));
+		$delivery6->setPrice(1200);
 
 		//Création des liens entre les différents objets.
 
-		$command1->setTypeDelivery($delevery1);
-		$command2->setTypeDelivery($delevety2);
-		$command3->setTypeDelivery($delevety3);
-		$command4->setTypeDelivery($delevety4);
-		$command5->setTypeDelivery($delevety5);
-		$command6->setTypeDelivery($delevety6);
+		$command1->setTypedelivery($delivery1);
+		$command2->setTypedelivery($delivery2);
+		$command3->setTypedelivery($delivery3);
+		$command4->setTypedelivery($delivery4);
+		$command5->setTypedelivery($delivery5);
+		$command6->setTypedelivery($delivery6);
 
 		$command1->setPlaceDel($adress1);
 		$command2->setPlaceDel($adress2);
@@ -128,12 +145,12 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 		$command5->setPlaceDel($adress5);
 		$command6->setPlaceDel($adress6);
 
-		$companyDelivery1->addDelivery($delevery1);
-		$companyDelivery1->addDelivery($delevery2);
-		$companyDelivery2->addDelivery($delevery3);
-		$companyDelivery2->addDelivery($delevery4);
-		$companyDelivery2->addDelivery($delevery5);
-		$companyDelivery2->addDelivery($delevery6);
+		$companydelivery1->adddelivery($delivery1);
+		$companydelivery1->adddelivery($delivery2);
+		$companydelivery2->adddelivery($delivery3);
+		$companydelivery2->adddelivery($delivery4);
+		$companydelivery2->adddelivery($delivery5);
+		$companydelivery2->adddelivery($delivery6);
 
 		//Récupération des VariantsProducts et des Users.
 
@@ -145,12 +162,13 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 		$sachet_poire = $research_variant_product->findBy(['code' => 'sachet_poire'])[0];
 		$poire_tranchee = $research_variant_product->findBy(['code' => 'poire_tranchee'])[0];
 		$soupe_legume_vert = $research_variant_product->findBy(['code' => 'soupe_legume_vert'])[0];
-		$poireau_conserve = $research_variant_product->findBy(['code' => 'poireau_conserve_500'])[0];
+		$poireau_conserve = $research_variant_product->findBy(['code' => 'poireau_conserve'])[0];
 
 		$research_user = $this->container->get('doctrine')->getRepository(User::class);
 		$truc = $research_user->findBy(['username' => 'truc'])[0];
 		$test1 = $research_user->findBy(['username' => 'test1'])[0];
 		$test2 = $research_user->findBy(['username' => 'test2'])[0];
+		$test3 = $research_user->findBy(['username' => 'test3'])[0];
 
 		//Création des PiecesCommands.
 
@@ -222,6 +240,8 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 		$test1->addCommand($command4);
 		$test1->addCommand($command5);
 		$test2->addCommand($command6);
+		$test3->addCommand($command7);
+		$test3->addCommand($command8);
 
 		//Calcule des prix des Commands.
 
@@ -231,6 +251,8 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 		$command4->calculPriceTotal();
 		$command5->calculPriceTotal();
 		$command6->calculPriceTotal();
+		$command7->calculPriceTotal();
+		$command8->calculPriceTotal();
 
 		$command1->setCompleted(true);
 		$command2->setCompleted(true);
@@ -257,15 +279,15 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 		$manager->persist($adress5);
 		$manager->persist($adress6);
 
-		$manager->persist($companyDelivery1);
-		$manager->persist($companyDelivery2);
+		$manager->persist($companydelivery1);
+		$manager->persist($companydelivery2);
 
-		$manager->persist($delevery1);
-		$manager->persist($delevery2);
-		$manager->persist($delevery3);
-		$manager->persist($delevery4);
-		$manager->persist($delevery5);
-		$manager->persist($delevery6);
+		$manager->persist($delivery1);
+		$manager->persist($delivery2);
+		$manager->persist($delivery3);
+		$manager->persist($delivery4);
+		$manager->persist($delivery5);
+		$manager->persist($delivery6);
 
 		$manager->persist($pieceCommand1);
 		$manager->persist($pieceCommand2);
@@ -287,7 +309,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 		$manager->persist($sachet_poire);
 		$manager->persist($poire_tranchee);
 		$manager->persist($soupe_legume_vert);
-		$manager->persist($poireau_conserve)
+		$manager->persist($poireau_conserve);
 
 		$manager->flush();
 	}
@@ -296,7 +318,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface
 	{
 		return array(
 			ProductFixtures::class,
-			UserFixtures::class
+			UserFixtures::class,
 		);
 	}
 

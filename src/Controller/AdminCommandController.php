@@ -19,7 +19,7 @@ class AdminCommandController extends AbstractController
 
 
 	/**
-	 * @Route('/admin/commands', name='commands')
+	 * @Route("/admin/commands", name="commands")
 	 */
 	public function commands(Request $request) 
 	{
@@ -29,7 +29,7 @@ class AdminCommandController extends AbstractController
 	}
 
 	/**
-	 * @Route('/admin/command/{id}', name='command')
+	 * @Route("/admin/command/{id}", name="command")
 	 */
 	public function command($id) 
 	{

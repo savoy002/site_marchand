@@ -292,12 +292,12 @@ class User implements UserInterface
         return $this->commands;
     }
 
-    public function hasCommands(Command $command): bool
+    public function hasCommand(Command $command): bool
     {
         return $this->commands->contains($command);
     }
 
-    public function addCommands(Command $command): self 
+    public function addCommand(Command $command): self 
     {
         if(!$this->commands->contains($command)) {
             $this->commands[] = $command;
@@ -308,7 +308,7 @@ class User implements UserInterface
         return $this;
     }
 
-    public function removeCommands(Command $command): self
+    public function removeCommand(Command $command): self
     {
         if($this->commands->contains($command)) {
             $this->commands->removeElement($command);
