@@ -33,7 +33,12 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td>{% if user.imgFileName != null %}<img src="{{ asset('img/uploads/User/' ~ user.imgFileName) }}" width="60" height="60">{% endif %}</td>
+						<td>
+							<img src="{{ asset( (user.imgFileName is null)?
+												('img/sans_image.png'):
+												('img/uploads/User/' ~ user.imgFileName) ) }}"
+								width="60" height="60">
+						</td>
 						<td>{{ user.username }}</td>
 						<td>
 							{% if 'ROLE_ADMIN' in user.roles %}

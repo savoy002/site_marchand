@@ -24,26 +24,131 @@
 			</div>
 		</div>
 
-		<div class="row justify-content-start">
+		<div class="row justify-content-start offset-1">
+
+			{# Début des informations de base sur la commande. #}
 
 			<div class="row">
-				<div class="col-10 offset-2 table-responsive">
+				<div classs="row">
+					<h2>Info sur la commande.</h2>
+				</div>
+				<div classs="row">
 					<table class="table table-bordered">
 						<thead class="thead-dark">
-							<tr><th>Date de création</th><th>Complète</th><th>Date de réception</th><th>Prix total</th></tr>
+							<tr>
+								<th>Date de création</th>
+								<th>Complète</th>
+								<th>Adresse de livraison</th>
+								<th>Date de livraison</th>
+								<th>Entreprise de livraison</th>
+								<th>Date de réception</th>
+							</tr>
 						</thead>
 						<tbody>
 							<tr>
-								<td>{{ command.createAt|date("d/m/Y") }}</td>
-								<td>{{ (command.compteted)?('Oui'):('Non') }}</td>
-								<td>{{ command.dateReceive|date("d/m/Y") }}</td>
-								<td>{{ command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) }}</td>
+								<td>{{ command.createdAt|date("d/m/Y") }}</td>
+								<td>{{ (command.completed)?('Oui'):('Non') }}</td>
+								<td>
+									{{ 
+										(command.placeDel is not null)?
+										(command.placeDel.street~' '~command.placeDel.zipCode~' '~command.placeDel.city):
+										("Non définie") 
+									}}
+								</td>
+								<td>
+									{{ 
+										(command.typeDelivery is not null)?
+										( (command.typeDelivery.date is not null)?(command.typeDelivery.date|date("d/m/Y")):
+										("Pas envoyé") ):
+										("Pas envoyé")
+									}}
+								</td>
+								<td>
+									{{ 
+										(command.typeDelivery is not null)?
+										((command.typeDelivery.companyDelivery)?(command.typeDelivery.companyDelivery.name))
+									}}
+								</td>
+								<td>{{ (command.dateReceive is not null)?(command.dateReceive|date("d/m/Y")):("Pas reçue") }}</td>
 							</tr>
 						</tbody>
 					</table>
 				</div>
 			</div>
-			
+
+			{# Fin des informations de base sur la commande. #}
+
+			{# Début des informations liées au prix de la commande. #}
+
+			{% if command.completed %}
+					<div classs="row">
+						<table class="table table-bordered">
+							<thead>
+								<tr class="table-primary">
+									<th>Produit</t>
+									<th>Prix</th>
+									<th>Quantité</th>
+									<th>Prix total</th>
+									<th>Voir</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for piece_product in command.products %}
+									<tr>
+										{% if piece_product.product %}
+											<td>{{ piece_product.product.name }}</td>
+											<td>
+												{{ piece_product.product.price|slice(0, piece_product.product.price|length - 2)~','~piece_product.product.price|slice(piece_product.product.price|length - 2, piece_product.product.price|length) }}
+											</td>
+											<td>{{ piece_product.nbProducts }}</td>
+											{% set total_price = piece_product.product.price * piece_product.nbProducts %}
+											<td>
+												{{ total_price|slice(0, total_price|length - 2)~','~total_price|slice(total_price|length - 2, total_price|length) }}
+											</td>
+											<td>
+												<a href="{{ path('variant_product', {id:piece_product.product.id}) }}" 
+													class="btn btn-info">
+													Voir
+												</a>
+											</td>
+										{% else %}
+											<td colspan="5">Le produit n'est plus contenu dans la base de données.</td>
+										{% endif %}
+									</tr>
+								{% endfor %}
+							</tbody>
+							<thead>
+								<tr  class="table-primary">
+									<th colspan="3">Entreprise de livraison</th>
+									<th>Prix total</th>
+									<th>Voir</th>
+								</tr>
+							</thead>
+							<tbody>
+								<tr>
+									<td colspan="3">Livraison de {{ command.typeDelivery.companyDelivery.name }}</td>
+									<td>
+										{{ command.typeDelivery.price|slice(0, command.typeDelivery.price|length - 2)~','~command.typeDelivery.price|slice(command.typeDelivery.price|length - 2, command.typeDelivery.price|length) }}
+									</td>
+									<td><a class="btn btn-info" href="">Voir</a></td>
+								</tr>
+							</tbody>
+							<thead>
+								<tr class="table-primary">
+									<th colspan="3">Le prix total de la commande est de </th>
+									<th>
+										{{ command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) }}
+									</th>
+									<th></th>
+								</tr>
+							</thead>
+						</table>
+					</div>
+				
+			{% endif %}
+
+			{# Fin des informations liées au prix de la commande. #}
+
 		</div>
 
 {% endblock %}

@@ -2,7 +2,7 @@
 Le projet nécessite l'installation des packages de apache, mysql,   phpyadmin, composer.
 Avoir préparé un utilisateur avec des droits de vue, création, modification et suppression sur une base de données.
 
-Créer le fichier .env avec la ligne de commande suivante "DATABASE_URL=mysql://[nom_utilisateur]:[mot_de_passe]@[adesse]:[port]/[nom_de_la_base_de_données]" pour indiqué au projet quelle base de données utiliser avec quelle utilisateur.
+Ajouter un fichier .env.local avec la ligne suivante "DATABASE_URL=mysql://[nom_utilisateur]:[mot_de_passe]@[adesse]:[port]/[nom_de_la_base_de_données]" pour indiqué au projet quelle base de données utiliser avec quelle utilisateur.
 
 Lancer la commande "composer require doctrine/doctrine-fixtures-bundle" pour télécharger les fixtures nécessaires au site.
 
@@ -17,6 +17,4 @@ Créer un dossier build dans le dossier public.
 Déplacer les fichiers app.css et app.js des dossiers memo/memo_css/app.css et memo/memo_js/app.js dans le dossier public/build.
 
 Pour récupérer les images : 
-Ajouter la branche img/uploads/ dans le dossier public.
-Puis copier les dossiers User et Products du dossier memo_image vers le dossier uploads.
-
+Copier ou déplacer le dossier uploads contenu dans le chemin suivant memo/memo_img/ à public/img/ .

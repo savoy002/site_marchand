@@ -23,36 +23,42 @@ class ProductFixtures extends Fixture
 		$poire->setDescription("");
 		$poire->setCode('poire');
 		$poire->setActivate(true);
+		$poire->setImgFileName("poire.jpeg");
 
 		$pomme = new Product();
 		$pomme->setName('Pomme');
 		$pomme->setDescription("");
 		$pomme->setCode('pomme');
 		$pomme->setActivate(true);
+		$pomme->setImgFileName("pomme.jpeg");
 
 		$soupe_de_legume_vert = new Product();
 		$soupe_de_legume_vert->setName('Soupe de légume vert');
 		$soupe_de_legume_vert->setDescription("");
 		$soupe_de_legume_vert->setCode('soupe_de_legume_vert');
 		$soupe_de_legume_vert->setActivate(true);
+		$soupe_de_legume_vert->setImgFileName("soupe_de_legume_vert.jpeg");
 
-		$betrave = new Product();
-		$betrave->setName('Betrave');
-		$betrave->setDescription("");
-		$betrave->setCode('betrave');
-		$betrave->setActivate(true);
+		$bettrave = new Product();
+		$bettrave->setName('Bettrave');
+		$bettrave->setDescription("");
+		$bettrave->setCode('bettrave');
+		$bettrave->setActivate(true);
+		$bettrave->setImgFileName("bettrave.jpeg");
 
 		$poireau = new Product();
 		$poireau->setName('Poireau');
 		$poireau->setDescription("");
 		$poireau->setCode('poireau');
 		$poireau->setActivate(true);
+		$poireau->setImgFileName("poireau.jpeg");
 
 		$asperge = new Product();
 		$asperge->setName('Asperge');
 		$asperge->setDescription("");
 		$asperge->setCode('asperge');
 		$asperge->setActivate(true);
+		$asperge->setImgFileName("asperge.jpeg");
 
 		//Objet de classe Category.
 
@@ -60,21 +66,25 @@ class ProductFixtures extends Fixture
 		$fruit->setName('Fruit');
 		$fruit->setCode('fruit');
 		$fruit->setActivate(true);
+		$fruit->setImgFileName("fruit.jpeg");
 
 		$legume = new Category();
 		$legume->setName('Légume');
 		$legume->setCode('legume');
 		$legume->setActivate(true);
+		$legume->setImgFileName("legume.jpeg");
 
 		$conserve = new Category();
 		$conserve->setName('En boîte de concerve');
 		$conserve->setCode('boite_concerve');
 		$conserve->setActivate(true);
+		$conserve->setImgFileName("conserve.jpeg");
 
 		$soupe = new Category();
 		$soupe->setName('Soupe');
 		$soupe->setCode('soupe');
 		$soupe->setActivate(true);
+		$soupe->setImgFileName("soupe.jpeg");
 
 		//Objet de classe VariantProduct.
 
@@ -85,6 +95,7 @@ class ProductFixtures extends Fixture
 		$poire_conserve1->setCode('poire_conserve_250');
 		$poire_conserve1->setPrice(200);
 		$poire_conserve1->setActivate(true);
+		$poire_conserve1->setImgFileName("poire_conserve_250.jpeg");
 
 		$poire_conserve2 = new VariantProduct();
 		$poire_conserve2->setName("Poire en conserve 500g");
@@ -93,6 +104,7 @@ class ProductFixtures extends Fixture
 		$poire_conserve2->setCode('poire_conserve_500');
 		$poire_conserve2->setPrice(360);
 		$poire_conserve2->setActivate(true);
+		$poire_conserve2->setImgFileName("poire_conserve_500.jpeg");
 
 		$sachet_poire = new VariantProduct();
 		$sachet_poire->setName("Sachet de poire");
@@ -101,6 +113,7 @@ class ProductFixtures extends Fixture
 		$sachet_poire->setCode('sachet_poire');
 		$sachet_poire->setPrice(900);
 		$sachet_poire->setActivate(true);
+		//$sachet_poire->setImgFileName("");
 
 		$poire_tranchee = new VariantProduct();
 		$poire_tranchee->setName("Poire tranchée");
@@ -109,6 +122,7 @@ class ProductFixtures extends Fixture
 		$poire_tranchee->setCode('poire_tranchee');
 		$poire_tranchee->setPrice(500);
 		$poire_tranchee->setActivate(true);
+		$poire_tranchee->setImgFileName("poire_tranchee.jpeg");
 
 		$sachet_pomme = new VariantProduct();
 		$sachet_pomme->setName("Pommes");
@@ -117,6 +131,7 @@ class ProductFixtures extends Fixture
 		$sachet_pomme->setCode('pommes');
 		$sachet_pomme->setPrice(400);
 		$sachet_pomme->setActivate(true);
+		$sachet_pomme->setImgFileName("sachet_pomme.jpeg");
 
 		$sachet_poireau = new VariantProduct();
 		$sachet_poireau->setName("Sachet de poireau");
@@ -125,6 +140,7 @@ class ProductFixtures extends Fixture
 		$sachet_poireau->setCode('sachet_poireau');
 		$sachet_poireau->setPrice(800);
 		$sachet_poireau->setActivate(true);
+		//$sachet_poireau->setImgFileName("");
 
 		$poireau_conserve = new VariantProduct();
 		$poireau_conserve->setName("Poireau en conserve");
@@ -133,6 +149,7 @@ class ProductFixtures extends Fixture
 		$poireau_conserve->setCode('poireau_conserve');
 		$poireau_conserve->setPrice(600);
 		$poireau_conserve->setActivate(true);
+		$poireau_conserve->setImgFileName("poireau_conserve.jpeg");
 
 		$sachet_asperge = new VariantProduct();
 		$sachet_asperge->setName("Sachet d'asperge");
@@ -141,6 +158,7 @@ class ProductFixtures extends Fixture
 		$sachet_asperge->setCode('sachet_asperge');
 		$sachet_asperge->setPrice(500);
 		$sachet_asperge->setActivate(true);
+		//$sachet_asperge->setImgFileName("");
 
 		$soupe_de_legume_vert_bocale = new VariantProduct();
 		$soupe_de_legume_vert_bocale->setName("Soupe de légume vert");
@@ -149,13 +167,14 @@ class ProductFixtures extends Fixture
 		$soupe_de_legume_vert_bocale->setCode('soupe_legume_vert');
 		$soupe_de_legume_vert_bocale->setPrice(400);
 		$soupe_de_legume_vert_bocale->setActivate(true);
+		$soupe_de_legume_vert_bocale->setImgFileName("soupe_de_legume_vert.jpeg");
 
 		//Création des liens entre les catégories et les produits.
 
 		$fruit->addProduct($poire);
 		$fruit->addProduct($pomme);
 		$legume->addProduct($soupe_de_legume_vert);
-		$legume->addProduct($betrave);
+		$legume->addProduct($bettrave);
 		$legume->addProduct($poireau);
 		$legume->addProduct($asperge);
 		$soupe->addProduct($soupe_de_legume_vert);
@@ -196,7 +215,7 @@ class ProductFixtures extends Fixture
 		$poire->calculStock();
 		$pomme->calculStock();
 		$soupe_de_legume_vert->calculStock();
-		$betrave->calculStock();
+		$bettrave->calculStock();
 		$poireau->calculStock();
 		$asperge->calculStock();
 
@@ -205,7 +224,7 @@ class ProductFixtures extends Fixture
 		$manager->persist($poire);
 		$manager->persist($pomme);
 		$manager->persist($soupe_de_legume_vert);
-		$manager->persist($betrave);
+		$manager->persist($bettrave);
 		$manager->persist($poireau);
 		$manager->persist($asperge);
 

@@ -30,7 +30,7 @@ class Command
     /**
      * @ORM\Column(type="datetime", name="create_at_com")
      */
-    private $createAt;
+    private $createdAt;
 
     /**
      * @ORM\Column(type="boolean")
@@ -38,12 +38,12 @@ class Command
     private $completed;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true)
+     * @ORM\Column(type="datetime", nullable=true, name="date_receive")
      */
     private $dateReceive;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", nullable=true)
      */
     private $priceTotal;
 
@@ -60,7 +60,7 @@ class Command
     private $typeDelivery;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Command\PieceCommand", mappedBy="command", orphanRemoval=true)
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\PieceCommand", mappedBy="command")
      */
     private $products;
 
@@ -72,7 +72,7 @@ class Command
 
     public function __construct()
     {
-        $this->createAt = new DateTime();
+        $this->createdAt = new DateTime();
         $this->completed = false;
         $this->priceTotal = null;
         $this->delivery = new ArrayCollection();
@@ -86,12 +86,12 @@ class Command
 
     public function getCreatedAt(): ?\DateTimeInterface
     {
-        return $this->createAt;
+        return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeInterface $createAt): self
+    public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
-        $this->createAt = $createAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }
@@ -113,9 +113,12 @@ class Command
         return $this->dateReceive;
     }
 
-    public function setDateReceive(DateTime $dateReceive)
+    public function setDateReceive(DateTime $dateReceive): self
     {
-        $this->dateReceive = $dateReceive;
+        if(!$this->typeDelivery !== null) {
+            if($this->typeDelivery->getDate() < $dateReceive)
+                $this->dateReceive = $dateReceive;
+        }
 
         return $this;
     }
@@ -127,17 +130,21 @@ class Command
 
     public function calculPriceTotal(): self
     {
-        $this->priceTotal = 0;
+        if($this->completed) {
 
-        if(!empty($this->products)) {
+            $this->priceTotal = 0;
 
-            foreach ($this->products as $pieceCommand)
-                $this->priceTotal += $pieceCommand->getNbProducts() * $pieceCommand->getProduct()->getPrice();
+            if(!empty($this->products)) {
+
+                foreach ($this->products as $pieceCommand)
+                    $this->priceTotal += $pieceCommand->getNbProducts() * $pieceCommand->getProduct()->getPrice();
+
+            }
+
+            if($this->typeDelivery !== null)
+                $this->priceTotal += $this->typeDelivery->getPrice();
 
         }
-
-        if($this->typeDelivery !== null)
-            $this->priceTotal += $this->typeDelivery->getPrice();
 
         return $this;
     }

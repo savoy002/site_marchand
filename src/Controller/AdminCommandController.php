@@ -23,9 +23,9 @@ class AdminCommandController extends AbstractController
 	 */
 	public function commands(Request $request) 
 	{
-		$commands = $this->getDoctrine()->getRepository(Command::class)->findBy(['delete' => false], ['createAt' => 'ASC']);
+		$commands = $this->getDoctrine()->getRepository(Command::class)->findBy([], ['createdAt' => 'ASC']);
 
-		return $this->render('templates/admin/commands/commands/commmands.html.twig', ['commands' => $commands]);
+		return $this->render('admin/commands/commands/commands.html.twig', ['commands' => $commands]);
 	}
 
 	/**
@@ -33,11 +33,11 @@ class AdminCommandController extends AbstractController
 	 */
 	public function command($id) 
 	{
-		$command = $this->getDoctrine()->getRepository(Command::class)->findBy(['delete' => false, 'id' => $id]);
+		$command = $this->getDoctrine()->getRepository(Command::class)->findBy(['id' => $id]);
 		if(empty($command))
 			return $this->redirect('commands');
 
-		return $this->render('templates/admin/commands/commands/commmand.html.twig', ['command' => $command[0]]);
+		return $this->render('admin/commands/commands/command.html.twig', ['command' => $command[0]]);
 	}
 
 

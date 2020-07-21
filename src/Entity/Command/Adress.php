@@ -94,7 +94,7 @@ class Adress
         return $this;
     }
 
-    public function getCommands(): Collections
+    public function getCommands(): Collection
     {
         return $this->commands;
     }
