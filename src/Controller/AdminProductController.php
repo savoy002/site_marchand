@@ -640,6 +640,13 @@ class AdminProductController extends AbstractController
                 $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
+
+            //Calcul le nombre de VariantsProduts.
+            $number_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+                                    ->adminResearchNumberVariantsProducts($criteria)[0][1];
+            //Recherche les produits à retourner.
+            $number_pages = 
+                    intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
             //Ajout du numéro de page.
             if($page != "" && $page !== null) {
                 if($page === 'Début') {
@@ -653,19 +660,20 @@ class AdminProductController extends AbstractController
                 }
             } else 
             	$page = 1;
-            //Calcul le nombre de VariantsProduts.
-            $number_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchNumberVariantsProducts($criteria)[0][1];
+            
     	} else {
     		//Ajout du numéro de page.
     		$page = 1;
     		$criteria['page'] = 0;
     		//Calcul le nombre de VariantsProduts.
-    		$number_products = intval($this->getDoctrine()->getRepository(VariantProduct::class)->adminCountNumberVariantsProducts()[0][1]);
+    		$number_products = 
+                        intval($this->getDoctrine()->getRepository(VariantProduct::class)->adminCountNumberVariantsProducts()[0][1]);
+            //Cacul le nombre de pages.
+            $number_pages = 
+                intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
     	}
-    	//Cacul le nombre de pages.
-    	$variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria);
     	//Recherche les produits à retourner.
-    	$number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
+    	$variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria);
 
         return $this->render('admin/products/variants_products/variants_products.html.twig', 
         	['variants_products' => $variants_products, 'errors' => $errors, 'request' => $former_request, 'page' => $page, 

@@ -65,11 +65,11 @@ class VariantProductRepository extends ServiceEntityRepository
         }
         if(array_key_exists('price', $criteria)) {
             if($criteria['price']['type'] == 'equal')
-                $request->andWhere('p.price > :price AND p.price < :price + 100')->setParameter('price', $criteria['price']['value']);
+                $request->andWhere('p.price >= :price AND p.price < :price + 100')->setParameter('price', $criteria['price']['value']);
             else if($criteria['price']['type'] == 'inferior')
-                $request->andWhere('p.price > :price')->setParameter('price', $criteria['price']['value']);
+                $request->andWhere('p.price <= :price')->setParameter('price', $criteria['price']['value']);
             else if($criteria['price']['type'] == 'higher')
-                $request->andWhere('p.price < :price')->setParameter('price', $criteria['price']['value']);
+                $request->andWhere('p.price >= :price')->setParameter('price', $criteria['price']['value']);
         }
         if(array_key_exists('description', $criteria))
             $request->andWhere("p.description LIKE :description")->setParameter('description', "%".$criteria['description']."%");
@@ -116,11 +116,11 @@ class VariantProductRepository extends ServiceEntityRepository
         }
         if(array_key_exists('price', $criteria)) {
             if($criteria['price']['type'] == 'equal')
-                $request->andWhere('p.price > :price AND p.price < :price + 100')->setParameter('price', $criteria['price']['value']);
+                $request->andWhere('p.price >= :price AND p.price < :price + 100')->setParameter('price', $criteria['price']['value']);
             else if($criteria['price']['type'] == 'inferior')
-                $request->andWhere('p.price > :price')->setParameter('price', $criteria['price']['value']);
+                $request->andWhere('p.price <= :price')->setParameter('price', $criteria['price']['value']);
             else if($criteria['price']['type'] == 'higher')
-                $request->andWhere('p.price < :price')->setParameter('price', $criteria['price']['value']);
+                $request->andWhere('p.price >= :price')->setParameter('price', $criteria['price']['value']);
         }
         if(array_key_exists('description', $criteria))
             $request->andWhere("p.description LIKE :description")->setParameter('description', "%".$criteria['description']."%");
