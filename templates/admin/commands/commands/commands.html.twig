@@ -100,6 +100,26 @@
 				</div>
 				<div class="row form-div justify-content-around">
 					<div class="col-5 col-xs-12">
+						<lable for="type_research_adress">Adresse</lable>
+						<select class="custom-select custom-select-sm" name="type_research_adress">
+							<option value="completed"
+							{{ (request.type_research_adress is defined)?((request.type_research_adress == 'completed') ? ('selected') ) }}>Complète</option>
+							<option value="street"
+							{{ (request.type_research_adress is defined)?((request.type_research_adress == 'street') ? ('selected') ) }}>Rue</option>
+							<option value="zip_code"
+							{{ (request.type_research_adress is defined)?((request.type_research_adress == 'zip_code') ? ('selected') ) }}>Code postale</option>
+							<option value="city"
+							{{ (request.type_research_adress is defined)?((request.type_research_adress == 'city') ? ('selected') ) }}>Ville</option>
+						</select>
+					</div>
+					<div class="col-5 col-xs-12">
+						<label for="adress_value">Texte</label>
+						<input class="form-control form-control-sm" name="adress_value" type="text" 
+							value="{{ (request.adress_value is defined)?(request.adress_value) }}">
+					</div>
+				</div>
+				<div class="row form-div justify-content-around">
+					<div class="col-5 col-xs-12">
 						<label for="status">État</label>
 						<select class="custom-select custom-select-sm" name="status">
 							<option value="">N'importe</option>
@@ -192,8 +212,8 @@
 											</td>
 											<td>
 												{{ 
-													(command.typeDelivery is not null)?
-													( (command.typeDelivery.date is not null)?(command.typeDelivery.date|date("d/m/Y")):
+													(command.delivery is not null)?
+													( (command.delivery.date is not null)?(command.delivery.date|date("d/m/Y")):
 													("Pas envoyé") ):
 													("Pas envoyé")
 												}}

@@ -57,16 +57,16 @@
 								</td>
 								<td>
 									{{ 
-										(command.typeDelivery is not null)?
-										( (command.typeDelivery.date is not null)?(command.typeDelivery.date|date("d/m/Y")):
+										(command.delivery is not null)?
+										( (command.delivery.date is not null)?(command.delivery.date|date("d/m/Y")):
 										("Pas envoyé") ):
 										("Pas envoyé")
 									}}
 								</td>
 								<td>
 									{{ 
-										(command.typeDelivery is not null)?
-										((command.typeDelivery.companyDelivery)?(command.typeDelivery.companyDelivery.name))
+										(command.delivery is not null)?
+										((command.delivery.type.company)?(command.delivery.type.company.name))
 									}}
 								</td>
 								<td>{{ (command.dateReceive is not null)?(command.dateReceive|date("d/m/Y")):("Pas reçue") }}</td>
@@ -126,9 +126,9 @@
 							</thead>
 							<tbody>
 								<tr>
-									<td colspan="3">Livraison de {{ command.typeDelivery.companyDelivery.name }}</td>
+									<td colspan="3">Livraison de {{ command.delivery.type.company.name }}</td>
 									<td>
-										{{ command.typeDelivery.price|slice(0, command.typeDelivery.price|length - 2)~','~command.typeDelivery.price|slice(command.typeDelivery.price|length - 2, command.typeDelivery.price|length) }}
+										{{ command.delivery.type.price|slice(0, command.delivery.type.price|length - 2)~','~command.delivery.type.price|slice(command.delivery.type.price|length - 2, command.delivery.type.price|length) }}
 									</td>
 									<td><a class="btn btn-info" href="">Voir</a></td>
 								</tr>

@@ -57,7 +57,7 @@ class Command
      * @ORM\ManyToOne(targetEntity="App\Entity\Command\Delivery", inversedBy="commands")
      * @ORM\JoinColumn(name="del_id_com", referencedColumnName="id")
      */
-    private $typeDelivery;
+    private $delivery;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Command\PieceCommand", mappedBy="command")
@@ -75,7 +75,6 @@ class Command
         $this->createdAt = new DateTime();
         $this->completed = false;
         $this->priceTotal = null;
-        $this->delivery = new ArrayCollection();
         $this->products = new ArrayCollection();
     }
 
@@ -115,8 +114,8 @@ class Command
 
     public function setDateReceive(DateTime $dateReceive): self
     {
-        if(!$this->typeDelivery !== null) {
-            if($this->typeDelivery->getDate() < $dateReceive)
+        if(!$this->delivery !== null) {
+            if($this->delivery->getDate() < $dateReceive)
                 $this->dateReceive = $dateReceive;
         }
 
@@ -141,8 +140,8 @@ class Command
 
             }
 
-            if($this->typeDelivery !== null)
-                $this->priceTotal += $this->typeDelivery->getPrice();
+            if($this->delivery !== null)
+                $this->priceTotal += $this->delivery->getType()->getPrice();
 
         }
 
@@ -165,18 +164,20 @@ class Command
         return $this;
     }
 
-    public function getTypeDelivery(): ?Delivery
+    public function getDelivery(): ?Delivery
     {
-        return $this->typeDelivery;
+        return $this->delivery;
     }
 
-    public function setTypeDelivery(?Delivery $typeDelivery): self
+    public function setDelivery(?Delivery $delivery): self
     {
-        if($this->typeDelivery != null)
-            $this->typeDelivery->setCommand(null);
-        $this->typeDelivery = $typeDelivery;
-        if($typeDelivery->getCommand() != $this)
-            $typeDelivery->setCommand($this);
+        if($this->delivery != null) {
+            if($this->delivery->hasCommand($this))
+                $this->delivery->removeCommand($this);
+        }
+        $this->delivery = $delivery;
+        if($delivery->getCommand() != $this)
+            $delivery->addCommand($this);
 
         return $this;
     }

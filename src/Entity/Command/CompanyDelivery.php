@@ -30,13 +30,13 @@ class CompanyDelivery
     private $area = [];
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Command\Delivery", mappedBy="companyDelivery", orphanRemoval=false)
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\TypeDelivery", mappedBy="company", orphanRemoval=false)
      */
-    private $deliveries;
+    private $types;
 
     public function __construct()
     {
-        $this->deliveries = new ArrayCollection();
+        $this->types = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -71,29 +71,33 @@ class CompanyDelivery
     /**
      * @return Collection|Delivery[]
      */
-    public function getDeliveries(): Collection
+    public function getTypes(): Collection
     {
-        return $this->deliveries;
+        return $this->types;
     }
 
-    public function addDelivery(Delivery $delivery): self
+    public function hasType(TypeDelivery $type): bool
     {
-        if (!$this->deliveries->contains($delivery)) {
-            $this->deliveries[] = $delivery;
-            $delivery->setCompanyDelivery($this);
+        return $this->types->contains($type);
+    }
+
+    public function addType(TypeDelivery $type): self
+    {
+        if (!$this->hasType($type)) {
+            $this->types[] = $type;
+            $type->setCompany($this);
         }
 
         return $this;
     }
 
-    public function removeDelivery(Delivery $delivery): self
+    public function removeType(TypeDelivery $type): self
     {
-        if ($this->deliveries->contains($delivery)) {
-            $this->deliveries->removeElement($delivery);
+        if ($this->hasType($type)) {
+            $this->types->removeElement($type);
             // set the owning side to null (unless already changed)
-            if ($delivery->getCompanyDelivery() === $this) {
-                $delivery->setCompanyDelivery(null);
-            }
+            if ($types->getCompany() === $this)
+                $delivery->setCompany(null);
         }
 
         return $this;

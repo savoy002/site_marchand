@@ -5,6 +5,7 @@ namespace App\Repository\Command;
 use App\Entity\Command\Command;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder as QueryBuilderOption;
 
 /**
  * @method Command|null find($id, $lockMode = null, $lockVersion = null)
@@ -19,47 +20,10 @@ class CommandRepository extends ServiceEntityRepository
         parent::__construct($registry, Command::class);
     }
 
-
     public function adminResearchCommand(array $criteria) {
-        $request = $this->createQueryBuilder('c')->innerJoin('c.typeDelivery', 'd')->innerJoin('c.placeDel', 'a');
+        $request = $this->createQueryBuilder('c');
 
-        if(array_key_exists('createdBefore', $criteria))
-            $request->andWhere('DATE_DIFF(c.createdAt, :createdBefore) >= 0')->setParameter('createdBefore', $criteria['createdBefore']);
-        if(array_key_exists('createdAfter', $criteria))
-            $request->andWhere('DATE_DIFF(c.createdAt, :createdAfter) <= 0')->setParameter('createdAfter', $criteria['createdAfter']);
-
-        if(array_key_exists('sentBefore', $criteria))
-            $request->andWhere('DATE_DIFF(d.date, :sentBefore) >= 0')->setParameter('sentBefore', $criteria['sentBefore']);
-        if(array_key_exists('sentAfter', $criteria))
-            $request->andWhere('DATE_DIFF(d.date, :sentAfter) <= 0')->setParameter('sentAfter', $criteria['sentAfter']);
-
-        if(array_key_exists('receivedBefore', $criteria))
-            $request->andWhere('DATE_DIFF(c.dateReceive, :receivedBefore) >= 0')
-                ->setParameter('receivedBefore', $criteria['receivedBefore']);
-        if(array_key_exists('receivedAfter', $criteria))
-            $request->andWhere('DATE_DIFF(c.dateReceive, :receivedAfter) <= 0')
-                ->setParameter('receivedAfter', $criteria['receivedAfter']);
-
-        if(array_key_exists('status', $criteria)) {
-            if($criteria['status'] === 'completed')
-                $request->andWhere('c.completed = TRUE');
-            if($criteria['status'] === 'notCompleted')
-                $request->andWhere('c.completed = FALSE OR c.completed IS NULL');
-            if($criteria['status'] === 'notReceived')
-                $request->andWhere('c.dateReceive IS NULL');
-            if($criteria['status'] === 'notSend')
-                $request->andWhere('d.date IS NULL');
-        }
-
-        if(array_key_exists('price', $criteria)) {
-            if($criteria['price']['type'] == 'equal')
-                $request->andWhere('c.priceTotal >= :price AND c.priceTotal < :price + 100')
-                    ->setParameter('price', $criteria['price']['value']);
-            else if($criteria['price']['type'] == 'inferior')
-                $request->andWhere('c.priceTotal <= :price')->setParameter('price', $criteria['price']['value']);
-            else if($criteria['price']['type'] == 'higher')
-                $request->andWhere('c.priceTotal >= :price')->setParameter('price', $criteria['price']['value']);
-        }
+        $request = $this->optionsResearchCommands($request, $criteria);
 
         if(array_key_exists('page', $criteria))
             $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
@@ -73,12 +37,27 @@ class CommandRepository extends ServiceEntityRepository
     }
 
     public function adminResearchNumberCommands(array $criteria) {
-        $request = $this->createQueryBuilder('c')->select('COUNT(c)')->innerJoin('c.typeDelivery', 'd')->innerJoin('c.placeDel', 'a');
+        $request = $this->createQueryBuilder('c')->select('COUNT(c)');        
+
+        $request = $this->optionsResearchCommands($request, $criteria);
+
+        return $request->getQuery()->getResult();
+    }
+
+    private function optionsResearchCommands(QueryBuilderOption $request, array $criteria) {
+
+        if(array_key_exists('sentBefore', $criteria) || array_key_exists('sentAfter', $criteria))
+            $request->innerJoin('c.delivery', 'd');
+
+        if(array_key_exists('adress', $criteria))
+            $request->innerJoin('c.adress', 'a');
 
         if(array_key_exists('createdBefore', $criteria))
-            $request->andWhere('DATE_DIFF(c.createdAt, :createdBefore) >= 0')->setParameter('createdBefore', $criteria['createdBefore']);
+            $request->andWhere('DATE_DIFF(c.createdAt, :createdBefore) >= 0')
+                ->setParameter('createdBefore', $criteria['createdBefore']);
         if(array_key_exists('createdAfter', $criteria))
-            $request->andWhere('DATE_DIFF(c.createdAt, :createdAfter) <= 0')->setParameter('createdAfter', $criteria['createdAfter']);
+            $request->andWhere('DATE_DIFF(c.createdAt, :createdAfter) <= 0')
+                ->setParameter('createdAfter', $criteria['createdAfter']);
 
         if(array_key_exists('sentBefore', $criteria))
             $request->andWhere('DATE_DIFF(d.date, :sentBefore) >= 0')->setParameter('sentBefore', $criteria['sentBefore']);
@@ -92,6 +71,28 @@ class CommandRepository extends ServiceEntityRepository
             $request->andWhere('DATE_DIFF(c.dateReceive, :receivedAfter) <= 0')
                 ->setParameter('receivedAfter', $criteria['receivedAfter']);
 
+        if(array_key_exists('price', $criteria)) {
+            if($criteria['price']['type'] == 'equal')
+                $request->andWhere('c.priceTotal >= :price AND c.priceTotal < :price + 100')
+                    ->setParameter('price', $criteria['price']['value']);
+            else if($criteria['price']['type'] == 'inferior')
+                $request->andWhere('c.priceTotal <= :price')->setParameter('price', $criteria['price']['value']);
+            else if($criteria['price']['type'] == 'higher')
+                $request->andWhere('c.priceTotal >= :price')->setParameter('price', $criteria['price']['value']);
+        }
+
+        if(array_key_exists('adress', $criteria)) {
+            if($criteria['adress']['type'] == 'completed')
+                $request->andWhere("a.street LIKE :adress OR a.zipCode LIKE :adress OR a.city LIKE :adress")
+                    ->setPatameter('adress', "%".$criteria['adress']['value']."%");
+            if($criteria['adress']['type'] == 'street')
+                $request->andWhere("a.street LIKE :adress")->setPatameter('adress', "%".$criteria['adress']['value']."%");
+            if($criteria['adress']['type'] == 'zip_code')
+                $request->andWhere("a.zipCode LIKE :adress")->setPatameter('adress', "%".$criteria['adress']['value']."%");
+            if($criteria['adress']['type'] == 'city')
+                $request->andWhere("a.city LIKE :adress")->setPatameter('adress', "%".$criteria['adress']['value']."%");
+        }
+
         if(array_key_exists('status', $criteria)) {
             if($criteria['status'] === 'completed')
                 $request->andWhere('c.completed = TRUE');
@@ -103,16 +104,7 @@ class CommandRepository extends ServiceEntityRepository
                 $request->andWhere('d.date = NULL');
         }
 
-        if(array_key_exists('price', $criteria)) {
-            if($criteria['price']['type'] == 'equal')
-                $request->andWhere('c.priceTotal >= :price AND c.priceTotal < :price + 100')
-                    ->setParameter('price', $criteria['price']['value']);
-            else if($criteria['price']['type'] == 'inferior')
-                $request->andWhere('c.priceTotal <= :price')->setParameter('price', $criteria['price']['value']);
-            else if($criteria['price']['type'] == 'higher')
-                $request->andWhere('c.priceTotal >= :price')->setParameter('price', $criteria['price']['value']);
-        }
-        return $request->getQuery()->getResult();
+        return $request;
     }
 
     public function countNumberCommands() {

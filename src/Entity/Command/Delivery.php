@@ -25,20 +25,15 @@ class Delivery
     private $date;
 
     /**
-     * @ORM\Column(type="integer", name="price_del")
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="delivery")
      */
-    private $price;
+    private $commands;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Command\Command", mappedBy="typeDelivery")
-     */
-    private $command;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Command\CompanyDelivery", inversedBy="deliveries")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Command\TypeDelivery", inversedBy="deliveries")
      * @ORM\JoinColumn(nullable=false, name="comp_del_id_del", referencedColumnName="id")
      */
-    private $companyDelivery;
+    private $type;
 
     public function __construct()
     {
@@ -62,43 +57,51 @@ class Delivery
         return $this;
     }
 
-    public function getPrice(): ?int
+    public function getCommand(): Collection
     {
-        return $this->price;
+        return $this->commands;
     }
 
-    public function setPrice(int $price): self
+    public function hasCommand(?Command $command): bool
     {
-        $this->price = $price;
+        return $this->commands->contains($command);
+    }
 
+    public function addCommand(?Command $command): self
+    {
+        if(!$this->hasCommand($command)) {
+            $this->commands[] = $command;
+
+            if($command->getDelivery() != $this)
+                $command->setDelivery($this);
+        }
         return $this;
     }
 
-    public function getCommand(): ?Command
+    public function removeCommand(?Command $command): self
     {
-        return $this->command;
-    }
+        if($this->hasCommand($command)) {
+            $this->commands->remove($command);
 
-    public function setCommand(?Command $command): self
-    {
-        if($this->command != null)
-            $this->command->setTypeDelivery(null);
-        $this->command = $command;
-        if($command->getTypeDelivery() != $this) 
-            $command->setTypeDelivery($this);
-
+            if($command->getDelivery === $this)
+                $command->setDelivery(null);
+        }
         return $this;
     }
 
 
-    public function getCompanyDelivery(): ?CompanyDelivery
+    public function getType(): ?TypeDelivery
     {
-        return $this->companyDelivery;
+        return $this->type;
     }
 
-    public function setCompanyDelivery(?CompanyDelivery $companyDelivery): self
+    public function setType(?TypeDelivery $type): self
     {
-        $this->companyDelivery = $companyDelivery;
+        $this->type = $type;
+
+        if(!$type->hasDelivery($this)) 
+            $type->addDelivery($this);
+
 
         return $this;
     }

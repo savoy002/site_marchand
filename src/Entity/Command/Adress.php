@@ -38,7 +38,7 @@ class Adress
     private $city;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="place_del")
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="placeDel")
      */
     private $commands;
 

@@ -17,8 +17,9 @@ use App\DataFixtures\UserFixtures;
 use App\Entity\Command\Command;
 use App\Entity\Command\Adress;
 use App\Entity\Command\Companydelivery;
-use App\Entity\Command\delivery;
+use App\Entity\Command\Delivery;
 use App\Entity\Command\PieceCommand;
+use App\Entity\Command\TypeDelivery;
 use App\Entity\Product\VariantProduct;
 use App\Entity\User\User;
 
@@ -103,40 +104,54 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$companydelivery2->setName('Faux livreur Grand EST');
 		$companydelivery2->setArea(['08', '10', '51', '52', '54', '55', '57', '67', '68', '88']);
 
+		//Création des TypeDeliveries.
+
+		$typedelivery1 = new TypeDelivery();
+		$typedelivery1->setName('UPR simple');
+		$typedelivery1->setPrice(800);
+		$typedelivery1->setTimeMin(3);
+		$typedelivery1->setTimeMax(4);
+
+		$typedelivery2 = new TypeDelivery();
+		$typedelivery2->setName('UPR rapide');
+		$typedelivery2->setPrice(1200);
+		$typedelivery2->setTimeMin(1);
+		$typedelivery2->setTimeMax(2);
+
+		$typedelivery3 = new TypeDelivery();
+		$typedelivery3->setName('Faux livreur simple');
+		$typedelivery3->setPrice(700);
+		$typedelivery3->setTimeMin(3);
+		$typedelivery3->setTimeMax(4);
+
 		//Création des Deleveries.
 
 		$delivery1 = new delivery();
 		$delivery1->setDate(new DateTime('01-07-2020'));
-		$delivery1->setPrice(700);
 
 		$delivery2 = new delivery();
 		$delivery2->setDate(new DateTime('23-06-2020'));
-		$delivery2->setPrice(700);
 
 		$delivery3 = new delivery();
 		$delivery3->setDate(new DateTime('12-04-2020'));
-		$delivery3->setPrice(1200);
 
 		$delivery4 = new delivery();
 		$delivery4->setDate(new DateTime('30-05-2020'));
-		$delivery4->setPrice(1200);
 
 		$delivery5 = new delivery();
 		$delivery5->setDate(new DateTime('12-05-2020'));
-		$delivery5->setPrice(1200);
 
 		$delivery6 = new delivery();
 		$delivery6->setDate(new DateTime('16-07-2020'));
-		$delivery6->setPrice(1200);
 
 		//Création des liens entre les différents objets.
 
-		$command1->setTypedelivery($delivery1);
-		$command2->setTypedelivery($delivery2);
-		$command3->setTypedelivery($delivery3);
-		$command4->setTypedelivery($delivery4);
-		$command5->setTypedelivery($delivery5);
-		$command6->setTypedelivery($delivery6);
+		$command1->setDelivery($delivery1);
+		$command2->setDelivery($delivery2);
+		$command3->setDelivery($delivery3);
+		$command4->setDelivery($delivery4);
+		$command5->setDelivery($delivery5);
+		$command6->setDelivery($delivery6);
 
 		$command1->setPlaceDel($adress1);
 		$command2->setPlaceDel($adress2);
@@ -145,12 +160,16 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$command5->setPlaceDel($adress5);
 		$command6->setPlaceDel($adress6);
 
-		$companydelivery1->adddelivery($delivery1);
-		$companydelivery1->adddelivery($delivery2);
-		$companydelivery2->adddelivery($delivery3);
-		$companydelivery2->adddelivery($delivery4);
-		$companydelivery2->adddelivery($delivery5);
-		$companydelivery2->adddelivery($delivery6);
+		$companydelivery1->addType($typedelivery1);
+		$companydelivery1->addType($typedelivery2);
+		$companydelivery2->addType($typedelivery3);
+
+		$typedelivery1->addDelivery($delivery1);
+		$typedelivery2->addDelivery($delivery3);
+		$typedelivery2->addDelivery($delivery4);
+		$typedelivery2->addDelivery($delivery5);
+		$typedelivery2->addDelivery($delivery6);
+		$typedelivery3->addDelivery($delivery2);
 
 		//Récupération des VariantsProducts et des Users.
 
@@ -287,6 +306,10 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 
 		$manager->persist($companydelivery1);
 		$manager->persist($companydelivery2);
+
+		$manager->persist($typedelivery1);
+		$manager->persist($typedelivery2);
+		$manager->persist($typedelivery3);
 
 		$manager->persist($delivery1);
 		$manager->persist($delivery2);
