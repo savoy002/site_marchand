@@ -20,7 +20,7 @@ class CommandRepository extends ServiceEntityRepository
         parent::__construct($registry, Command::class);
     }
 
-    public function adminResearchCommand(array $criteria) {
+    public function adminResearchCommands(array $criteria) {
         $request = $this->createQueryBuilder('c');
 
         $request = $this->optionsResearchCommands($request, $criteria);
@@ -46,7 +46,7 @@ class CommandRepository extends ServiceEntityRepository
 
     private function optionsResearchCommands(QueryBuilderOption $request, array $criteria) {
 
-        if(array_key_exists('sentBefore', $criteria) || array_key_exists('sentAfter', $criteria))
+        if(array_key_exists('sentBefore', $criteria) || array_key_exists('sentAfter', $criteria) )
             $request->innerJoin('c.delivery', 'd');
 
         if(array_key_exists('adress', $criteria))
@@ -101,7 +101,7 @@ class CommandRepository extends ServiceEntityRepository
             if($criteria['status'] === 'notReceived')
                 $request->andWhere('c.dateReceive IS NULL');
             if($criteria['status'] === 'notSend')
-                $request->andWhere('d.date = NULL');
+                $request->andWhere('c.delivery = NULL OR c.delivery IN (SELECT id FROM Delivery d WHERE d.date_del = NULL)');
         }
 
         return $request;

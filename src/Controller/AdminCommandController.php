@@ -135,11 +135,11 @@ class AdminCommandController extends AbstractController
             } else
                 $page = 1;
                 
-            $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommand($criteria);
+            $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommands($criteria);
         } else {
             $criteria['page'] = 0;
             $page = 1;
-            $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommand($criteria);
+            $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommands($criteria);
             $number_commands = intval($this->getDoctrine()->getRepository(Command::class)->countNumberCommands()[0][1]);
             $number_pages = 
                     intval( $number_commands / self::NUMBER_BY_PAGE ) + ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
