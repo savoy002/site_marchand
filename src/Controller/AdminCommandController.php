@@ -12,6 +12,7 @@ class AdminCommandController extends AbstractController
 {
 
 	//Le nombre de Command par page.
+    //Attention si vous changez la valeur de cette constante pensez aussi à changer celle des tests.
 	const NUMBER_BY_PAGE = 5;
 
 

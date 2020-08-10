@@ -1,17 +1,27 @@
 header {
 	/*margin: 5px, 10px, 5px, 10px;*/
-	/*padding: 5px, 10px, 5px, 10px;*/
-	margin-left: 5px;
 	margin-top: 10px;
 	margin-right: 5px;
 	margin-bottom: 10px;
+	margin-left: 5px;
+	/*padding: 5px, 10px, 5px, 10px;*/
+	padding-top: 5px;
+	padding-right: 10px;
+	padding-bottom: 5px;
+	padding-left: 10px;
 }
 
 footer {
-	margin-left: 5px;
+	/*margin: 5px, 10px, 5px, 10px;*/
 	margin-top: 10px;
 	margin-right: 5px;
 	margin-bottom: 10px;
+	margin-left: 5px;
+	/*padding: 5px, 10px, 5px, 10px;*/
+	padding-top: 5px;
+	padding-right: 10px;
+	padding-bottom: 5px;
+	padding-left: 10px;
 }
 
 .form-div-button {

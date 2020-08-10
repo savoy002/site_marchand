@@ -57,9 +57,9 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         if(array_key_exists('createdBy', $criteria))
             $request->andWhere('u.admin = :createdBy')->setParameter('createdBy', ($criteria['createdBy'] === 'admin')?(true):(false));
         if(array_key_exists('createdBefore', $criteria))
-            $request->andWhere('DATE_DIFF(u.createdAt, :createdBefore) >= 0')->setParameter('createdBefore', $criteria['createdBefore']);
+            $request->andWhere('DATE_DIFF(u.createdAt, :createdBefore) <= 0')->setParameter('createdBefore', $criteria['createdBefore']);
         if(array_key_exists('createdAfter', $criteria))
-            $request->andWhere('DATE_DIFF(u.createdAt, :createdAfter) <= 0')->setParameter('createdAfter', $criteria['createdAfter']);
+            $request->andWhere('DATE_DIFF(u.createdAt, :createdAfter) >= 0')->setParameter('createdAfter', $criteria['createdAfter']);
         if(array_key_exists('page', $criteria))
             $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
         if(array_key_exists('orderBy', $criteria))

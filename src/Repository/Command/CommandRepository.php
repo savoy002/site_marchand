@@ -31,6 +31,7 @@ class CommandRepository extends ServiceEntityRepository
         if(array_key_exists('orderBy', $criteria))
             $request->orderBy('c.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
 
+        //if(array_key_exists('number_by_page', $criteria))
         $request->setMaxResults($criteria['number_by_page']);
 
         return $request->getQuery()->getResult();
@@ -46,29 +47,35 @@ class CommandRepository extends ServiceEntityRepository
 
     private function optionsResearchCommands(QueryBuilderOption $request, array $criteria) {
 
-        if(array_key_exists('sentBefore', $criteria) || array_key_exists('sentAfter', $criteria) )
-            $request->innerJoin('c.delivery', 'd');
+        if( ( array_key_exists('sentBefore', $criteria) || array_key_exists('sentAfter', $criteria) || 
+            array_key_exists('sentBefore', $criteria) ) ) {
+            if(array_key_exists('status', $criteria)) {
+                if($criteria['status'] != 'notSend') 
+                    $request->innerJoin('c.delivery', 'd');
+            } else
+                $request->innerJoin('c.delivery', 'd');
+        }
 
         if(array_key_exists('adress', $criteria))
-            $request->innerJoin('c.adress', 'a');
+            $request->innerJoin('c.placeDel', 'a');
 
         if(array_key_exists('createdBefore', $criteria))
-            $request->andWhere('DATE_DIFF(c.createdAt, :createdBefore) >= 0')
+            $request->andWhere('DATE_DIFF(c.createdAt, :createdBefore) <= 0')
                 ->setParameter('createdBefore', $criteria['createdBefore']);
         if(array_key_exists('createdAfter', $criteria))
-            $request->andWhere('DATE_DIFF(c.createdAt, :createdAfter) <= 0')
+            $request->andWhere('DATE_DIFF(c.createdAt, :createdAfter) >= 0')
                 ->setParameter('createdAfter', $criteria['createdAfter']);
 
         if(array_key_exists('sentBefore', $criteria))
-            $request->andWhere('DATE_DIFF(d.date, :sentBefore) >= 0')->setParameter('sentBefore', $criteria['sentBefore']);
+            $request->andWhere('DATE_DIFF(d.date, :sentBefore) <= 0')->setParameter('sentBefore', $criteria['sentBefore']);
         if(array_key_exists('sentAfter', $criteria))
-            $request->andWhere('DATE_DIFF(d.date, :sentAfter) <= 0')->setParameter('sentAfter', $criteria['sentAfter']);
+            $request->andWhere('DATE_DIFF(d.date, :sentAfter) >= 0')->setParameter('sentAfter', $criteria['sentAfter']);
 
         if(array_key_exists('receivedBefore', $criteria))
-            $request->andWhere('DATE_DIFF(c.dateReceive, :receivedBefore) >= 0')
+            $request->andWhere('DATE_DIFF(c.dateReceive, :receivedBefore) <= 0')
                 ->setParameter('receivedBefore', $criteria['receivedBefore']);
         if(array_key_exists('receivedAfter', $criteria))
-            $request->andWhere('DATE_DIFF(c.dateReceive, :receivedAfter) <= 0')
+            $request->andWhere('DATE_DIFF(c.dateReceive, :receivedAfter) >= 0')
                 ->setParameter('receivedAfter', $criteria['receivedAfter']);
 
         if(array_key_exists('price', $criteria)) {
@@ -83,14 +90,15 @@ class CommandRepository extends ServiceEntityRepository
 
         if(array_key_exists('adress', $criteria)) {
             if($criteria['adress']['type'] == 'completed')
-                $request->andWhere("a.street LIKE :adress OR a.zipCode LIKE :adress OR a.city LIKE :adress")
-                    ->setPatameter('adress', "%".$criteria['adress']['value']."%");
+                $request
+                    ->andWhere("LOWER(a.street) LIKE LOWER(:adress) OR LOWER(a.zipCode) LIKE LOWER(:adress) OR LOWER(a.city) LIKE LOWER(:adress)")
+                    ->setParameter('adress', "%".$criteria['adress']['value']."%");
             if($criteria['adress']['type'] == 'street')
-                $request->andWhere("a.street LIKE :adress")->setPatameter('adress', "%".$criteria['adress']['value']."%");
+                $request->andWhere("LOWER(a.street) LIKE LOWER(:adress)")->setParameter('adress', "%".$criteria['adress']['value']."%");
             if($criteria['adress']['type'] == 'zip_code')
-                $request->andWhere("a.zipCode LIKE :adress")->setPatameter('adress', "%".$criteria['adress']['value']."%");
+                $request->andWhere("LOWER(a.zipCode) LIKE LOWER(:adress)")->setParameter('adress', "%".$criteria['adress']['value']."%");
             if($criteria['adress']['type'] == 'city')
-                $request->andWhere("a.city LIKE :adress")->setPatameter('adress', "%".$criteria['adress']['value']."%");
+                $request->andWhere("LOWER(a.city) LIKE LOWER(:adress)")->setParameter('adress', "%".$criteria['adress']['value']."%");
         }
 
         if(array_key_exists('status', $criteria)) {
@@ -101,7 +109,8 @@ class CommandRepository extends ServiceEntityRepository
             if($criteria['status'] === 'notReceived')
                 $request->andWhere('c.dateReceive IS NULL');
             if($criteria['status'] === 'notSend')
-                $request->andWhere('c.delivery = NULL OR c.delivery IN (SELECT id FROM Delivery d WHERE d.date_del = NULL)');
+                $request->andWhere('c.delivery IS NULL OR 
+                                    c.delivery IN (SELECT d FROM App\Entity\Command\Delivery d WHERE d.date IS NULL)');
         }
 
         return $request;

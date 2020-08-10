@@ -31,7 +31,7 @@ class Delivery
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Command\TypeDelivery", inversedBy="deliveries")
-     * @ORM\JoinColumn(nullable=false, name="comp_del_id_del", referencedColumnName="id")
+     * @ORM\JoinColumn(nullable=false, name="type_del_id_del", referencedColumnName="id")
      */
     private $type;
 

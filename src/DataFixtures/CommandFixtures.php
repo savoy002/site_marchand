@@ -139,7 +139,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$delivery4->setDate(new DateTime('30-05-2020'));
 
 		$delivery5 = new delivery();
-		$delivery5->setDate(new DateTime('12-05-2020'));
+		//$delivery5->setDate(new DateTime('12-05-2020'));
 
 		$delivery6 = new delivery();
 		$delivery6->setDate(new DateTime('16-07-2020'));
@@ -262,6 +262,14 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$test3->addCommand($command7);
 		$test3->addCommand($command8);
 
+		//Création des dates de réception.
+
+		$command1->setDateReceive(new DateTime('16-07-2020'));
+		$command2->setDateReceive(new DateTime('30-06-2020'));
+		$command3->setDateReceive(new DateTime('26-04-2020'));
+		$command4->setDateReceive(new DateTime('08-06-2020'));
+		//$command5->setDateReceive(new DateTime('20-05-2020'));
+
 		//Calcule des prix des Commands.
 
 		$command1->setCompleted(true);
@@ -277,14 +285,6 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$command4->calculPriceTotal();
 		$command5->calculPriceTotal();
 		$command6->calculPriceTotal();
-
-		//Création des dates de réception.
-
-		$command1->setDateReceive(new DateTime('16-07-2020'));
-		$command2->setDateReceive(new DateTime('30-06-2020'));
-		$command3->setDateReceive(new DateTime('26-04-2020'));
-		$command4->setDateReceive(new DateTime('08-06-2020'));
-		$command5->setDateReceive(new DateTime('20-05-2020'));
 
 		//Sauvegarde des entités et des modifications effectuées.
 
