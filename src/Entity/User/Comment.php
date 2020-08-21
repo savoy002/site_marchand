@@ -29,6 +29,11 @@ class Comment
     private $text;
 
     /**
+     * @ORM\Column(type="boolean", name="deleted_comment", options={"default":false})
+     */
+    private $delete;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\User\User", inversedBy="comments")
      * @ORM\JoinColumn(name="user_id_comment", referencedColumnName="id")
      */
@@ -66,6 +71,17 @@ class Comment
     {
         $this->text = $text;
 
+        return $this;
+    }
+
+    public function getDelete(): bool
+    {
+        return $this->delete;
+    }
+
+    public function setDelete(bool $delete): self 
+    {
+        $this->delete = $delete;
         return $this;
     }
 

@@ -18,8 +18,8 @@ class ManageVariantsProductsCategoryType extends AbstractType
 	{
 		$builder
 			->add('variantsProducts', EntityType::class, 
-				['label' => 'Variantes de produits', 'class' => VariantProduct::class, 'required' => false, 'choice_label' => 'name', 'multiple' => true, 
-					'expanded' => true])
+				['label' => 'Variantes de produits', 'class' => VariantProduct::class, 'required' => false, 'choice_label' => 'name', 
+				'multiple' => true, 'expanded' => true])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 'attr' => ['class' => 'btn btn-primary']]);
 	}
 

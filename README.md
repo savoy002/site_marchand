@@ -8,7 +8,7 @@ Lancer la commande "composer require" pour télécharger les fixtures nécessair
 
 Pour créer la base de données il faut utiliser les commandes suivantes : 
 Si la base de données n'a pas été créee utilisé la commande "php bin/console doctrine:database:create".
-Si il n'y a pas de fichier "src/Migrations/Version* .php" utiliser la commande "php bin/console doctrine:make:migration", puis modifier le fichier dans la première méthode addSql de la fonction up, remplacer 'JSON NOT NULL' par "TEXT NOT NULL COMMENT \'(DC2Type:json_array)\'" pour l'attribut 'roles'.
+Si il n'y a pas de fichier "src/Migrations/Version* .php" utiliser la commande "php bin/console doctrine:make:migration", puis modifier le fichier dans la première méthode addSql de la fonction up, remplacer 'JSON NOT NULL' par "TEXT NOT NULL COMMENT \'(DC2Type:json_array)\'" pour l'attribut 'roles' de la class User et pour l'attribut 'area' de la class CompanyDelivery.
 "php bin/console doctrine:migrations:migrate"
 "php bin/console doctrine:fixtures:load"
 

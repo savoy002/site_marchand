@@ -97,12 +97,15 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		//Création des CompaniesDeliveries.
 
 		$companydelivery1 = new Companydelivery();
-		$companydelivery1->setName('UPR');
+		$companydelivery1->setName('UPS');
 		$companydelivery1->setArea(['All']);
+		$companydelivery1->setLogoFileName('ups.jpeg');
+		$companydelivery1->setActivate(true);
 
 		$companydelivery2 = new Companydelivery();
 		$companydelivery2->setName('Faux livreur Grand EST');
 		$companydelivery2->setArea(['08', '10', '51', '52', '54', '55', '57', '67', '68', '88']);
+		$companydelivery2->setActivate(true);
 
 		//Création des TypeDeliveries.
 
@@ -111,18 +114,21 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$typedelivery1->setPrice(800);
 		$typedelivery1->setTimeMin(3);
 		$typedelivery1->setTimeMax(4);
+		$typedelivery1->setActivate(true);
 
 		$typedelivery2 = new TypeDelivery();
 		$typedelivery2->setName('UPR rapide');
 		$typedelivery2->setPrice(1200);
 		$typedelivery2->setTimeMin(1);
 		$typedelivery2->setTimeMax(2);
+		$typedelivery2->setActivate(true);
 
 		$typedelivery3 = new TypeDelivery();
 		$typedelivery3->setName('Faux livreur simple');
 		$typedelivery3->setPrice(700);
 		$typedelivery3->setTimeMin(3);
 		$typedelivery3->setTimeMax(4);
+		$typedelivery3->setActivate(true);
 
 		//Création des Deleveries.
 

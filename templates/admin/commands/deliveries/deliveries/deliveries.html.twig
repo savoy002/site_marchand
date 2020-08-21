@@ -1,0 +1,66 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Livraisons {% endblock %}
+
+{% block body %} 
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Livraisons.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Livraisons</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row justify-content-start offset-1">
+
+		{% if deliveries|length > 0 %}
+
+			<div class="row">
+				<div class="col-10 offset-1 table-responsive">
+					<table class="table table-bordered">
+						<thead class="thead-dark">
+							<tr>
+								<th>Date</th>
+								<th>Type</th>
+								<th>Voir</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for delivery in deliveries %}
+								<tr>
+									<td>{{ delivery.date|date("d/m/Y") }}</td>
+									<td>
+										{{ (delivery.type is not null)?
+											((delivery.type.delete == false)?(delivery.type.name):('Supprimé')):
+											('Supprimé') }}
+									</td>
+									<td><a class="btn btn-info" href="{{ path("delivery", {id:delivery.id}) }}">Voir</a></td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		{% else %}
+
+			<div class="col-12 justify-content-center">
+				<p>Aucune livraison trouvée.</p>
+			</div>
+
+		{% endif %}
+
+	</div>
+
+{% endblock %}

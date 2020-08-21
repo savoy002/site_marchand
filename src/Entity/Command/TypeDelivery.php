@@ -20,24 +20,34 @@ class TypeDelivery
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, name="name_type_del")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", name="price_type_del")
      */
     private $price;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", name="time_min_type_del")
      */
     private $timeMin;
 
     /**
-     * @ORM\Column(type="integer")
+     * @ORM\Column(type="integer", name="time_max_type_del")
      */
     private $timeMax;
+
+    /**
+     * @ORM\Column(type="boolean", name="activate_type_del", options={"default":false})
+     */
+    private $activate;
+
+    /**
+     * @ORM\Column(type="boolean", name="deleted_type_del", options={"default":false})
+     */
+    private $delete;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Command\Delivery", mappedBy="type")
@@ -52,6 +62,8 @@ class TypeDelivery
 
     public function __construct()
     {
+        $this->activate = false;
+        $this->delete = false;
         $this->deliveries = new ArrayCollection();
     }
 
@@ -108,6 +120,29 @@ class TypeDelivery
         return $this;
     }
 
+    public function getActivate(): bool
+    {
+        return $this->activate;
+    }
+
+    public function setActivate(bool $activate): self
+    {
+        $this->activate = $activate;
+
+        return $this;
+    }
+
+    public function getDelete(): bool 
+    {
+        return $this->delete;
+    }
+
+    public function setDelete(bool $delete): self 
+    {
+        $this->delete = $delete;
+        return $this;
+    }
+
     public function getDeliveries(): Collection
     {
         return $this->deliveries;
@@ -142,7 +177,7 @@ class TypeDelivery
         return $this;
     }
 
-    public function getCompany(): CompanyDelivery
+    public function getCompany(): ?CompanyDelivery
     {
         return $this->company;
     }

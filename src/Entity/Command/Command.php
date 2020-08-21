@@ -43,9 +43,14 @@ class Command
     private $dateReceive;
 
     /**
-     * @ORM\Column(type="integer", nullable=true)
+     * @ORM\Column(type="integer", name="price_total", nullable=true)
      */
     private $priceTotal;
+
+    /**
+     * @ORM\Column(type="boolean", name="deleted_com", options={"default":false})
+     */
+    private $delete;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Command\Adress", inversedBy="commands")
@@ -75,6 +80,7 @@ class Command
         $this->createdAt = new DateTime();
         $this->completed = false;
         $this->priceTotal = null;
+        $this->delete = false;
         $this->products = new ArrayCollection();
     }
 
@@ -145,6 +151,17 @@ class Command
 
         }
 
+        return $this;
+    }
+
+    public function getDelete(): bool 
+    {
+        return $this->delete;
+    }
+
+    public function setDelete(bool $delete): self 
+    {
+        $this->delete = $delete;
         return $this;
     }
 

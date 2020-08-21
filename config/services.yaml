@@ -8,6 +8,7 @@ parameters:
     category_image_directory: '%kernel.project_dir%/public/img/uploads/Product/Category'
     product_image_directory: '%kernel.project_dir%/public/img/uploads/Product/Product'
     variant_product_image_directory: '%kernel.project_dir%/public/img/uploads/Product/VariantProduct'
+    company_delivery_image_directory: '%kernel.project_dir%/public/img/uploads/Command/CompanyDelivery'
 
 
 services:

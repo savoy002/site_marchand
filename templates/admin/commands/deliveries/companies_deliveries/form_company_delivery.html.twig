@@ -1,0 +1,78 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} {{ (create)?("Ajout"):("Modification") }} {% endblock %}
+
+{% block body %}
+
+	{% if errors is not empty %}
+		<ul>
+			{% for error in errors %}
+				<li> {{ error }} </li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>{{(create)?("Ajout de l'enterprise"):("Modification de l'entreprise " ~ name)}}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("companies_deliveries") }}">Entreprise de livraison</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">
+			    	{{ (create)?("Ajout de l'entreprise de livraison"):("Modification de l'entreprise de livraison" ~ name) }}
+			    </li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	{{ form_start(form) }}
+
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_label(form.name) }}
+				{{ form_errors(form.name) }}
+				{{ form_widget(form.name) }}
+			</div>
+			<div class="col-5">
+				{{ form_label(form.image) }}
+				{{ form_errors(form.image) }}
+				{{ form_widget(form.image) }}
+			</div>
+		</div>
+
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_label(form.all_france) }}
+				{{ form_errors(form.all_france) }}
+				{{ form_widget(form.all_france) }}
+			</div>
+			<div class="col-5"></div>
+		</div>
+
+		<div class="row justify-content-start form-div-button">
+			<div class="offset-sm-1">
+				{{ form_row(form.submit) }}
+			</div>
+			<div class="col-1">
+				{% if create %}
+					<a href="{{ path("companies_deliveries") }}" class="btn btn-danger">Annuler</a>
+				{% else %}
+					<a href="{{ path("company_delivery", {id:id}) }}" class="btn btn-danger">Annuler</a>
+				{% endif %}
+			</div>
+		</div>
+
+	{{ form_end(form) }}
+
+{% endblock %}
+
+
+

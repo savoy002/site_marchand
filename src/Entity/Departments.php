@@ -136,4 +136,18 @@ class Departments
 		return $tab;
 	}
 
+	public function getListDepartmentForForm() 
+	{
+		$tab = array();
+		foreach(self::TAB_DEPARTENT as $key => $value) {
+			if(gettype($value) === "string")
+				$tab[$key.' '.$value] = strval($key);
+			else {
+				foreach($value as $second_key => $second_value)
+					$tab[$key.' '.$second_value] = $key.$second_key;
+			}
+		}
+		return $tab;
+	}
+
 }

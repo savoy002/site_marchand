@@ -25,6 +25,11 @@ class Delivery
     private $date;
 
     /**
+     * @ORM\Column(type="boolean", name="deleted_del", options={"default":false})
+     */
+    private $delete;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="delivery")
      */
     private $commands;
@@ -37,6 +42,7 @@ class Delivery
 
     public function __construct()
     {
+        $this->delete = false;
         $this->commands = new ArrayCollection();
     }
 
@@ -54,6 +60,17 @@ class Delivery
     {
         $this->date = $date;
 
+        return $this;
+    }
+
+    public function getDelete(): bool 
+    {
+        return $this->delete;
+    }
+
+    public function setDelete(bool $delete): self 
+    {
+        $this->delete = $delete;
         return $this;
     }
 

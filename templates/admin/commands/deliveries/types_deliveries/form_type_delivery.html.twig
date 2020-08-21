@@ -1,0 +1,92 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} {{ (create)?('Ajout'):('Modification' ~ name) }} {% endblock %}
+
+
+{% block body %}
+
+	{% if errors is not empty %}
+		<ul>
+			{% for error in errors %}
+				<li> {{ error }} </li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>{{(create)?("Ajout de type"):("Modification du type " ~ name)}}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("types_deliveries") }}">Type de livraison</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">
+			    	{{ (create)?("Ajout du type de livraison"):("Modification de type de livraison" ~ name) }}
+			    </li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+
+	{{ form_start(form) }}
+
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_label(form.name) }}
+				{{ form_errors(form.name) }}
+				{{ form_widget(form.name) }}
+			</div>
+			<div class="col-5">
+				{{ form_label(form.price) }}
+				{{ form_errors(form.price) }}
+				{{ form_widget(form.price) }}
+			</div>
+		</div>
+
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_label(form.timeMin) }}
+				{{ form_errors(form.timeMin) }}
+				{{ form_widget(form.timeMin) }}
+			</div>
+			<div class="col-5">
+				{{ form_label(form.timeMax) }}
+				{{ form_errors(form.timeMax) }}
+				{{ form_widget(form.timeMax) }}
+			</div>
+		</div>
+
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_label(form.company) }}
+				{{ form_errors(form.company) }}
+				{{ form_widget(form.company) }}
+			</div>
+			<div class="col-5"></div>
+		</div>
+
+		<div class="row justify-content-start form-div-button">
+			<div class="offset-sm-1">
+				{{ form_row(form.submit) }}
+			</div>
+			<div class="col-1">
+				{% if create %}
+					<a href="{{ path("types_deliveries") }}" class="btn btn-danger">Annuler</a>
+				{% else %}
+					<a href="{{ path("type_delivery", {id:id}) }}" class="btn btn-danger">Annuler</a>
+				{% endif %}
+			</div>
+		</div>
+
+	{{ form_end(form) }}
+
+
+
+{% endblock %}

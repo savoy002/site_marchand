@@ -38,6 +38,11 @@ class Adress
     private $city;
 
     /**
+     * @ORM\Column(type="boolean", name="deleted_adr", options={"default":false})
+     */
+    private $delete;
+
+    /**
      * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="placeDel")
      */
     private $commands;
@@ -49,6 +54,7 @@ class Adress
 
     public function __construct() 
     {
+        $this->delete = false;
         $this->commands = new ArrayCollection();
         $this->belongs = new ArrayCollection();
     }
@@ -91,6 +97,17 @@ class Adress
     {
         $this->city = $city;
 
+        return $this;
+    }
+
+    public function getDelete(): bool 
+    {
+        return $this->delete;
+    }
+
+    public function setDelete(bool $delete): self 
+    {
+        $this->delete = $delete;
         return $this;
     }
 

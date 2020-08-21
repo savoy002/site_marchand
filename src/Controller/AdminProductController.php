@@ -96,7 +96,7 @@ class AdminProductController extends AbstractController
                     if(gettype($res) === "string")
                     	$category->setImgFileName($res);
 					else 
-                    	return $this->render('store/produts/categories/form_category.html.twig', 
+                    	return $this->render('admin/produts/categories/form_category.html.twig', 
                             ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
                 }
                 $this->getDoctrine()->getManager()->persist($category);

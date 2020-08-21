@@ -1,0 +1,71 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Types de livraison {% endblock %}
+
+{% block body %} 
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Types de livraison.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Types de livraison</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row justify-content-start offset-1">
+
+		{% if types|length > 0 %}
+
+			<div class="row">
+				<div class="col-10 offset-1 table-responsive">
+					<table class="table table-bordered">
+						<thead class="thead-dark">
+							<tr>
+								<th>Nom du type</th>
+								<th>Prix</th>
+								<th>Temps</th>
+								<th>Activitée</th>
+								<th>Voir</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for type in types %}
+								<tr>
+									<td>{{ type.name }}</td>
+									<td>{{ type.price|slice(0, type.price|length - 2)~','~type.price|slice(type.price|length - 2, type.price|length) }}</td>
+									<td>{{ type.timeMin ~ " à " ~ type.timeMax ~ " jours" }}</td>
+									<td>{{ (type.activate)?('Actif'):('Inactif') }}</td>
+									<td><a class="btn btn-info" href="{{ path("type_delivery", {id:type.id}) }}">Voir</a></td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		{% else %}
+
+			<div class="col-12 justify-content-center">
+				<p>Aucun type de livraison trouvé.</p>
+			</div>
+
+		{% endif %}
+
+		<div class="{{ (types|length > 0)?('col offset-sm-1'):('col-12') }}">
+			<a href="{{ path("create_type_delivery") }}" class="btn btn-primary">Créer un type</a>
+		</div>
+
+	</div>
+
+
+{% endblock %}

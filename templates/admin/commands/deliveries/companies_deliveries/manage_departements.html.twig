@@ -1,0 +1,61 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Gestion des départements. {% endblock %}
+
+{% block body %}
+
+	{% if errors is not empty %}
+		<ul>
+			{% for error in errors %}
+				<li> {{ error }} </li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Gestion des départements de {{ name }}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("companies_deliveries") }}">Entreprise de livraison</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Gestion des départements de {{ name }}</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	{{ form_start(form, {'attr' : {'class' : 'form-group'}}) }}
+
+		<div class="row">
+			<div class="offset-1">
+				{{ form_label(form.area) }}
+			</div>
+		</div>
+		<div class="row">
+			{% for choice in form.area.children %}
+				<div class="offset-1 col-3">
+					<div class="form-check inline-block ">
+						{{ form_widget(choice) }}
+			            {{ form_label(choice) }}
+			            {{ form_errors(choice) }}
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+		<div class="offset-1">
+			{{ form_row(form.submit) }}
+		</div>
+
+
+	{{ form_end(form) }}
+
+
+{% endblock %}
+

@@ -18,7 +18,8 @@ class ManageProductVariantProductType extends AbstractType
 	{
 		$builder
 			->add('product', EntityType::class, 
-				['label' => 'Produits', 'class' => Product::class, 'required' => true, 'choice_label' => 'name', 'attr' => ['class' => 'form-control']])
+				['label' => 'Produits', 'class' => Product::class, 'required' => true, 'choice_label' => 'name', 
+				'attr' => ['class' => 'form-control']])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 'attr' => ['class' => 'btn btn-primary']]);
 	}
 

@@ -20,14 +20,29 @@ class CompanyDelivery
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * @ORM\Column(type="string", length=255, name="name_comp_del")
      */
     private $name;
 
     /**
-     * @ORM\Column(type="array")
+     * @ORM\Column(type="json")
      */
     private $area = [];
+
+    /**
+     * @ORM\Column(type="string", name="logo", unique=true, nullable=true)
+     */
+    private $logoFileName;
+
+    /**
+     * @ORM\Column(type="boolean", name="activate_comp_del", options={"default":false})
+     */
+    private $activate;
+
+    /**
+     * @ORM\Column(type="boolean", name="deleted_comp_del", options={"default":false})
+     */
+    private $delete;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Command\TypeDelivery", mappedBy="company", orphanRemoval=false)
@@ -36,6 +51,8 @@ class CompanyDelivery
 
     public function __construct()
     {
+        $this->activate = false;
+        $this->delete = false;
         $this->types = new ArrayCollection();
     }
 
@@ -65,6 +82,41 @@ class CompanyDelivery
     {
         $this->area = $area;
 
+        return $this;
+    }
+
+    public function getLogoFileName(): ?string
+    {
+        return $this->logoFileName;
+    }
+
+    public function setLogoFileName(string $logoFileName): self
+    {
+        $this->logoFileName = $logoFileName;
+
+        return $this;
+    }
+
+    public function getActivate(): bool
+    {
+        return $this->activate;
+    }
+
+    public function setActivate(bool $activate): self
+    {
+        $this->activate = $activate;
+
+        return $this;
+    }
+
+    public function getDelete(): bool 
+    {
+        return $this->delete;
+    }
+
+    public function setDelete(bool $delete): self 
+    {
+        $this->delete = $delete;
         return $this;
     }
 

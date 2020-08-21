@@ -1,12 +1,13 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block title %} Menu Produit {% endblock %}
+{% block title %} Menu Livraison {% endblock %}
 
-{% block body %}
+
+{% block body %} 
 
 	<div class="row">
 		<div class="offset-sm-1">
-			<h1>Menu produit.</h1>
+			<h1>Menu livraison.</h1>
 		</div>
 	</div>
 
@@ -15,7 +16,7 @@
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
-			    <li class="breadcrumb-item active" aria-current="page">Menu produit</li>
+			    <li class="breadcrumb-item active" aria-current="page">Menu livraison</li>
 			  </ol>
 			</nav>
 		</div>
@@ -23,15 +24,15 @@
 
 	<div class="row offset-1">
 		<div class="col col-3">
-			<a href="{{ path("categories") }}" class="btn btn-primary">Catégories</a>		
+			<a href="{{ path("companies_deliveries") }}" class="btn btn-primary">Entreprises</a>
 		</div>
 		<div class="col col-3">
-			<a href="{{ path("products") }}" class="btn btn-primary">Produits</a>		
+			<a href="{{ path("types_deliveries") }}" class="btn btn-primary">Types</a>		
 		</div>
 		<div class="col col-3">
-			<a href="{{ path("variants_products") }}" class="btn btn-primary">Variantes de produits</a>
+			<a href="{{ path("deliveries") }}" class="btn btn-primary">Livraisons</a>
 		</div>
 	</div>
 
- {% endblock %}
 
+{% endblock %}

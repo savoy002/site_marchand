@@ -29,7 +29,8 @@ class UserType extends AbstractType
 			/*->add('roles', ChoiceType::class, ['label' => "Type d'utilisateur", 
 				'choices' => ['Utilisateur' => ['ROLE_USER'], 'Administrateur' => ['ROLE_ADMIN']]])*/
 			->add('roles', ChoiceType::class, ['label' => "Type d'utilisateur", 
-				'choices' => ['Utilisateur' => 'ROLE_USER', 'Administrateur' => 'ROLE_ADMIN'], 'attr' => ['class' => 'custom-select custom-select-sm']])
+				'choices' => ['Utilisateur' => 'ROLE_USER', 'Administrateur' => 'ROLE_ADMIN'],
+				'attr' => ['class' => 'custom-select custom-select-sm']])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 
 				'attr' => ['class' => 'btn btn-primary']]);
 
