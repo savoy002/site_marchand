@@ -2,6 +2,7 @@
 
 namespace App\Form\Type\Product\Manager;
 
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
@@ -19,7 +20,11 @@ class ManageProductVariantProductType extends AbstractType
 		$builder
 			->add('product', EntityType::class, 
 				['label' => 'Produits', 'class' => Product::class, 'required' => true, 'choice_label' => 'name', 
-				'attr' => ['class' => 'form-control']])
+				'attr' => ['class' => 'form-control'],
+				'query_builder' => function(EntityRepository $er) {
+					return $er->createQueryBuilder('p')->where('p.delete = FALSE');
+				}
+			])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 'attr' => ['class' => 'btn btn-primary']]);
 	}
 
