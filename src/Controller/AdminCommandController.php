@@ -467,6 +467,19 @@ class AdminCommandController extends AbstractController
         return $this->redirectToRoute('types_deliveries');
     }
 
+    /**
+     * @Route("admin/company_delivery/{id}/types_deliveries", name="types_by_company")
+     */
+    public function typesDeliveriesByCompany($id) 
+    {
+        $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        if(is_null($company))
+            return $this->redirectToRoute('companies_deliveries');
+
+        return $this->render('admin/commands/deliveries/types_deliveries/types_deliveries_by_company_delivery.html.twig',
+            ['company' => $company]);
+    }
+
     //
     //Partie Delivery.
     //
@@ -491,6 +504,18 @@ class AdminCommandController extends AbstractController
             return $this->redirectToRoute('deliveries');
         
         return $this->render('admin/commands/deliveries/deliveries/delivery.html.twig', ['delivery' => $delivery]);
+    }
+
+    /**
+     * @Route("admin/type_delivery/{id}/deliveries", name="deliveries_by_type")
+     */
+    public function deliveriesByType($id) 
+    {
+        $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        if(is_null($type))
+            return $this->redirectToRoute('types_deliveries');
+
+        return $this->render('admin/commands/deliveries/deliveries/deliveries_by_type_delivery.html.twig', ['type' => $type]);
     }
 
 

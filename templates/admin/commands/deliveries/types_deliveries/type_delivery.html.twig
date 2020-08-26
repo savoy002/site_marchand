@@ -51,9 +51,11 @@
 	</div>
 
 	<div class="row justify-content-start div-button">
-		<div class="col-md-4 offset-md-1">
+		<div class="col-md-6 offset-md-1">
 
 			<a href="{{ path("modify_type_delivery", {id:type.id}) }}" class="btn btn-primary">Modifier</a>
+
+			<a href="{{ path("deliveries_by_type", {id:type.id}) }}" class="btn btn-info">Voir livraisons</a>
 
 			<a href="{{ path("activate_deactivate_type_delivery", {id:type.id}) }}" class="btn btn-danger">
 				{{ (type.activate)?("Désactiver"):("Activer") }}
