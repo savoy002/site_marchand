@@ -1,5 +1,5 @@
 
-Le projet nécessite l'installation des packages de apache, mysql,   phpyadmin, composer.
+Le projet nécessite l'installation des packages de apache, mysql, phpyadmin, composer ainsi que yarn dans le projet en question.
 Avoir préparé un utilisateur avec des droits de vue, création, modification et suppression sur une base de données.
 
 Ajouter un fichier .env.local avec la ligne suivante "DATABASE_URL=mysql://[nom_utilisateur]:[mot_de_passe]@[adesse]:[port]/[nom_de_la_base_de_données]" pour indiqué au projet quelle base de données utiliser avec quelle utilisateur.

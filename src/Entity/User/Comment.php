@@ -2,8 +2,13 @@
 
 namespace App\Entity\User;
 
-use App\Entity\Product\VariantProduct;
+use DateTime;
+
 use Doctrine\ORM\Mapping as ORM;
+
+use App\Entity\Product\VariantProduct;
+use App\Entity\User\User;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\User\CommentRepository")
@@ -19,7 +24,7 @@ class Comment
     private $id;
 
     /**
-     * @ORM\Column(type="integer", name="mark_comment")
+     * @ORM\Column(type="integer", name="mark_comment", options={"min": 0, "max": 5})
      */
     private $mark;
 
@@ -27,6 +32,11 @@ class Comment
      * @ORM\Column(type="text", name="text_comment")
      */
     private $text;
+
+    /**
+     * @ORM\Column(type="datetime", name="created_at_user", options={"default": "CURRENT_TIMESTAMP"})
+     */
+    private $createAt;
 
     /**
      * @ORM\Column(type="boolean", name="deleted_comment", options={"default":false})
@@ -44,6 +54,12 @@ class Comment
      * @ORM\JoinColumn(name="prod_id_comment", referencedColumnName="id")
      */
     private $product;
+
+    public function __construct() 
+    {
+        $this->delete = false;
+        $this->createAt = new DateTime();
+    }
 
     public function getId(): ?int
     {
@@ -70,6 +86,18 @@ class Comment
     public function setText(string $text): self
     {
         $this->text = $text;
+
+        return $this;
+    }
+
+    public function getCreateAt(): DateTime
+    {
+        return $this->createAt;
+    }
+
+    public function setCreateAt(DateTime $createAt): self
+    {
+        $this->createAt = $createAt;
 
         return $this;
     }

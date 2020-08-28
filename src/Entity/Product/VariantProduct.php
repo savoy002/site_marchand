@@ -66,7 +66,7 @@ class VariantProduct
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Product\Product", inversedBy="variantsProducts")
-     * @ORM\JoinColumn(name="prod_id_prod_var", referencedColumnName="id")
+     * @ORM\JoinColumn(name="prod_id_var_prod", referencedColumnName="id")
      */
     private $product;
     
