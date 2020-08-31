@@ -1,0 +1,73 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Commentaires {% endblock %}
+
+{% block body %} 
+
+		<div class="row">
+			<div class="offset-sm-1">
+				<h1>Commentaires.</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="offset-sm-1"
+				<nav aria-label="breadcrumb">
+				  <ol class="breadcrumb">
+				    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+				    <li class="breadcrumb-item active" aria-current="page">Commentaires</li>
+				  </ol>
+				</nav>
+			</div>
+		</div>
+
+		<div class="row  justify-content-center ">
+
+			<div class="row justify-content-center">
+					{% if comments|length > 0 %}
+						<div class="row">
+							<table class="table table-bordered">
+								<thead class="thead-dark">
+									<tr>
+										<th>Date de création</th><th>Nom de compte</th><th>Note</th><th>Texte</th>
+										<th>Voir</th>
+									</tr>
+								</thead>
+								<tbody>
+									{% for comment in comments %}
+										<tr>
+											<td>{{ comment.createAt|date("d/m/Y H:i") }}</td>
+											<td>{{ comment.user.username }}</td>
+											<td>
+												{% for i in 1..5 %}
+													<span class="{{ (i >= comment.mark)?
+																	("star_not_checked"):
+																	("star_checked") }}">&#x2605;</span>
+												{% endfor %}
+											</td>
+											<td>
+												{{ (comment.text|length > number_characters)?
+												   (comment.text|slice(0, number_characters) ~ "..."):
+												   (comment.text) }}
+											</td>
+											<td>
+												<a href="{{ path("comment",  {id:comment.id}) }}" class="btn btn-info">
+													Voir
+												</a>
+											</td>
+										</tr>
+									{% endfor %}
+								</tbody>
+							</table>
+						</div>
+						<div class="w-100"></div>
+					{% else %}
+						<div class="col-12 justify-content-center">
+							<p>Aucun commentaire trouvé.</p>
+						</div>
+					{% endif %}
+				</div>
+
+		</div>
+
+{% endblock %}

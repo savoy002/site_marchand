@@ -8,6 +8,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 use App\Entity\User\User;
+use App\Entity\User\Comment;
 use App\Form\Type\User\UserType;
 
 
@@ -17,11 +18,17 @@ class AdminController extends AbstractController
     //Le nombre d'utilisateurs affichés par page.
     const NUMBER_BY_PAGE = 5;
 
+    //Le nombre de caractères par commentaire affiché dans la gestion des commentaires.
+    const NUMBER_CHARACTERS = 30;
+
     private $passwordEncoder;
 
     public function __construct(UserPasswordEncoderInterface $passwordEncoder) {
         $this->passwordEncoder = $passwordEncoder;
     }
+
+
+    //Partie User.
 
     /**
      * @Route("/admin", name="admin")
@@ -129,7 +136,7 @@ class AdminController extends AbstractController
             $number_pages = intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
 
-    	return $this->render('admin/users/users.html.twig', ['users' => $users, 'number_pages' => $number_pages, 'page' => $page, 
+    	return $this->render('admin/users/users/users.html.twig', ['users' => $users, 'number_pages' => $number_pages, 'page' => $page, 
             'request' => $former_request, 'errors' => $errors]);
     }
 
@@ -139,7 +146,7 @@ class AdminController extends AbstractController
     public function showUser($id)
     {
         $user = $this->getDoctrine()->getRepository(User::class)->findOneBy( ['id' => $id, 'delete' => false] );
-        return $this->render('admin/users/user.html.twig', ['user' => $user]);
+        return $this->render('admin/users/users/user.html.twig', ['user' => $user]);
     }
 
     /**
@@ -175,7 +182,7 @@ class AdminController extends AbstractController
                     return $this->redirectToRoute("users");
                 }
             }
-            return $this->render('admin/users/create_user.html.twig', ['form' => $form->createView(), 'errors' => $errors]);
+            return $this->render('admin/users/users/create_user.html.twig', ['form' => $form->createView(), 'errors' => $errors]);
         }
         return $this->redirectToRoute('admin');
     }
@@ -210,6 +217,46 @@ class AdminController extends AbstractController
     	return $this->redirectToRoute('users');
     }
 
+
+    //Partie Comment.
+
+    /**
+     * @Route("admin/comments", name="comments")
+     */
+    public function comments(Request $request)
+    {
+        $comments = $this->getDoctrine()->getRepository(Comment::class)->findBy(['delete' => false]);
+
+        return $this->render("admin/users/comments/comments.html.twig", 
+            ['comments' => $comments, 'number_characters' => self::NUMBER_CHARACTERS]);
+    }
     
+    /**
+     * @Route("admin/comment/{id}", name="comment")
+     */
+    public function comment($id)
+    {
+        $comment = $this->getDoctrine()->getRepository(Comment::class)->findOneBy(['id' => $id, 'delete' => false]);
+        if(is_null($comment))
+            return $this->redirectToRoute('comments');
+
+        return $this->render("admin/users/comments/comment.html.twig", ['comment' => $comment]);
+    }
+
+    /**
+     * @Route("admin/comment/{id}/delete", name="delete_comment")
+     */
+    public function commentDelete($id)
+    {
+        $comment = $this->getDoctrine()->getRepository(Comment::class)->findOneBy(['id' => $id, 'delete' => false]);
+        if(is_null($comment))
+            return $this->redirectToRoute('comments');
+
+        $comment->setDelete(true);
+        $this->getDoctrine()->getManager()->persist($comment);
+        $this->getDoctrine()->getManager()->flush();
+
+        return $this->redirectToRoute('comment');
+    }
 
 }
