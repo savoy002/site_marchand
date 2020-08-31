@@ -2,7 +2,17 @@
 
 {% block title %} Commentaires {% endblock %}
 
-{% block body %} 
+{% block stylesheets %}
+	{{ parent() }}
+	{{ encore_entry_link_tags('star_mark_manage') }}
+{% endblock %}
+
+{% block javascripts %}
+	{{ parent() }}
+    {{ encore_entry_script_tags('star_mark_manage') }}
+{% endblock %}
+
+{% block body %}
 
 		<div class="row">
 			<div class="offset-sm-1">
@@ -23,51 +33,192 @@
 
 		<div class="row  justify-content-center ">
 
-			<div class="row justify-content-center">
-					{% if comments|length > 0 %}
+			<form  class="form" action="{{ path("comments") }}" method="post">
+
+				{% if errors is not empty %}
+					<ul>
+						{% for error in errors %}
+							<li> {{ error }} </li>
+						{% endfor %}
+					</ul>
+				{% endif %}
+
+				{# Début du formulaire de recherche #}
+
+				<input hidden="hidden" name="research" value="research">
+				<div class="row form-div justify-content-around">
+					<div class="col-5 col-xs-12">
+						<label for="text">Texte</label>
+						<input class="form-control form-control-sm" name="text" type="text" 
+							{{ (request.text is defined)?('value=' ~ request.text ) }}>
+					</div>
+					<div class="col-5 col-xs-12"></div>
+				</div>
+				<div class="row form-div justify-content-around">
+					<div class="col-5 col-xs-12">
+						<label for="type_research_mark">Recherche de note</label>
+						<select class="custom-select custom-select-sm" name="type_research_mark">
+							<option value="equal" 
+								{{ (request.type_research_mark is defined)?
+								   ((request.type_research_mark == 'equal') ? ('selected') ) }} >
+								égale
+							</option>
+							<option value="inferior" 
+								{{ (request.type_research_mark is defined)?
+								   ((request.type_research_mark == 'inferior') ? ('selected') ) }} >
+								inférieur
+							</option>
+							<option value="higher" 
+								{{ (request.type_research_mark is defined)?
+								   ((request.type_research_mark == 'higher') ? ('selected') ) }} >
+								supérieur
+							</option>
+						</select>
+					</div>
+					<div class="col-5 col-xs-12">
+						<label for="mark">Note</label>
+						<input hidden="hidden" name="mark" value="{{ (request.mark is defined)?(request.mark) }}">
 						<div class="row">
-							<table class="table table-bordered">
-								<thead class="thead-dark">
-									<tr>
-										<th>Date de création</th><th>Nom de compte</th><th>Note</th><th>Texte</th>
-										<th>Voir</th>
-									</tr>
-								</thead>
-								<tbody>
-									{% for comment in comments %}
-										<tr>
-											<td>{{ comment.createAt|date("d/m/Y H:i") }}</td>
-											<td>{{ comment.user.username }}</td>
-											<td>
-												{% for i in 1..5 %}
-													<span class="{{ (i >= comment.mark)?
-																	("star_not_checked"):
-																	("star_checked") }}">&#x2605;</span>
-												{% endfor %}
-											</td>
-											<td>
-												{{ (comment.text|length > number_characters)?
-												   (comment.text|slice(0, number_characters) ~ "..."):
-												   (comment.text) }}
-											</td>
-											<td>
-												<a href="{{ path("comment",  {id:comment.id}) }}" class="btn btn-info">
-													Voir
-												</a>
-											</td>
-										</tr>
-									{% endfor %}
-								</tbody>
-							</table>
+							{% if request.mark is defined and request.mark != "" %}
+								{% for i in 1..5 %}
+									<span class="{{ (i > request.mark)?
+													("star_not_checked"):
+													("star_checked") }}" name="star" num="1">&#x2605;</span>
+								{% endfor %}
+							{% else %}
+								<span class="star_not_checked" name="star" num="1">&#x2605;</span>
+								<span class="star_not_checked" name="star" num="2">&#x2605;</span>
+								<span class="star_not_checked" name="star" num="3">&#x2605;</span>
+								<span class="star_not_checked" name="star" num="4">&#x2605;</span>
+								<span class="star_not_checked" name="star" num="5">&#x2605;</span>
+							{% endif %}
+							<p name="cancel">Annuler</p>
 						</div>
-						<div class="w-100"></div>
-					{% else %}
-						<div class="col-12 justify-content-center">
-							<p>Aucun commentaire trouvé.</p>
-						</div>
-					{% endif %}
+					</div>
+				</div>
+				<div class="row form-div justify-content-around">
+					<div class="col-5 col-xs-12">
+						<label for="createdBefore">Crée avant le </label>
+						<input class="form-control form-control-sm" name="createdBefore" type="date" 
+							{{ (request.createdBefore is defined)?('value=' ~ request.createdBefore ) }} >
+					</div>
+					<div class="col-5 col-xs-12">
+						<label for="createdAfter">Crée après le </label>
+						<input class="form-control form-control-sm" name="createdAfter" type="date" 
+							{{ (request.createdAfter is defined)?('value=' ~ request.createdAfter ) }} >
+					</div>
+				</div>
+				<div class="row justify-content-around form-div">
+					<div class="col-5 col-xs-12">
+						<label for="orderBy_sortBy">Ordonné par</label>
+						<select class="custom-select custom-select-sm" name="orderBy_sortBy">
+							<option value="none">N'importe</option>
+							<option value="createdAt" 
+								{{ (request.orderBy_sortBy is defined)?
+								   ( (request.orderBy_sortBy == 'createdAt')?('selected') ) }}>
+								Date de création
+							</option>
+							<option value="mark" 
+								{{ (request.orderBy_sortBy is defined)?
+								   ( (request.orderBy_sortBy == 'mark')? ('selected') ) }}>
+								Note
+							</option>
+						</select>
+					</div>
+					<div class="col-5 col-xs-12">
+						<label for="orderBy_sortDir">Sens</label>
+						<select class="custom-select custom-select-sm" name="orderBy_sortDir">
+							<option value="ASC" {{ (request.orderBy_sortDir is defined)?((request.orderBy_sortDir == 'ASC')? ('selected') ) }}>
+								Ascendant
+							</option>
+							<option value="DESC" {{ (request.orderBy_sortDir is defined)?((request.orderBy_sortDir == 'DESC')? ('selected') ) }}>
+								Descendant
+							</option>
+						</select>
+					</div>
+				</div>
+				<div class="row justify-content-around form-div-button">
+					<div class="col-5"><button class="btn btn-primary" type="submit">Rechercher</button></div>
+					<div class="col-5"><a href="{{ path("users") }}" class="btn btn-danger">Annuler</a></div>
 				</div>
 
+				{# Fin du formulaire de recherche #}
+				
+				{# Début des résultats de recherches #}
+
+				<div class="row justify-content-center">
+						{% if comments|length > 0 %}
+							<div class="row">
+								<table class="table table-bordered">
+									<thead class="thead-dark">
+										<tr>
+											<th>Date de création</th><th>Nom de compte</th><th>Produit</th><th>Note</th>
+											<th>Texte</th><th>Voir</th>
+										</tr>
+									</thead>
+									<tbody>
+										{% for comment in comments %}
+											<tr>
+												<td>{{ comment.createdAt|date("d/m/Y H:i") }}</td>
+												<td>{{ comment.user.username }}</td>
+												<td>{{ comment.product.name }}</td>
+												<td>
+													{% for i in 1..5 %}
+														<span class="{{ (i > comment.mark)?
+																		("star_not_checked"):
+																		("star_checked") }}">&#x2605;</span>
+													{% endfor %}
+												</td>
+												<td>
+													{{ (comment.text|length > number_characters)?
+													   (comment.text|slice(0, number_characters) ~ "..."):
+													   (comment.text) }}
+												</td>
+												<td>
+													<a href="{{ path("comment",  {id:comment.id}) }}" class="btn btn-info">
+														Voir
+													</a>
+												</td>
+											</tr>
+										{% endfor %}
+									</tbody>
+								</table>
+							</div>
+							<div class="w-100"></div>
+						{% else %}
+							<div class="col-12 justify-content-center">
+								<p>Aucun commentaire trouvé.</p>
+							</div>
+						{% endif %}
+					</div>
+
+					{# Fin des résultats de recherches #}
+
+					{# Début des paginations #}
+
+					<div class="row justify-content-around ">
+						<div class="col-5">
+							<nav aria-label="Page navigation example">
+							  <ul class="pagination">
+							    <li class="page-item">
+							      <input type="submit" value="Début" name="page" class="btn {{ (page != 1)?("btn-primary"):("btn-secondary") }}">
+							    </li>
+							    {% for num in range(1, number_pages) %}
+							    	<input type="submit" value="{{ num }}" name="page" class="btn {{ (num != page )?("btn-primary"):("btn-secondary") }}">
+							    {% endfor %}
+							    <li class="page-item">
+							      <input type="submit" value="Fin" name="page" class="btn {{ (page != number_pages)?("btn-primary"):("btn-secondary") }}">
+							    </li>
+							  </ul>
+							</nav>
+						</div>
+						<div class="col-5">
+						</div>
+					</div>
+
+					{# Fin des paginations #}
+
+				</form>
 		</div>
 
 {% endblock %}

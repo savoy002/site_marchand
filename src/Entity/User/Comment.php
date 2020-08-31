@@ -24,7 +24,7 @@ class Comment
     private $id;
 
     /**
-     * @ORM\Column(type="integer", name="mark_comment", options={"min": 0, "max": 5})
+     * @ORM\Column(type="integer", name="mark_comment", options={"min": 1, "max": 5})
      */
     private $mark;
 
@@ -36,7 +36,7 @@ class Comment
     /**
      * @ORM\Column(type="datetime", name="created_at_user", options={"default": "CURRENT_TIMESTAMP"})
      */
-    private $createAt;
+    private $createdAt;
 
     /**
      * @ORM\Column(type="boolean", name="deleted_comment", options={"default":false})
@@ -90,14 +90,14 @@ class Comment
         return $this;
     }
 
-    public function getCreateAt(): DateTime
+    public function getCreatedAt(): DateTime
     {
-        return $this->createAt;
+        return $this->createdAt;
     }
 
-    public function setCreateAt(DateTime $createAt): self
+    public function setCreatedAt(DateTime $createdAt): self
     {
-        $this->createAt = $createAt;
+        $this->createdAt = $createdAt;
 
         return $this;
     }

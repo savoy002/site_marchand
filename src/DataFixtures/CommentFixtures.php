@@ -50,17 +50,17 @@ class CommentFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$comment4->setMark(3);
 		$comment5->setMark(3);
 		$comment6->setMark(2);
-		$comment7->setMark(0);
+		$comment7->setMark(1);
 		$comment8->setMark(4);
 
-		$comment1->setCreateAt(new DateTime('2020-07-01 14:22'));
-		$comment2->setCreateAt(new DateTime('2019-04-03 08:13'));
-		$comment3->setCreateAt(new DateTime('2019-11-18 16:04'));
-		$comment4->setCreateAt(new DateTime('2020-05-26 18:36'));
-		$comment5->setCreateAt(new DateTime('2019-12-28 11:38'));
-		$comment6->setCreateAt(new DateTime('2020-02-01 09:47'));
-		$comment7->setCreateAt(new DateTime('2020-08-07 10:44'));
-		$comment8->setCreateAt(new DateTime('2019-04-03 08:9'));
+		$comment1->setCreatedAt(new DateTime('2020-07-01 14:22'));
+		$comment2->setCreatedAt(new DateTime('2019-04-03 08:13'));
+		$comment3->setCreatedAt(new DateTime('2019-11-18 16:04'));
+		$comment4->setCreatedAt(new DateTime('2020-05-26 18:36'));
+		$comment5->setCreatedAt(new DateTime('2019-12-28 11:38'));
+		$comment6->setCreatedAt(new DateTime('2020-02-01 09:47'));
+		$comment7->setCreatedAt(new DateTime('2020-08-07 10:44'));
+		$comment8->setCreatedAt(new DateTime('2019-04-03 08:9'));
 
 		$comment1->setText("Ce sachet de poireaux est très bon.");
 		$comment2->setText("Les poireaux en conserve sont très bon.");

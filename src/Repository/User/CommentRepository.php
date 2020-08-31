@@ -5,6 +5,7 @@ namespace App\Repository\User;
 use App\Entity\User\Comment;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder as QueryBuilderOption;
 
 /**
  * @method Comment|null find($id, $lockMode = null, $lockVersion = null)
@@ -17,6 +18,59 @@ class CommentRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Comment::class);
+    }
+
+    public function adminResearchComment(array $criteria) {
+        $request = $this->createQueryBuilder('c')->where('c.delete = FALSE');
+
+        $request = $this->optionsResearchComments($request, $criteria);
+
+        if(array_key_exists('page', $criteria))
+            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
+
+        if(array_key_exists('orderBy', $criteria))
+            $request->orderBy('c.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
+
+        $request->setMaxResults($criteria['number_by_page']);
+
+        return $request->getQuery()->getResult();
+    }
+
+    public function adminResearchNumberComments(array $criteria) {
+        $request = $this->createQueryBuilder('c')->select('COUNT(c)')->where('c.delete = FALSE');
+
+        $request = $this->optionsResearchComments($request, $criteria);
+
+        return $request->getQuery()->getResult();
+    }
+
+    public function optionsResearchComments(QueryBuilderOption $request, array $criteria) {
+
+        if(array_key_exists('text', $criteria))
+            $request->andWhere("LOWER(c.text) LIKE LOWER(:text)")->setParameter('text', "%".$criteria['text']."%");
+
+        if(array_key_exists('createdBefore', $criteria))
+            $request->andWhere('DATE_DIFF(c.createdAt, :createdBefore) <= 0')
+                ->setParameter('createdBefore', $criteria['createdBefore']);
+        if(array_key_exists('createdAfter', $criteria))
+            $request->andWhere('DATE_DIFF(c.createdAt, :createdAfter) >= 0')
+                ->setParameter('createdAfter', $criteria['createdAfter']);
+
+        if(array_key_exists('mark', $criteria)) {
+            if($criteria['mark']['type'] == 'equal')
+                $request->andWhere('c.mark = :mark')->setParameter('mark', $criteria['mark']['value']);
+            else if($criteria['mark']['type'] == 'inferior')
+                $request->andWhere('c.mark <= :mark')->setParameter('mark', $criteria['mark']['value']);
+            else if($criteria['mark']['type'] == 'higher')
+                $request->andWhere('c.mark >= :mark')->setParameter('mark', $criteria['mark']['value']);
+        }
+
+        return $request;
+    }
+
+    public function countNumberComments() {
+        $request = $this->createQueryBuilder('c')->select('COUNT(c)')->where('c.delete = FALSE');
+        return $request->getQuery()->getResult();
     }
 
     // /**

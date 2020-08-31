@@ -127,17 +127,19 @@ class AdminController extends AbstractController
 
             $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
             $number_users = $this->getDoctrine()->getRepository(User::class)->adminResearchNumberUsers($criteria)[0][1];
-            $number_pages = intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
+            $number_pages = 
+                intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
         } else {
             $criteria['page'] = 0;
             $page = 1;
             $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
             $number_users = intval($this->getDoctrine()->getRepository(User::class)->countNumberUsers()[0][1]);
-            $number_pages = intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
+            $number_pages = 
+                intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
 
-    	return $this->render('admin/users/users/users.html.twig', ['users' => $users, 'number_pages' => $number_pages, 'page' => $page, 
-            'request' => $former_request, 'errors' => $errors]);
+    	return $this->render('admin/users/users/users.html.twig', ['users' => $users, 'number_pages' => $number_pages, 
+            'page' => $page, 'request' => $former_request, 'errors' => $errors]);
     }
 
     /**
@@ -225,10 +227,92 @@ class AdminController extends AbstractController
      */
     public function comments(Request $request)
     {
-        $comments = $this->getDoctrine()->getRepository(Comment::class)->findBy(['delete' => false]);
+        $errors = array();
+        $former_request = array();
+        //Place le nombre de commentaire par page dans les paramètre de la recherche.
+        $criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
+        //Recherche la demande de page de l'administrateur si elle existe.
+        $page = $request->request->get('page');
+
+        //Gestion de la sélection si il y an a une.
+        if($request->request->get('research') === "research") {
+            //Création des différents paramètres de la recherche.
+            if($request->request->get('text') != "" && $request->request->get('text') !== null) {
+                $criteria['text'] = $request->request->get('text');
+                $former_request['text'] = $request->request->get('text');
+            }
+            if($request->request->get('mark') != "" && $request->request->get('mark') !== null) {
+                if($request->request->get('mark') >= 1 &&  $request->request->get('mark') <= 5) {
+                    $criteria['mark'] = array('value' =>  $request->request->get('mark'), 
+                        'type' => $request->request->get('type_research_mark') );
+                    $former_request['mark'] = $request->request->get('mark');
+                    $former_request['type_research_mark'] = $request->request->get('type_research_mark');
+                }
+            }
+            if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null 
+             &&  $request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
+                if($request->request->get('createdBefore') >= $request->request->get('createdAfter')) {
+                    $criteria['createdBefore'] = $request->request->get('createdBefore');
+                    $former_request['createdBefore'] =  $request->request->get('createdBefore');
+                    $criteria['createdAfter'] = $request->request->get('createdAfter');
+                    $former_request['createdAfter'] =  $request->request->get('createdAfter');
+                } else {
+                    $errors[] = "La date d'avant la création ne peut pas être inférieur à la date d'après création.";
+                }
+            } else {
+                if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null) {
+                    $criteria['createdBefore'] = $request->request->get('createdBefore');
+                    $former_request['createdBefore'] =  $request->request->get('createdBefore');
+                }
+                if($request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
+                    $criteria['createdAfter'] = $request->request->get('createdAfter');
+                    $former_request['createdAfter'] =  $request->request->get('createdAfter');
+                }
+            }
+            //Ajout des ordres de recherches.
+            if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
+                $criteria['orderBy'] = 
+                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
+            }
+            //Calcul le nombre de commentaires.
+            $number_comments = $this->getDoctrine()->getRepository(Comment::class)
+                ->adminResearchNumberComments($criteria)[0][1];
+            $number_pages = 
+                intval( $number_comments / self::NUMBER_BY_PAGE ) + 
+                    ( ( $number_comments % self::NUMBER_BY_PAGE === 0 )?0:1 );
+            //Ajout du numéro de page.
+            if($page != "" && $page !== null) {
+                if($page === 'Début') {
+                    $criteria['page'] = 0;
+                    $page = 1;
+                } else if($page === 'Fin') {
+                    $criteria['page'] = $number_pages - 1;
+                    $page = $number_pages;
+                } else {
+                    $criteria['page'] = intval($page) - 1;
+                }
+            } else
+                $page = 1;
+            
+        } else {
+            //Ajout le nombre de pages.
+            $criteria['page'] = 0;
+            $page = 1;
+            //Calcul le nombre de commentaires.
+            $number_comments = intval($this->getDoctrine()->getRepository(Comment::class)
+                ->countNumberComments()[0][1]);
+        }
+        //Cacul le nombre de pages.
+        $number_pages = 
+            intval( $number_comments / self::NUMBER_BY_PAGE ) + ( ( $number_comments % self::NUMBER_BY_PAGE === 0 )?0:1 );
+        //Recherche les commentaires à retourner.
+        $comments = $this->getDoctrine()->getRepository(Comment::class)->adminResearchComment($criteria);
 
         return $this->render("admin/users/comments/comments.html.twig", 
-            ['comments' => $comments, 'number_characters' => self::NUMBER_CHARACTERS]);
+            ['comments' => $comments, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 
+             'request' => $former_request, 'number_characters' => self::NUMBER_CHARACTERS]);
     }
     
     /**

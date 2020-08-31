@@ -321,8 +321,8 @@ class AdminProductController extends AbstractController
             }
             //Ajout des ordres de recherches.
             if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
-            	$criteria['orderBy'] = 
-                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+            	$criteria['orderBy'] = array('attribut' => $request->request->get('orderBy_sortBy'), 
+                    'order' =>  $request->request->get('orderBy_sortDir'));
                 $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
@@ -339,8 +339,9 @@ class AdminProductController extends AbstractController
                 }
             } else
                 $page = 1;
-            //Calcul le nombre de produits.
-            $number_products = $this->getDoctrine()->getRepository(Product::class)->adminResearchNumberProducts($criteria)[0][1];
+                //Calcul le nombre de produits.
+                $number_products = $this->getDoctrine()->getRepository(Product::class)
+                    ->adminResearchNumberProducts($criteria)[0][1];
     	} else {
     		//Ajout le nombre de pages.
     		$criteria['page'] = 0;
@@ -349,12 +350,14 @@ class AdminProductController extends AbstractController
 	    	$number_products = intval($this->getDoctrine()->getRepository(Product::class)->countNumberProducts()[0][1]);
     	}
     	//Cacul le nombre de pages.
-    	$number_pages = intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
+    	$number_pages = 
+            intval( $number_products / self::NUMBER_BY_PAGE ) + ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
     	//Recherche les produits à retourner.
 		$products = $this->getDoctrine()->getRepository(Product::class)->adminResearchProduct($criteria);
 
         return $this->render('admin/products/products/products.html.twig', 
-        	['products' => $products, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 'request' => $former_request]);
+        	['products' => $products, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 
+             'request' => $former_request]);
     }
 
     /**

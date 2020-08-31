@@ -31,13 +31,15 @@
 					<table class="table table-bordered">
 						<thead class="thead-dark">
 							<tr>
-								<th>Date de création</th><th>Nom de compte</th><th>Note</th><th>Texte complêt</th>
+								<th>Date de création</th><th>Nom de compte</th><th>Produit</th><th>Note</th>
+								<th>Texte complêt</th>
 							</tr>
 						</thead>
 						<tbody>
 							<tr>
-								<td>{{ comment.createAt|date("d/m/Y  H:i") }}</td>
+								<td>{{ comment.createdAt|date("d/m/Y  H:i") }}</td>
 								<td>{{ comment.user.username }}</td>
+								<td>{{ comment.product.name }}</td>
 								<td>
 									{% for i in 1..5 %}
 										<span class="{{ (i >= comment.mark)?("star_not_checked"):("star_checked") }}">
