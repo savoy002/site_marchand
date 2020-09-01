@@ -3,6 +3,7 @@
 namespace App\Repository\User;
 
 use App\Entity\User\Comment;
+use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder as QueryBuilderOption;
@@ -18,6 +19,14 @@ class CommentRepository extends ServiceEntityRepository
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Comment::class);
+    }
+
+    public function findCommentsByUser(User $user) {
+        $request = $this->createQueryBuilder('c')
+            ->innerJoin('c.user', 'u')
+            ->where('u.id = :id')
+            ->setParameter('id', $user->getId());
+        return $request->getQuery()->getResult();
     }
 
     public function adminResearchComment(array $criteria) {
@@ -45,7 +54,6 @@ class CommentRepository extends ServiceEntityRepository
     }
 
     public function optionsResearchComments(QueryBuilderOption $request, array $criteria) {
-
         if(array_key_exists('text', $criteria))
             $request->andWhere("LOWER(c.text) LIKE LOWER(:text)")->setParameter('text', "%".$criteria['text']."%");
 

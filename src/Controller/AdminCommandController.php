@@ -131,9 +131,12 @@ class AdminCommandController extends AbstractController
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
 
-            $number_commands = intval($this->getDoctrine()->getRepository(Command::class)->adminResearchNumberCommands($criteria)[0][1]);
+            //Calcul le nombre de commandes et de pages.
+            $number_commands = intval($this->getDoctrine()->getRepository(Command::class)
+                ->adminResearchNumberCommands($criteria)[0][1]);
             $number_pages = 
-                intval( $number_commands / self::NUMBER_BY_PAGE ) + ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
+                intval( $number_commands / self::NUMBER_BY_PAGE ) + 
+                ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
 
             if($page != "" && $page !== null) {
                 if($page === 'Début') {
@@ -147,16 +150,17 @@ class AdminCommandController extends AbstractController
                 }
             } else
                 $page = 1;
-                
-            $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommands($criteria);
+            
         } else {
-            $criteria['page'] = 0;
             $page = 1;
-            $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommands($criteria);
+            //Calcul le nombre de commandes et de pages.
             $number_commands = intval($this->getDoctrine()->getRepository(Command::class)->countNumberCommands()[0][1]);
             $number_pages = 
-                    intval( $number_commands / self::NUMBER_BY_PAGE ) + ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
+                    intval( $number_commands / self::NUMBER_BY_PAGE ) + 
+                    ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
+        //Recherche les commandes à retourner.
+        $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommands($criteria);
 
 		return $this->render('admin/commands/commands/commands.html.twig', 
             ['commands' => $commands, 'number_pages' => $number_pages, 'page' => $page, 'request' => $former_request, 
@@ -515,7 +519,8 @@ class AdminCommandController extends AbstractController
         if(is_null($type))
             return $this->redirectToRoute('types_deliveries');
 
-        return $this->render('admin/commands/deliveries/deliveries/deliveries_by_type_delivery.html.twig', ['type' => $type]);
+        return $this->render('admin/commands/deliveries/deliveries/deliveries_by_type_delivery.html.twig', 
+            ['type' => $type]);
     }
 
 

@@ -61,6 +61,8 @@
 	<div class="row justify-content-start">
 		<div class="col-md-4 offset-md-1">
 
+			<a href="{{ path("comments_by_user", {id:user.id}) }}" class="btn btn-primary">Voir commentaires</a>
+
 			<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Supprimer</button>
 			
 			<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">

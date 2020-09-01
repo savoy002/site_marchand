@@ -112,6 +112,10 @@ class AdminController extends AbstractController
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
 
+            $number_users = $this->getDoctrine()->getRepository(User::class)->adminResearchNumberUsers($criteria)[0][1];
+            $number_pages = 
+                intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
+
             if($page != "" && $page !== null) {
                 if($page === 'Début') {
                     $criteria['page'] = 0;
@@ -126,9 +130,7 @@ class AdminController extends AbstractController
                 $page = 1;
 
             $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
-            $number_users = $this->getDoctrine()->getRepository(User::class)->adminResearchNumberUsers($criteria)[0][1];
-            $number_pages = 
-                intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
+
         } else {
             $criteria['page'] = 0;
             $page = 1;
@@ -212,7 +214,12 @@ class AdminController extends AbstractController
         	$user = $this->getDoctrine()->getRepository(User::class)->find($id);
         	if(!$user->getSuperAdmin()) {
         		$user->setDelete(true);
-    	    	$this->getDoctrine()->getManager()->persist($user);
+                $comments = $this->getDoctrine()->getRepository(Comment::class)->findCommentsByUser($user);
+                foreach($comments as $comment) {
+                    $comment->setDelete(true);
+                    $this->getDoctrine()->getManager()->persist($comment);
+                }
+                $this->getDoctrine()->getManager()->persist($user);
     	    	$this->getDoctrine()->getManager()->flush();
         	}
         }
@@ -276,7 +283,7 @@ class AdminController extends AbstractController
                 $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
-            //Calcul le nombre de commentaires.
+            //Calcul le nombre de commentaires et de pages.
             $number_comments = $this->getDoctrine()->getRepository(Comment::class)
                 ->adminResearchNumberComments($criteria)[0][1];
             $number_pages = 
@@ -297,16 +304,16 @@ class AdminController extends AbstractController
                 $page = 1;
             
         } else {
-            //Ajout le nombre de pages.
-            $criteria['page'] = 0;
+            //Ajoute le numéro de page.
             $page = 1;
-            //Calcul le nombre de commentaires.
+            //Calcul le nombre de commentaires et de pages.
             $number_comments = intval($this->getDoctrine()->getRepository(Comment::class)
                 ->countNumberComments()[0][1]);
+            $number_pages = 
+                intval( $number_comments / self::NUMBER_BY_PAGE ) + 
+                    ( ( $number_comments % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
-        //Cacul le nombre de pages.
-        $number_pages = 
-            intval( $number_comments / self::NUMBER_BY_PAGE ) + ( ( $number_comments % self::NUMBER_BY_PAGE === 0 )?0:1 );
+        
         //Recherche les commentaires à retourner.
         $comments = $this->getDoctrine()->getRepository(Comment::class)->adminResearchComment($criteria);
 
@@ -341,6 +348,19 @@ class AdminController extends AbstractController
         $this->getDoctrine()->getManager()->flush();
 
         return $this->redirectToRoute('comment');
+    }
+
+    /**
+     * @Route("admin/user/{id}/comments", name="comments_by_user")
+     */
+    public function commentsByUser($id) 
+    {
+        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['id' => $id, 'delete' => false]);
+        if(is_null($user))
+            return $this->redirectToRoute('users');
+
+        return $this->render('admin/users/comments/comments_by_user.html.twig', 
+            ['user' => $user, 'number_characters' => self::NUMBER_CHARACTERS]);
     }
 
 }

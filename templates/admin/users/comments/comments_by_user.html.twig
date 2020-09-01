@@ -1,0 +1,69 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Commentaires {% endblock %}
+
+{% block body %}
+
+		<div class="row">
+			<div class="offset-sm-1">
+				<h1>Commentaires.</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="offset-sm-1"
+				<nav aria-label="breadcrumb">
+				  <ol class="breadcrumb">
+				    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+				    <li class="breadcrumb-item"><a href="{{ path("users") }}">Utilisateurs</a></li>
+			    	<li class="breadcrumb-item"><a href="{{ path('user', {id:user.id}) }}">{{ user.username }}</a></li>
+				    <li class="breadcrumb-item active" aria-current="page">Commentaires</li>
+				  </ol>
+				</nav>
+			</div>
+		</div>
+
+		<div class="row  justify-content-center ">
+
+			<div class="row justify-content-center">
+				<div class="row">
+					<table class="table table-bordered">
+						<thead class="thead-dark">
+							<tr>
+								<th>Date de création</th><th>Nom de compte</th><th>Produit</th><th>Note</th>
+								<th>Texte</th><th>Voir</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for comment in user.comments %}
+								<tr>
+									<td>{{ comment.createdAt|date("d/m/Y H:i") }}</td>
+									<td>{{ comment.user.username }}</td>
+									<td>{{ comment.product.name }}</td>
+									<td>
+										{% for i in 1..5 %}
+											<span class="{{ (i > comment.mark)?
+															("star_not_checked"):
+															("star_checked") }}">&#x2605;</span>
+										{% endfor %}
+									</td>
+									<td>
+										{{ (comment.text|length > number_characters)?
+										   (comment.text|slice(0, number_characters) ~ "..."):
+										   (comment.text) }}
+									</td>
+									<td>
+										<a href="{{ path("comment",  {id:comment.id}) }}" class="btn btn-info">
+											Voir
+										</a>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+		</div>
+
+{% endblock %}
