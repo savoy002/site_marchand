@@ -62,27 +62,40 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 
 		$command8 = new Command();
 
-		//Création des Adress.
+		//Récupération des VariantsProducts, des Users et des Adress.
+
+		$research_variant_product = $this->container->get('doctrine')->getRepository(VariantProduct::class);
+		$sachet_poireau = $research_variant_product->findBy(['code' => 'sachet_poireau'])[0];
+		$pomme = $research_variant_product->findBy(['code' => 'pommes'])[0];
+		$poire_conserve_500 = $research_variant_product->findBy(['code' => 'poire_conserve_500'])[0];
+		$asperge = $research_variant_product->findBy(['code' => 'sachet_asperge'])[0];
+		$sachet_poire = $research_variant_product->findBy(['code' => 'sachet_poire'])[0];
+		$poire_tranchee = $research_variant_product->findBy(['code' => 'poire_tranchee'])[0];
+		$soupe_legume_vert = $research_variant_product->findBy(['code' => 'soupe_legume_vert'])[0];
+		$poireau_conserve = $research_variant_product->findBy(['code' => 'poireau_conserve'])[0];
+
+		$research_user = $this->container->get('doctrine')->getRepository(User::class);
+		$truc = $research_user->findBy(['username' => 'truc'])[0];
+		$test1 = $research_user->findBy(['username' => 'test1'])[0];
+		$test2 = $research_user->findBy(['username' => 'test2'])[0];
+		$test3 = $research_user->findBy(['username' => 'test3'])[0];
+
+		$research_adress = $this->container->get('doctrine')->getRepository(Adress::class);
+		$adress2 = $research_adress->findOneBy(['city' => 'Strasbourg']);
+		$adress4 = $research_adress->findOneBy(['city' => 'Paris']);
+
+		//Création  et récupération d'adresse.
 
 		$adress1 = new Adress();
-		$adress1->setStreet('1 Allée du Vexin');
-		$adress1->setZipCode('95180');
-		$adress1->setCity('Menucourt');
+        $adress1->setStreet('1 Allée du Vexin');
+        $adress1->setZipCode('95180');
+        $adress1->setCity('Menucourt');
 
-		$adress2 = new Adress();
-		$adress2->setStreet('5 Rue des Boeufs');
-		$adress2->setZipCode('67000');
-		$adress2->setCity('Strasbourg');
 
 		$adress3 = new Adress();
 		$adress3->setStreet('19 Rue Géruzez');
 		$adress3->setZipCode('51100');
 		$adress3->setCity('Reims');
-
-		$adress4 = new Adress();
-		$adress4->setStreet('7 Rue du Champ de Mars');
-		$adress4->setZipCode('75007');
-		$adress4->setCity('Paris');
 
 		$adress5 = new Adress();
 		$adress5->setStreet('12 Rue Dubois Crancé');
@@ -176,24 +189,6 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$typedelivery2->addDelivery($delivery5);
 		$typedelivery2->addDelivery($delivery6);
 		$typedelivery3->addDelivery($delivery2);
-
-		//Récupération des VariantsProducts et des Users.
-
-		$research_variant_product = $this->container->get('doctrine')->getRepository(VariantProduct::class);
-		$sachet_poireau = $research_variant_product->findBy(['code' => 'sachet_poireau'])[0];
-		$pomme = $research_variant_product->findBy(['code' => 'pommes'])[0];
-		$poire_conserve_500 = $research_variant_product->findBy(['code' => 'poire_conserve_500'])[0];
-		$asperge = $research_variant_product->findBy(['code' => 'sachet_asperge'])[0];
-		$sachet_poire = $research_variant_product->findBy(['code' => 'sachet_poire'])[0];
-		$poire_tranchee = $research_variant_product->findBy(['code' => 'poire_tranchee'])[0];
-		$soupe_legume_vert = $research_variant_product->findBy(['code' => 'soupe_legume_vert'])[0];
-		$poireau_conserve = $research_variant_product->findBy(['code' => 'poireau_conserve'])[0];
-
-		$research_user = $this->container->get('doctrine')->getRepository(User::class);
-		$truc = $research_user->findBy(['username' => 'truc'])[0];
-		$test1 = $research_user->findBy(['username' => 'test1'])[0];
-		$test2 = $research_user->findBy(['username' => 'test2'])[0];
-		$test3 = $research_user->findBy(['username' => 'test3'])[0];
 
 		//Création des PiecesCommands.
 

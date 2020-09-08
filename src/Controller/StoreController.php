@@ -11,12 +11,13 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-
-
 use App\Entity\User\User;
+use App\Entity\Command\Adress;
+
 use App\Form\Type\User\UserType;
 use App\Form\Type\User\ChangePasswordType;
 use App\Form\Type\User\UploadImageType;
+use App\Form\Type\Command\ChangeAdressType;
 
 
 class StoreController extends AbstractController
@@ -32,7 +33,7 @@ class StoreController extends AbstractController
     }
 
     /**
-     * @Route("/store", name="store")
+     * @Route("/", name="store")
      */
     public function index()
     {
@@ -215,6 +216,30 @@ class StoreController extends AbstractController
                 return $this->redirectToRoute('store_user');
             }
             return $this->render('store/user/change_image.html.twig', ['form' => $form->createView()]);    
+        }
+        return $this->redirectToRoute('login');
+    }
+
+    /**
+     * @Route("store/user/change_adress", name="store_user_change_adress")
+     */
+    public function changeAdressUser(Request $request) {
+        if($this->getUser() !== null) {
+            $adress = new Adress();
+            $form = $this->createForm(ChangeAdressType::class, $adress);
+            $form->handleRequest($request);
+            if($form->isSubmitted() && $form->isValid()) {
+                $former_adress = $this->getUser()->getLive();
+                if(is_empty($former_adress->getCommands()) && is_empty($former_adress->getBelongs()))
+                    $former_adress->setDelete(true);
+                $adress->addBelong($this->getUser());
+                $this->getDoctrine()->getManager()->persist($this->getUser());
+                $this->getDoctrine()->getManager()->persist($adress);
+                $this->getDoctrine()->getManager()->persist($former_adress);
+                $this->getDoctrine()->getManager()->flush();
+                return $this->redirectToRoute('store_user');
+            }
+            return $this->render('store/user/change_adress.html.twig', ['form' => $form->createView()]);
         }
         return $this->redirectToRoute('login');
     }

@@ -143,14 +143,19 @@ class Adress
         return $this;
     }
 
-    public function getbelongs(): ArrayCollection
+    public function getBelongs(): ArrayCollection
     {
         return $this->belongs;
     }
 
-    public function addBelongs(User $user): self
+    public function hasBelong(User $user): bool
     {
-        if(!$this->belongs->contains($user)) {
+        return $this->belongs->contains($user);
+    }
+
+    public function addBelong(User $user): self
+    {
+        if(!$this->hasBelong($user)) {
             $this->belongs[] = $user;
             $user->setLive($this);
         }
@@ -158,9 +163,9 @@ class Adress
         return $this;
     }
 
-    public function removeBelongs(User $user): self
+    public function removeBelong(User $user): self
     {
-        if($this->belongs->contains($user)) {
+        if($this->hasBelong($user)) {
             $this->belongs->removeElement($user);
             if($user->getLive() === $this)
                 $user->setLive(null);

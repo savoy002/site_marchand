@@ -5,11 +5,15 @@
 
 {% block body %}
 
-	{% if errors is defined %}
-		<p>Catch</p>
-	{% endif %}
-
 	<h1>Changer l'image de l'utilisateur.</h1>
+
+	{% if errors is defined %}
+		<ul>
+			{% for error in errors %}
+				<li>{{ error }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
 
 	{{ form(form) }}
 

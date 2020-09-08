@@ -251,7 +251,15 @@ class User implements UserInterface
     }
 
     public function setLive(?Adress $adress): self {
+        if($this->live !== null && $adress !== null) 
+            $this->live->removeBelong($this);
         $this->live = $adress;
+        if($adress !== null) {
+            if(!$adress->hasBelong($this))
+                $adress->addBelong($this);
+        }
+
+
         return $this;
     }
 
@@ -299,7 +307,7 @@ class User implements UserInterface
 
     public function addCommand(Command $command): self 
     {
-        if(!$this->commands->contains($command)) {
+        if(!$this->hasCommand($command)) {
             $this->commands[] = $command;
             if($command->getUser() != $this)
                 $command->setUser($this);
@@ -310,7 +318,7 @@ class User implements UserInterface
 
     public function removeCommand(Command $command): self
     {
-        if($this->commands->contains($command)) {
+        if($this->hasCommand($command)) {
             $this->commands->removeElement($command);
             if($command->getUser() === $this)
                 $command->setUser(null);

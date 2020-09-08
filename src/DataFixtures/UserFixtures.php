@@ -8,6 +8,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 use App\Entity\User\User;
+use App\Entity\Command\Adress;
 
 class UserFixtures extends Fixture
 {
@@ -20,6 +21,8 @@ class UserFixtures extends Fixture
 
     public function load(ObjectManager $manager)
     {
+        //Création des utilisateurs.
+
     	$user = new User();
     	$user->setUsername('invite');
     	$user->setEmail('invite@site_marchand.fr');
@@ -34,6 +37,7 @@ class UserFixtures extends Fixture
     	$userTest->setRoles(['ROLE_USER']);
         $userTest->setAdmin(true);
     	$userTest->setPassword($this->passwordEncoder->encodePassword($userTest, 'machin'));
+        $userTest->setValid(true);
     	
     	$admin = new User();
     	$admin->setUsername('admin');
@@ -83,10 +87,32 @@ class UserFixtures extends Fixture
         $test5->setAdmin(true);
         $test5->setPassword($this->passwordEncoder->encodePassword($test5, 'test5'));
         $test5->setValid(false);
+
+        //Création des Adress.
+
+        $adress2 = new Adress();
+        $adress2->setStreet('5 Rue des Boeufs');
+        $adress2->setZipCode('67000');
+        $adress2->setCity('Strasbourg');
+
+        $adress4 = new Adress();
+        $adress4->setStreet('7 Rue du Champ de Mars');
+        $adress4->setZipCode('75007');
+        $adress4->setCity('Paris');
+
+        //Création des liens entre les Adress et les Users.
+
+        $adress2->addBelong($userTest);
+        $adress4->addBelong($test1);
+
+        //Sauvegarde des données.
     	
     	$manager->persist($user);
     	$manager->persist($userTest);
     	$manager->persist($admin);
+
+        $manager->persist($adress2);
+        $manager->persist($adress4);
 
         $manager->persist($test1);
         $manager->persist($test2);
