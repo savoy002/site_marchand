@@ -28,7 +28,7 @@ class Adress
     private $street;
 
     /**
-     * @ORM\Column(type="integer", name="zip_code")
+     * @ORM\Column(type="string", name="zip_code")
      */
     private $zipCode;
 
@@ -76,12 +76,12 @@ class Adress
         return $this;
     }
 
-    public function getZipCode(): ?int
+    public function getZipCode(): ?string
     {
         return $this->zipCode;
     }
 
-    public function setZipCode(int $zipCode): self
+    public function setZipCode(string $zipCode): self
     {
         $this->zipCode = $zipCode;
 
@@ -148,7 +148,7 @@ class Adress
         return $this->belongs;
     }
 
-    public function hasBelong(User $user): bool
+    public function hasBelong(?User $user): bool
     {
         return $this->belongs->contains($user);
     }
@@ -157,7 +157,8 @@ class Adress
     {
         if(!$this->hasBelong($user)) {
             $this->belongs[] = $user;
-            $user->setLive($this);
+            if($user->getLive() != $this)
+                $user->setLive($this);
         }
 
         return $this;

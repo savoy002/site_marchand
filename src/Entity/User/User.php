@@ -181,84 +181,106 @@ class User implements UserInterface
     }
 
 
-    public function getEmail(): ?string {
+    public function getEmail(): ?string
+    {
         return $this->email;
     }
 
-    public function setEmail(String $email): self {
+    public function setEmail(String $email): self
+    {
         $this->email = $email;
         return $this;   
     }
 
-    public function getCreateAt(): DateTime {
+    public function getCreateAt(): DateTime
+    {
         return $this->createdAt;
     }
 
-    public function setCreatedAt(DateTime $createdAt): self {
+    public function setCreatedAt(DateTime $createdAt): self
+    {
         $this->createdAt = $createdAt;
         return $this;
     }
 
-    public function getValid(): bool {
+    public function getValid(): bool
+    {
         return $this->valid;
     }
 
-    public function setValid(bool $valid): self {
+    public function setValid(bool $valid): self 
+    {
         $this->valid = $valid;
         return $this;
     }
 
-    public function getDelete(): bool {
+    public function getDelete(): bool
+    {
         return $this->delete;
     }
 
-    public function setDelete(bool $delete): self {
+    public function setDelete(bool $delete): self
+    {
         $this->delete = $delete;
         return $this;
     }
 
-    public function getAdmin(): bool {
+    public function getAdmin(): bool
+    {
         return $this->admin;
     }
 
-    public function setAdmin(bool $admin): self {
+    public function setAdmin(bool $admin): self
+    {
         $this->admin = $admin;
         return $this;
     }
 
-    public function getSuperAdmin(): bool {
+    public function getSuperAdmin(): bool
+    {
         return $this->superAdmin;
     }
 
-    public function setSuperAdmin(bool $superAdmin): self {
+    public function setSuperAdmin(bool $superAdmin): self
+    {
         $this->superAdmin = $superAdmin;
         if($this->getRoles() === "ROLE_USER") 
             $this->setRoles(["ROLE_ADMIN"]);
         return $this;
     }
 
-    public function getImgFileName(): ?string {
+    public function getImgFileName(): ?string
+    {
         return $this->imgFileName;
     }
 
-    public function setImgFileName(string $imgFileName): self {
+    public function setImgFileName(string $imgFileName): self
+    {
         $this->imgFileName = $imgFileName;
         return $this;
     }
 
-    public function getLive(): ?Adress {
+    public function getLive(): ?Adress
+    {
         return $this->live;
     }
 
-    public function setLive(?Adress $adress): self {
-        if($this->live !== null && $adress !== null) 
-            $this->live->removeBelong($this);
+    public function setLive(?Adress $adress): self 
+    {
+        if($this->live !== null && $adress !== null) {
+            if($this->live->hasBelong($this))
+                $this->live->removeBelong($this);
+        }
+        if($adress === null)
+            $former_adress = $this->live;
         $this->live = $adress;
         if($adress !== null) {
             if(!$adress->hasBelong($this))
                 $adress->addBelong($this);
+        } else {
+            if($former_adress->hasBelong($this))
+                $former_adress->removeBelong($this);
         }
-
 
         return $this;
     }

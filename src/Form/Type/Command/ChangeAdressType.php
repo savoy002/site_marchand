@@ -23,7 +23,6 @@ class ChangeAdressType extends AbstractType
 				['label' => 'Code postale', 'attr' => ['class' => 'form-control form-control-sm']])
 			->add('city', TextType::class, ['label' => 'Ville', 'attr' => ['class' => 'form-control form-control-sm']])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 'attr' => ['class' => 'btn btn-primary']]);
-
 	}
 
 	public function configureOptions(OptionsResolver $resolver)
@@ -31,7 +30,4 @@ class ChangeAdressType extends AbstractType
 		$resolver->setDefaults(['data_class' => Adress::class]);
 	}
 
-
 }
-
-
