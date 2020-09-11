@@ -206,10 +206,9 @@ class VariantProduct
         if($this->product != null)
             $this->product->removeVariantProduct($this);
         $this->product = $product;
-        if($product != null) {
-            if(!$product->hasVariantProduct($this))
-                $product->addVariantProduct($this);
-        }
+        if($product != null)
+            $product->addVariantProduct($this);
+
         return $this;
     }
 

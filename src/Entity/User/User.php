@@ -267,20 +267,11 @@ class User implements UserInterface
 
     public function setLive(?Adress $adress): self 
     {
-        if($this->live !== null && $adress !== null) {
-            if($this->live->hasBelong($this))
-                $this->live->removeBelong($this);
-        }
-        if($adress === null)
-            $former_adress = $this->live;
+        if($this->live !== null)
+            $this->live->removeBelong($this);
         $this->live = $adress;
-        if($adress !== null) {
-            if(!$adress->hasBelong($this))
-                $adress->addBelong($this);
-        } else {
-            if($former_adress->hasBelong($this))
-                $former_adress->removeBelong($this);
-        }
+        if($adress != null)
+            $adress->addBelong($this);
 
         return $this;
     }

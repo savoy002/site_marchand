@@ -223,12 +223,9 @@ class Product
 
     public function addVariantProduct(VariantProduct $variantProduct): self
     {
-        if (!$this->variantsProducts->contains($variantProduct)) {
+        if (!$this->hasVariantProduct($variantProduct)) {
             $this->variantsProducts[] = $variantProduct;
-            if($variantProduct->getProduct() != null) {
-                if($variantProduct->getProduct()->getId() != $this->getId())
-                    $variantProduct->setProduct($this);
-            } else
+            if($variantProduct->getProduct() != $this)
                 $variantProduct->setProduct($this);
         }
 
@@ -237,13 +234,11 @@ class Product
 
     public function removeVariantProduct(VariantProduct $variantProduct): self
     {
-        if ($this->variantsProducts->contains($variantProduct)) {
+        if ($this->hasVariantProduct($variantProduct)) {
             $this->variantsProducts->removeElement($variantProduct);
             // set the owning side to null (unless already changed)
-            if($variantProduct->getProduct() !== null) {
-                if ($variantProduct->getProduct()->getId() === $this->getId())
-                    $variantProduct->setProduct(null);
-            }
+            if ($variantProduct->getProduct() === $this)
+                $variantProduct->setProduct(null);
         }
 
         return $this;

@@ -45,12 +45,12 @@ class AdressUserEntityTest extends KernelTestCase
 		$this->adress2->addBelong($this->user);
 		$this->assertContains($this->user, $this->adress2->getBelongs(), "adress2 ne contient pas user.");
 		$this->assertEquals($this->adress2, $this->user->getLive(), "user ne possède pas adress2.");
-		$this->assertNotEquals($this->adress1, $this->user->getLive(), "user possède toujours adress1");
 		$this->assertNotContains($this->user, $this->adress1->getBelongs(), "adress1 possède toujours user.");
 
 		$this->adress2->removeBelong($this->user);
 		$this->assertNotContains($this->user, $this->adress2->getBelongs(), "adress1 possède toujours user.");
-		$this->assertNull($this->user->getLive(), "user possède toujours adress2.");
+		$this->assertNotEquals($this->user->getLive(), $this->adress2, "user possède toujours adress1.");
+		$this->assertNull($this->user->getLive(), "l'adress de user n'a pas été effacée.");
 	}
 
 	public function testChangeAdressToUser() 
@@ -66,7 +66,6 @@ class AdressUserEntityTest extends KernelTestCase
 
 		$this->user->setLive(null);
 		$this->assertNull($this->user->getLive(), "user n'a pas pour adresse null.");
-		$this->assertNotContains($this->user, $this->adress1->getBelongs(), "adress1 contient toujours user.");
 		$this->assertNotContains($this->user, $this->adress2->getBelongs(), "adress2 contient toujours user.");
 	}
 
