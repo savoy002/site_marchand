@@ -5,6 +5,7 @@ namespace App\Form\Type\Product;
 use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\Extension\Core\Type\IntegerType;
 use Symfony\Component\Form\Extension\Core\Type\MoneyType;
@@ -25,13 +26,22 @@ class VariantProductType extends AbstractType
 	public function buildForm(FormBuilderInterface $builder, array $option)
 	{
 		$builder
-			->add('name', TextType::class, ['label' => "Nom du produit", 'attr' => ['class' => 'form-control form-control-sm']])
-			->add('code', TextType::class, ['label' => "Code du produit", 'required' => false, 'attr' => ['class' => 'form-control form-control-sm']])
-			->add('description', TextareaType::class, ['label' => "Description du produit", 'required' => false, 
+			->add('name', TextType::class, 
+				['label' => "Nom du produit", 'attr' => ['class' => 'form-control form-control-sm']])
+			->add('code', TextType::class, 
+				['label' => "Code du produit", 'required' => false, 'attr' => ['class' => 'form-control form-control-sm']])
+			->add('description', TextareaType::class, 
+				['label' => "Description du produit", 'required' => false, 
 				'attr' => ['class' => 'form-control form-control-sm']])
-			->add('price', MoneyType::class, ['label' => "Prix du produit", 'divisor' => 100, 'attr' => ['class' => 'form-control form-control-sm']])
-			->add('stock', IntegerType::class, ['label' => "Nombre de produits en stotck", 'attr' => ['class' => 'form-control form-control-sm']])
-			->add('image', FileType::class, ['label' => "Image", 'required' => false, 'mapped' => false,
+			->add('price', MoneyType::class, 
+				['label' => "Prix du produit", 'divisor' => 100, 'attr' => ['class' => 'form-control form-control-sm']])
+			->add('stock', IntegerType::class, 
+				['label' => "Nombre de produits en stotck", 'attr' => ['class' => 'form-control form-control-sm']])
+			->add('isWellcome', ChoiceType::class, 
+				['label' => "Affiché en page d'accueil", 'choices' => ['Non' => false, 'Oui' => true], 
+				'attr' => ['class' => 'form-control form-control-sm']])
+			->add('image', FileType::class, 
+				['label' => "Image", 'required' => false, 'mapped' => false, 
 				'attr' => ['class' => 'form-control form-control-sm'],
 				'constraints' => [
 					new File(

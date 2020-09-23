@@ -19,7 +19,7 @@ class ChangeAdressType extends AbstractType
 	{
 		$builder
 			->add('street', TextType::class, ['label' => 'Rue', 'attr' => ['class' => 'form-control form-control-sm']])
-			->add('zipCode', IntegerType::class, 
+			->add('zipCode', TextType::class, 
 				['label' => 'Code postale', 'attr' => ['class' => 'form-control form-control-sm']])
 			->add('city', TextType::class, ['label' => 'Ville', 'attr' => ['class' => 'form-control form-control-sm']])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 'attr' => ['class' => 'btn btn-primary']]);

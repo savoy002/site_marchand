@@ -2,14 +2,17 @@
 
 namespace App\Entity\Product;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
+use Doctrine\ORM\Mapping as ORM;
+
+use DateTime;
+
 use App\Entity\Command\PieceCommand;
 use App\Entity\User\Comment;
 use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 
-use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\Product\VariantProductRepository")
@@ -55,6 +58,16 @@ class VariantProduct
     private $price;
 
     /**
+     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"}, name="created_at_var_prod")
+     */
+    private $createdAt;
+
+    /**
+     * @ORM\Column(type="boolean", options={"default": false}, name="is_wellcome_var_prod")
+     */
+    private $isWellcome;
+
+    /**
      * @ORM\Column(type="boolean", name="activate_var_prod", options={"default":false})
      */
     private $activate;
@@ -87,6 +100,8 @@ class VariantProduct
 
     public function __construct()
     {
+        $this->createdAt = new DateTime();
+        $this->isWellcome = false;
         $this->activate = false;
         $this->delete = false;
         $this->stock = 0;
@@ -168,6 +183,30 @@ class VariantProduct
     public function setPrice(int $price)
     {
         $this->price = $price;
+
+        return $this;
+    }
+
+    public function getCreatedAt(): DateTime
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(DateTime $createdAt): self
+    {
+        $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getIsWellcome(): bool
+    {
+        return $this->isWellcome;
+    }
+
+    public function setIsWellcome(bool $isWellcome): self
+    {
+        $this->isWellcome = $isWellcome;
 
         return $this;
     }

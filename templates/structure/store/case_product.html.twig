@@ -1,0 +1,9 @@
+
+
+<div class="col justify-content-center case_product">
+	{% if product is not null %}
+		<img src="{{asset('img/uploads/Product/VariantProduct/' ~ product.imgFileName)}}" width="200" height="200"><br>
+		<p>{{ product.name }} - {{ product.price|slice(0, product.price|length - 2)~','~product.price|slice(product.price|length - 2, product.price|length) }} &#8364 </p>
+	{% endif %}
+</div>
+

@@ -1,0 +1,31 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} {{ product.name }} {% endblock %}
+
+{% block body %}
+
+	<div class="row justify-content-center div-title">
+		<h1>{{ product.name }}.</h1>
+	</div>
+
+	<div class="row justify-content-center under_title">
+		<div class="col-4 offset-1">
+			<h4>Description.</h4>
+			<p>{{ product.description }}</p>
+			<p>Prix unitaire : {{ product.price|slice(0, product.price|length - 2)~','~product.price|slice(product.price|length - 2, product.price|length) }} &#8364 </p>
+		</div>
+		<div class="col-4">
+			<img src="{{asset('img/uploads/Product/VariantProduct/' ~ product.imgFileName)}}" width="300" height="300">
+		</div>
+		<div class="col-1"></div>
+	</div>
+
+	<div class="row">
+		<p>Formulaire pour achat de produit.</p>
+	</div>
+
+	<div class="row">
+		<p>Liste des commentaire.</p>
+	</div>
+
+{% endblock %}

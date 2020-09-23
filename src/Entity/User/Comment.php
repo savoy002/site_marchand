@@ -34,7 +34,7 @@ class Comment
     private $text;
 
     /**
-     * @ORM\Column(type="datetime", name="created_at_user", options={"default": "CURRENT_TIMESTAMP"})
+     * @ORM\Column(type="datetime", name="created_at_comment", options={"default": "CURRENT_TIMESTAMP"})
      */
     private $createdAt;
 

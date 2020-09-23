@@ -145,6 +145,7 @@ class VariantProductRepository extends ServiceEntityRepository
         return $request->getQuery()->getResult();
     }
 
+
     // /**
     //  * @return VariantProduct[] Returns an array of VariantProduct objects
     //  */

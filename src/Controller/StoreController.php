@@ -13,6 +13,7 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 use App\Entity\User\User;
 use App\Entity\Command\Adress;
+use App\Entity\Product\VariantProduct;
 
 use App\Form\Type\User\UserType;
 use App\Form\Type\User\ChangePasswordType;
@@ -37,9 +38,10 @@ class StoreController extends AbstractController
      */
     public function index()
     {
-        return $this->render('store/index.html.twig', [
-            'controller_name' => 'StoreController/store',
-        ]);
+        $var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+            ->findBy(['delete' => false, 'isWellcome' => true]);
+        
+        return $this->render('store/wellcome_page.html.twig', ['products' => $var_products]);
     }
 
     /**
@@ -54,13 +56,30 @@ class StoreController extends AbstractController
     }
 
     /**
-     * @Route("/store/product", name="store_product")
+     * @Route("/store/products", name="store_products")
      */
-    public function showArticles(Request $request)
+    public function showProducts()
     {
-        $var_products = $this->getDoctrine()->getRepository(VariantProduct::class)->findAll();
+        /*$var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+            ->findBy(['delete' => false, 'isWellcome' => true]);*/
         
-        return $this->render('store/index.html.twig', ['products' => $var_products]);
+        return $this->render('store/index.html.twig', [
+            'controller_name' => 'StoreController/store',
+        ]);
+    }
+
+    /**
+     * @Route("/store/product/{code}", name="store_product")
+     */
+    public function showProduct($code)
+    {
+        $var_product = $this->getDoctrine()->getRepository(VariantProduct::class)
+            ->findOneBy(['delete' => false, 'code' => $code]);
+
+        if(is_null($var_product))
+            return $this->redirectToRoute('store');
+
+        return $this->render('store/variants_products/show_product.html.twig', ['product' => $var_product]);
     }
 
     /**
@@ -136,7 +155,8 @@ class StoreController extends AbstractController
                     return $this->redirectToRoute("store_user");
                 }
             }
-            return $this->render('store/user/change_password.html.twig', ['form' => $form->createView(), 'errors' => $errors]);
+            return $this->render('store/user/change_password.html.twig', 
+                ['form' => $form->createView(), 'errors' => $errors]);
         }
         return $this->redirectToRoute('store');
     }
@@ -188,21 +208,22 @@ class StoreController extends AbstractController
             if($form->isSubmitted() && $form->isValid()) {
                 $image = $form->get('image')->getData();
                 if($image) {
-
                     $originalImagename = pathinfo($image->getClientOriginalName(), PATHINFO_FILENAME);
-                    $safeImageName = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $originalImagename);
+                    $safeImageName = transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', 
+                        $originalImagename);
                     $newImagename = $safeImageName.'-'.uniqid().'.'.$image->guessExtension();
                     
                     try {
                         $image->move($this->getParameter('user_image_directory'), $newImagename);
                     } catch(FileException $e) {
-                        return $this->render('store/user/change_image.html.twig', ['form' => $form->createView(), 'errors' => $e]);
+                        return $this->render('store/user/change_image.html.twig', 
+                            ['form' => $form->createView(), 'errors' => $e]);
                     }
-
                     if($this->getUser()->getImgFileName() !== null) {
                         try {
                             //$this->filesSystem->remove(['file', $this->getParameter('user_image_directory').'/', $this->getUser()->getImgFileName()]);
-                            $this->filesSystem->remove($this->getParameter('user_image_directory').'/'.$this->getUser()->getImgFileName());
+                            $this->filesSystem->remove($this->getParameter('user_image_directory').'/'.$this->getUser()
+                                ->getImgFileName());
                         } catch( IOExceptionInterface $e) {
                             return $this->redirectToRoute('store_user', ['errors' => $e]);
                         }
@@ -217,7 +238,7 @@ class StoreController extends AbstractController
             }
             return $this->render('store/user/change_image.html.twig', ['form' => $form->createView()]);    
         }
-        return $this->redirectToRoute('login');
+        return $this->redirectToRoute('app_login');
     }
 
     /**
@@ -227,21 +248,33 @@ class StoreController extends AbstractController
         if($this->getUser() !== null) {
             $adress = new Adress();
             $form = $this->createForm(ChangeAdressType::class, $adress);
+            $errors = array();
             $form->handleRequest($request);
             if($form->isSubmitted() && $form->isValid()) {
+                if(strlen($form->getData()->get('zipCode')) != 5) {
+                    if(strlen($form->getData()->get('zipCode')) === 4) 
+                        $adress->setZipCode("0".$adress->getZipCode());
+                    else
+                        return $this->render('store/user/change_adress.html.twig', 
+                            ['form' => $form->createView(), 'errors' => $errors]);
+                }
                 $former_adress = $this->getUser()->getLive();
-                if(is_empty($former_adress->getCommands()) && is_empty($former_adress->getBelongs()))
-                    $former_adress->setDelete(true);
+                if($former_adress !== null) {
+                    $former_adress->removeBelong($this->getUser());
+                    if($former_adress->isEmptyCommand() && $former_adress->isEmptyBelong())
+                        $former_adress->setDelete(true);
+                }
                 $adress->addBelong($this->getUser());
                 $this->getDoctrine()->getManager()->persist($this->getUser());
                 $this->getDoctrine()->getManager()->persist($adress);
-                $this->getDoctrine()->getManager()->persist($former_adress);
+                if($former_adress !== null)
+                    $this->getDoctrine()->getManager()->persist($former_adress);
                 $this->getDoctrine()->getManager()->flush();
                 return $this->redirectToRoute('store_user');
             }
             return $this->render('store/user/change_adress.html.twig', ['form' => $form->createView()]);
         }
-        return $this->redirectToRoute('login');
+        return $this->redirectToRoute('app_login');
     }
 
 }

@@ -94,6 +94,7 @@ class ProductFixtures extends Fixture
 		$poire_conserve1->setStock(3);
 		$poire_conserve1->setCode('poire_conserve_250');
 		$poire_conserve1->setPrice(200);
+		$poire_conserve1->setIsWellcome(true);
 		$poire_conserve1->setActivate(true);
 		$poire_conserve1->setImgFileName("poire_conserve_250.jpeg");
 
@@ -103,6 +104,7 @@ class ProductFixtures extends Fixture
 		$poire_conserve2->setStock(5);
 		$poire_conserve2->setCode('poire_conserve_500');
 		$poire_conserve2->setPrice(360);
+		$poire_conserve2->setIsWellcomer(true);
 		$poire_conserve2->setActivate(true);
 		$poire_conserve2->setImgFileName("poire_conserve_500.jpeg");
 
@@ -121,6 +123,7 @@ class ProductFixtures extends Fixture
 		$poire_tranchee->setStock(10);
 		$poire_tranchee->setCode('poire_tranchee');
 		$poire_tranchee->setPrice(500);
+		$poire_tranchee->setIsWellcome(true);
 		$poire_tranchee->setActivate(true);
 		$poire_tranchee->setImgFileName("poire_tranchee.jpeg");
 
@@ -130,6 +133,7 @@ class ProductFixtures extends Fixture
 		$sachet_pomme->setStock(6);
 		$sachet_pomme->setCode('pommes');
 		$sachet_pomme->setPrice(400);
+		$sachet_pomme->setIsWellcome(true);
 		$sachet_pomme->setActivate(true);
 		$sachet_pomme->setImgFileName("sachet_pomme.jpeg");
 
@@ -148,6 +152,7 @@ class ProductFixtures extends Fixture
 		$poireau_conserve->setStock(6);
 		$poireau_conserve->setCode('poireau_conserve');
 		$poireau_conserve->setPrice(600);
+		$poireau_conserve->setIsWellcome(true);
 		$poireau_conserve->setActivate(true);
 		$poireau_conserve->setImgFileName("poireau_conserve.jpeg");
 

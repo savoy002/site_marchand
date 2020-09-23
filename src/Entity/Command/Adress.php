@@ -116,6 +116,11 @@ class Adress
         return $this->commands;
     }
 
+    public function isEmptyCommand(): bool
+    {
+        return $this->commands->isEmpty();
+    }
+
     public function hasCommand(Command $command): bool
     {
         return $this->commands->contains($command);
@@ -143,9 +148,14 @@ class Adress
         return $this;
     }
 
-    public function getBelongs(): ArrayCollection
+    public function getBelongs(): Collection
     {
         return $this->belongs;
+    }
+
+    public function isEmptyBelong(): bool
+    {
+        return $this->belongs->isEmpty();
     }
 
     public function hasBelong(?User $user): bool
