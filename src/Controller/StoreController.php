@@ -13,6 +13,8 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 use App\Entity\User\User;
 use App\Entity\Command\Adress;
+use App\Entity\Product\Category;
+use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
 
 use App\Form\Type\User\UserType;
@@ -23,6 +25,10 @@ use App\Form\Type\Command\ChangeAdressType;
 
 class StoreController extends AbstractController
 {
+
+    //Le nombre de produits par page.
+    //Attention si vous changez la valeur de cette constante pensez aussi à changer celle des tests.
+    const NUMBER_PRODUCTS_BY_PAGE = 6;
 
     private $passwordEncoder;
 
@@ -39,7 +45,7 @@ class StoreController extends AbstractController
     public function index()
     {
         $var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
-            ->findBy(['delete' => false, 'isWellcome' => true]);
+            ->findBy(['delete' => false, 'activate' => true, 'isWellcome' => true]);
         
         return $this->render('store/wellcome_page.html.twig', ['products' => $var_products]);
     }
@@ -58,14 +64,80 @@ class StoreController extends AbstractController
     /**
      * @Route("/store/products", name="store_products")
      */
-    public function showProducts()
+    public function showProducts(Request $request)
     {
-        /*$var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
-            ->findBy(['delete' => false, 'isWellcome' => true]);*/
+        $criteria = array();
+        $criteria['number_by_page'] = self::NUMBER_PRODUCTS_BY_PAGE;
+        $former_request = array();
+
+        $categories = $this->getDoctrine()->getRepository(Category::class)->findBy(['activate' => true, 'delete' => false]);
+        $products = $this->getDoctrine()->getRepository(Product::class)->findBy(['activate' => true, 'delete' => false]);
+
+        $page = $request->request->get('page');
+
+        //Gestion de la recheche.
+        if($request->request->get('research') === "research") {
+
+            //Ajoute les catégories choisis par l'utilisateur
+            $choice_categories = array();
+            foreach ($categories as $category) {
+                if($request->request->get('category_'.$category->getId()) != "" 
+                    && $request->request->get('category_'.$category->getId()) !== null)
+                    $choice_categories[] = $category->getId();
+            }
+            if(!empty($choice_categories)) {
+                $criteria['categories'] = $choice_categories;
+                foreach ($choice_categories as $category_id)
+                    $former_request['category_'.$category_id] = $category_id;
+            }
+
+            //Ajoute les produits choisis par l'utilisateur
+            $choice_products = array();
+            foreach ($products as $product) {
+                if($request->request->get('product_'.$product->getId()) != ""
+                    && $request->request->get('product_'.$product->getId()) !== null)
+                    $choice_products[] = $product->getId();
+            }
+            if(!empty($choice_products)) {
+                $criteria['products'] = $choice_products;
+                foreach($choice_products as $product_id)
+                    $former_request['product_'.$product_id] = $product_id;
+            }
+
+        }
+
+        //Calcul le nombre de VariantProducts et de pages
+        $number_var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+            ->storeResearchNumberVariantProduct($criteria)[0][1];
+        $number_pages = intval( $number_var_products / self::NUMBER_PRODUCTS_BY_PAGE ) + 
+            ( ( $number_var_products % self::NUMBER_PRODUCTS_BY_PAGE === 0 )?0:1 );
+        /*var_dump($number_var_products);
+        var_dump(intval($number_var_products / self::NUMBER_PRODUCTS_BY_PAGE));
+        var_dump($number_var_products % self::NUMBER_PRODUCTS_BY_PAGE);
+        var_dump($number_pages);
+        die();*/
+
+        //Ajoute le numéro de page
+        if($page != "" && $page !== null) {
+            if($page === 'Début') {
+                $criteria['page'] = 0;
+                $page = 1;
+            } else if($page === 'Fin') {
+                $criteria['page'] = $number_pages - 1;
+                $page = $number_pages;
+            } else {
+                $criteria['page'] = intval($page) - 1;
+            }
+        } else 
+            $page = 1;
+
+        //Recherche les VariantProducts à retourner.
+        $var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+            ->storeResearchVariantProduct($criteria);
         
-        return $this->render('store/index.html.twig', [
-            'controller_name' => 'StoreController/store',
-        ]);
+        return $this->render('store/variants_products/show_products.html.twig', 
+            [ 'var_products' => $var_products, 'categories' => $categories, 'products' => $products, 'number' => $number_var_products,
+              'page' => $page, 'number_pages' => $number_pages, 'former_request' => $former_request ]);
     }
 
     /**
@@ -74,7 +146,7 @@ class StoreController extends AbstractController
     public function showProduct($code)
     {
         $var_product = $this->getDoctrine()->getRepository(VariantProduct::class)
-            ->findOneBy(['delete' => false, 'code' => $code]);
+            ->findOneBy(['delete' => false, 'activate' => true, 'code' => $code]);
 
         if(is_null($var_product))
             return $this->redirectToRoute('store');
@@ -87,9 +159,10 @@ class StoreController extends AbstractController
      */
     public function infoUser()
     {
-        if($this->getUser() !== null)
-            return $this->render('store/user/info_user.html.twig', ['user' => $this->getUser()]);
-        return $this->redirectToRoute('store');
+        if($this->getUser() === null)
+            return $this->redirectToRoute('store');
+
+        return $this->render('store/user/info_user.html.twig', ['user' => $this->getUser()]);
     }
 
     /**

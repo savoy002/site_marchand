@@ -174,6 +174,17 @@ class ProductFixtures extends Fixture
 		$soupe_de_legume_vert_bocale->setActivate(true);
 		$soupe_de_legume_vert_bocale->setImgFileName("soupe_de_legume_vert.jpeg");
 
+		/*$test_boite_concerve = new VariantProduct();
+		$test_boite_concerve->setName("Test concerve 1");
+		$test_boite_concerve->setDescription("Ceci est un test.");
+		$test_boite_concerve->setStock(4);
+		$test_boite_concerve->setCode('test_concerve_1');
+		$test_boite_concerve->setPrice(200);
+		$test_boite_concerve->setActivate(true);*/
+
+
+
+
 		//Création des liens entre les catégories et les produits.
 
 		$fruit->addProduct($poire);

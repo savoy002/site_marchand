@@ -16,6 +16,10 @@
 
 	<h2 class="under_title">Nos produits.</h2>
 
+	<div class="row offset-1 div-button">
+		<a href="{{ path("store_products") }}"><button class="btn btn-primary">Catalogue</button></a>
+	</div>
+
 	<div class="row row-cols-3">
 		{% if products is not empty %}
 			{% for product in products %}

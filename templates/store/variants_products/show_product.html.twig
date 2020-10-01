@@ -15,7 +15,10 @@
 			<p>Prix unitaire : {{ product.price|slice(0, product.price|length - 2)~','~product.price|slice(product.price|length - 2, product.price|length) }} &#8364 </p>
 		</div>
 		<div class="col-4">
-			<img src="{{asset('img/uploads/Product/VariantProduct/' ~ product.imgFileName)}}" width="300" height="300">
+			{% set path = (product.imgFileName is null)?
+						  ('sans_image_produit.png'):
+						  ('uploads/Product/VariantProduct/' ~ product.imgFileName) %}
+			<img src="{{asset('img/' ~ path) }}" width="300" height="300">
 		</div>
 		<div class="col-1"></div>
 	</div>
@@ -29,3 +32,5 @@
 	</div>
 
 {% endblock %}
+
+

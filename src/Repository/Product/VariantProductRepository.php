@@ -7,6 +7,7 @@ use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder as QueryBuilderOption;
 
 /**
  * @method VariantProduct|null find($id, $lockMode = null, $lockVersion = null)
@@ -134,8 +135,6 @@ class VariantProductRepository extends ServiceEntityRepository
         if(array_key_exists('orderBy', $criteria))
             $request->orderBy('p.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
 
-
-
         return $request->getQuery()->getResult();
     }
 
@@ -143,6 +142,63 @@ class VariantProductRepository extends ServiceEntityRepository
     {
         $request = $this->createQueryBuilder('p')->select('COUNT(p)')->where('p.delete = FALSE');
         return $request->getQuery()->getResult();
+    }
+
+    public function storeResearchVariantProduct(array $criteria)
+    {
+        $request = $this->createQueryBuilder('v')->select('DISTINCT v');
+
+        if(array_key_exists('products', $criteria))
+            $request->innerJoin('v.product', 'p');
+
+        if(array_key_exists('categories', $criteria))
+            $request->innerJoin('v.categories', 'c');
+
+        $request->where('v.delete = FALSE')->andWhere('v.activate = TRUE');
+
+        $request = $this->optionsResearchStoreVariantProduct($request, $criteria);
+
+        if(array_key_exists('page', $criteria))
+            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
+
+        if(array_key_exists('orderBy', $criteria))
+            $request->orderBy('v.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
+
+        $request->setMaxResults($criteria['number_by_page']);
+
+        return $request->getQuery()->getResult();
+    }
+
+    public function storeResearchNumberVariantProduct(array $criteria)
+    {
+        $request = $this->createQueryBuilder('v')->select('COUNT(DISTINCT v)');
+
+        if(array_key_exists('products', $criteria))
+            $request->innerJoin('v.product', 'p');
+
+        if(array_key_exists('categories', $criteria))
+            $request->innerJoin('v.categories', 'c');
+
+        $request->where('v.delete = FALSE')->andWhere('v.activate = TRUE');
+
+        $request = $this->optionsResearchStoreVariantProduct($request, $criteria);
+
+        return $request->getQuery()->getResult();
+    }
+
+    public function optionsResearchStoreVariantProduct(QueryBuilderOption $request, array $criteria)
+    {
+        if(array_key_exists('categories', $criteria) && array_key_exists('products', $criteria)) {
+            $request->andWhere("c.id IN (:id_categories) OR p.id IN (:id_products)")
+                ->setParameter('id_categories', $criteria['categories'])->setParameter('id_products', $criteria['products']);
+        } else {
+            if(array_key_exists('products', $criteria))
+                $request->andWhere("p.id IN (:id_products)")->setParameter('id_products', $criteria['products']);
+            if(array_key_exists('categories', $criteria))
+                $request->andWhere("c.id IN (:id_categories)")->setParameter('id_categories', $criteria['categories']);
+        }
+
+        return $request;
     }
 
 

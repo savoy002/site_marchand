@@ -1,0 +1,72 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Recherche Produits {% endblock %}
+
+{% block body %} 
+
+	<div class="row justify-content-center div-title">
+		<h1>Les produits recherchés.</h1>
+	</div>
+
+	<div class="row">
+		<div class="col-3">
+			<form class="form" method="post" action="{{ path("store_products") }}">
+				<input hidden="hidden" name="research" value="research">
+				<div class="row">
+					<label>Catégories</label>
+				</div>
+				{% for category in categories %}
+					<div class="form-check inline-block">
+						<label for="category_{{ category.id }}">{{ category.name }}</label>
+						<input id="category_{{ category.id }}" name="category_{{ category.id }}" type="checkbox" 
+							value="{{ category.id }}" 
+							{{ (attribute(former_request, 'category_'~category.id) is defined)?('checked') }}>
+					</div>
+				{% endfor %}
+				<div class="row">
+					<label>Produits</label>
+				</div>
+				{% for product in products %}
+					<div class="form-check inline-block">
+						<label for="product_{{ product.id }}">{{ product.name }}</label>
+						<input id="product_{{ product.id }}" name="product_{{ product.id }}" type="checkbox" value="{{ product.id }}"
+							{{ (attribute(former_request, 'product_'~product.id) is defined)?('checked') }}>
+					</div>
+				{% endfor %}
+				<div class="row">
+					<button class="btn btn-primary" type="submit">Rechercher</button>
+				</div>
+
+				<div class="row justify-content-around ">
+					<nav aria-label="Page navigation">
+					 	<ul class="pagination">
+					    	<li class="page-item">
+					      		<input type="submit" value="Début" name="page" 
+					      			class="btn {{ (page != 1)?("btn-primary"):("btn-secondary") }}">
+					    	</li>
+					    	{% for num in range(1, number_pages) %}
+					    		<input type="submit" value="{{ num }}" name="page" 
+					    			class="btn {{ (num != page )?("btn-primary"):("btn-secondary") }}">
+					    	{% endfor %}
+					    	<li class="page-item">
+					      		<input type="submit" value="Fin" name="page" 
+					      			class="btn {{  (page != number_pages)?("btn-primary"):("btn-secondary") }}">
+					    	</li>
+					 	</ul>
+					</nav>
+				</div>
+
+			</form>
+		</div>
+		<div class="col-9">
+			<div class="row row-cols-2">
+				{% if var_products is not empty %}
+					{% for var_product in var_products %}
+						{% include 'structure/store/case_product.html.twig' with { 'product' : var_product } %}
+					{% endfor %}
+				{% endif %}
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
