@@ -1,5 +1,5 @@
 
-console.log("mark_star");
+//console.log("mark_star");
 
 window.onload = function() {
 
@@ -7,8 +7,8 @@ window.onload = function() {
 	const mark = document.getElementsByName('mark')[0];
 	const cancel = document.getElementsByName('cancel')[0];
 
-	console.log(stars);
-	console.log(mark);
+	//console.log(stars);
+	//console.log(mark);
 
 	stars.forEach(function(star){
 		star.onclick = function() {

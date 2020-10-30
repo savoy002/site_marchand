@@ -1,0 +1,61 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Article - Panier {% endblock %}
+
+{% block body %}
+
+	<div class="row div-title">
+		<div class="offset-1 col-10">
+			<h1>Votre panier.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item active" aria-current="page">Adresse</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row under_title">
+		<div class="offset-1 col-10">
+			<h2>Liste des articles.</h2>
+			<div class="row">
+				{% set total_price = 0 %}
+				<table class="table table-bordered">
+					<thead>
+						<tr>
+							<th>Nom</th><th>Nombre</th><th>Prix</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for piece_command in basket.products %}
+							<tr>
+								<td>{{ piece_command.product.name }}</td>
+								<td>{{ piece_command.nbProducts }}</td>
+								<td>
+									{{ piece_command.product.price|slice(0, piece_command.product.price|length - 2)~','~piece_command.product.price|slice(piece_command.product.price|length - 2, piece_command.product.price|length) }}
+								</td>
+							</tr>
+							{% set total_price = total_price + piece_command.nbProducts * piece_command.product.price %}
+						{% endfor %}
+						<tr>
+							<td colspan="2">Le prix total est : </td>
+							<td>
+								{{ total_price|slice(0, total_price|length - 2)~','~total_price|slice(total_price|length - 2, total_price|length) }}
+							</td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+	<div class="row justify-content-around">
+		<div class="offset-1 col-5"><a class="btn btn-primary" href="{{ path("store_products") }}">Continuer les achats</a></div>
+		<div class="col-5"><a class="btn btn-primary" href="{{ path("store_basket_adress") }}">Valider le panier</a></div>
+	</div>
+
+{% endblock %}

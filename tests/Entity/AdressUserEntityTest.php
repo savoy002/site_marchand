@@ -3,10 +3,11 @@
 
 namespace App\Tests\Entity;
 
-use App\Entity\Command\Adress;
-use App\Entity\User\User;
 
 use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+
+use App\Entity\Command\Adress;
+use App\Entity\User\User;
 
 
 class AdressUserEntityTest extends KernelTestCase 

@@ -19,6 +19,21 @@ class TypeDeliveryRepository extends ServiceEntityRepository
         parent::__construct($registry, TypeDelivery::class);
     }
 
+    public function findFormSelectTypeDelivery($zip_code)
+    {
+        $request = $this->createQueryBuilder('t');
+        if($zip_code === null || $zip_code == "") {
+            $request->innerJoin('t.company', 'c')->where("t.delete = FALSE AND t.activate = TRUE AND c.area LIKE :all")
+                ->setParameter('all', '%All%');
+        } else {
+            $request->innerJoin('t.company', 'c')
+                ->where("t.delete = FALSE AND t.activate = TRUE AND (c.area LIKE :zip_code OR c.area LIKE :all)")
+                ->setParameter('zip_code', substr($zip_code, 0, 2))
+                ->setParameter('all', '%All%');
+        }
+        return $request;
+    }
+
     // /**
     //  * @return TypeDelivery[] Returns an array of TypeDelivery objects
     //  */

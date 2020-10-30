@@ -41,24 +41,31 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 
 		$command1 = new Command();
 		$command1->setCreatedAt(new DateTime('2020-06-07'));
+		$command1->setIsBasket(false);
 
 		$command2 = new Command();
 		$command2->setCreatedAt(new DateTime('2019-03-26'));
+		$command2->setIsBasket(false);
 
 		$command3 = new Command();
 		$command3->setCreatedAt(new DateTime('2019-11-12'));
+		$command3->setIsBasket(false);
 
 		$command4 = new Command();
 		$command4->setCreatedAt(new DateTime('2020-05-18'));
+		$command4->setIsBasket(false);
 
 		$command5 = new Command();
 		$command5->setCreatedAt(new DateTime('2019-12-16'));
+		$command5->setIsBasket(false);
 
 		$command6 = new Command();
 		$command6->setCreatedAt(new DateTime('2020-01-23'));
+		$command6->setIsBasket(false);
 
 		$command7 = new Command();
 		$command7->setCreatedAt(new DateTime('2020-03-06'));
+		$command7->setIsBasket(false);
 
 		$command8 = new Command();
 
@@ -178,6 +185,13 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$command4->setPlaceDel($adress4);
 		$command5->setPlaceDel($adress5);
 		$command6->setPlaceDel($adress6);
+
+		$command1->setTypeDeliverySelected($typedelivery1);
+		$command2->setTypeDeliverySelected($typedelivery3);
+		$command3->setTypeDeliverySelected($typedelivery2);
+		$command4->setTypeDeliverySelected($typedelivery2);
+		$command5->setTypeDeliverySelected($typedelivery2);
+		$command6->setTypeDeliverySelected($typedelivery2);
 
 		$companydelivery1->addType($typedelivery1);
 		$companydelivery1->addType($typedelivery2);

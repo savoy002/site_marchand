@@ -43,6 +43,11 @@ class Command
     private $dateReceive;
 
     /**
+     * @ORM\Column(type="boolean", name="is_basket")
+     */
+    private $isBasket;
+
+    /**
      * @ORM\Column(type="integer", name="price_total", nullable=true)
      */
     private $priceTotal;
@@ -75,10 +80,17 @@ class Command
      */
     private $user;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Command\TypeDelivery", inversedBy="commands")
+     * @ORM\JoinColumn(name="type_del_id_com", referencedColumnName="id")
+     */
+    private $typeDelSelected;
+
     public function __construct()
     {
         $this->createdAt = new DateTime();
         $this->completed = false;
+        $this->isBasket = true;
         $this->priceTotal = null;
         $this->delete = false;
         $this->products = new ArrayCollection();
@@ -109,6 +121,8 @@ class Command
     public function setCompleted(bool $completed): self
     {
         $this->completed = $completed;
+        if($completed)
+            $this->setIsBasket(false);
 
         return $this;
     }
@@ -124,6 +138,18 @@ class Command
             if($this->delivery->getDate() < $dateReceive)
                 $this->dateReceive = $dateReceive;
         }
+
+        return $this;
+    }
+
+    public function getIsBasket(): bool
+    {
+        return $this->isBasket;
+    }
+
+    public function setIsBasket(bool $isBasket):self
+    {
+        $this->isBasket = $isBasket;
 
         return $this;
     }
@@ -175,8 +201,10 @@ class Command
         if($this->placeDel != null)
             $this->placeDel->removeCommand($this);
         $this->placeDel = $adress;
-        if(!$adress->hasCommand($this))
-            $adress->addCommand($this);
+        if($adress !== null) {
+            if(!$adress->hasCommand($this))
+                $adress->addCommand($this);
+        }
 
         return $this;
     }
@@ -205,6 +233,11 @@ class Command
     public function getProducts(): Collection
     {
         return $this->products;
+    }
+
+    public function isEmptyProduct(): bool
+    {
+        return $this->products->isEmpty();
     }
 
     public function hasProduct(PieceCommand $pieceCommand): bool
@@ -245,8 +278,30 @@ class Command
         if($this->user != $user && $this->user != null)
             $this->user->removeCommand($this);
         $this->user = $user;
-        if(!$user->hasCommand($this))
-            $user->addCommand($this);
+        if($user != null) {
+            if(!$user->hasCommand($this))
+                $user->addCommand($this);
+        }
+
+        return $this;
+    }
+
+    public function getTypeDelSelected(): ?TypeDelivery
+    {
+        return $this->typeDelSelected;
+    }
+
+    public function setTypeDelSelected(?TypeDelivery $typeDelSelected): self
+    {
+        if($this->typeDelSelected != null && $this->typeDelSelected != $typeDelSelected){
+            $this->typeDelSelected->removeCommand($this);
+        }
+        $this->typeDelSelected = $typeDelSelected;
+        if($typeDelSelected !== null) {
+            if(!$typeDelSelected->hasCommands($this)) {
+                $typeDelSelected->addCommand($this);
+            }
+        }
 
         return $this;
     }

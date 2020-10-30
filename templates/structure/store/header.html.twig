@@ -1,14 +1,19 @@
 <header class="bg-secondary">
 	<div class="row justify-content-between">
-		<div class="col-8">
+		<div class="col-6">
 			<a href="{{ path("store") }}"><button class="btn btn-info">Magasin</button></a>
 			{% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
 				<a href="#"><button class="btn btn-info">Historique</button></a>
 				<a href="{{ path('store_user') }}"><button class="btn btn-info">Mon compte</button></a>
 			{% endif %}
 		</div>
-		<div class="col-2">
+		<div class="col-3">
 			{% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+				{% if basket is defined %}
+					{% if basket is not null %}
+						<a href="{{ path('store_basket_article') }}" class="btn btn-primary">Panier({{basket.products|length}})</a>
+					{% endif %}
+				{% endif %}
 		    	<a href="{{ path('app_logout') }}"> <button class="btn btn-primary">Déconnexion</button></a>
 			{% else %}
 			    <a href="{{ path('app_login') }}"><button class="btn btn-primary">Connexion</button></a>

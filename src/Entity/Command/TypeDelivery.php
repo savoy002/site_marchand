@@ -60,11 +60,17 @@ class TypeDelivery
      */
     private $company;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="typeDelSelected")
+     */
+    private $commands;
+
     public function __construct()
     {
         $this->activate = false;
         $this->delete = false;
         $this->deliveries = new ArrayCollection();
+        $this->commands = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -168,7 +174,7 @@ class TypeDelivery
     public function removeDelivery(Delivery $delivery): self
     {
         if($this->hasDelivery($delivery)) {
-            $this->delivery->remove($delivery);
+            $this->delivery->removeElement($delivery);
 
             if($delivery->getType() === $this)
                 $delivery->setType(null);
@@ -182,14 +188,62 @@ class TypeDelivery
         return $this->company;
     }
 
-    public function setCompany(CompanyDelivery $company): self
+    public function setCompany(?CompanyDelivery $company): self
     {
+
+        if($this->company !== null)
+            $company->removeType($this);
+
         $this->company = $company;
 
-        if(!$company->hasType($this))
-            $company->addType($this);
+        if($company !== null){
+            if(!$company->hasType($this))
+                $company->addType($this);
+        }
 
         return $this;
+    }
+
+    public function getCommands(): Collection
+    {
+        return $this->commands;
+    }
+
+    public function hasCommands(Command $command): bool
+    {
+        return $this->commands->contains($command);
+    }
+
+    public function addCommand(Command $command): self
+    {
+        if(!$this->hasCommands($command)) {
+            $this->commands[] = $command;
+
+            if($command->getTypeDelSelected() != $this)
+                $command->setTypeDelSelected($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommand(Command $command): self
+    {
+        if($this->hasCommands($command)) {
+            $this->commands->removeElement($command);
+
+            if($command->getTypeDelSelected() === $this)
+                $command->setTypeDelSelected(null);
+        }
+
+        return $this;
+    }
+
+    public function showTypeDelivery(): string
+    {
+        $price_100 = strval($this->getPrice());
+        $price = substr($price_100, 0, strlen($price_100) - 2) . ',' . substr($price_100, strlen($price_100) - 2, strlen($price_100));
+
+        return $this->getName().' '.$price;
     }
 
 }

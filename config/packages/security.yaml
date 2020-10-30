@@ -41,5 +41,6 @@ security:
         - { path: ^/admin, roles: ROLE_ADMIN }
         #Penser à ajouter des chemins unique aux utilisateurs pour les créations de commandes et commentaires.
         - { path: ^/store/user/\d+$, roles: [ROLE_USER, ROLE_ADMIN] }
+        - { path: ^/store/basket/\d+$, roles: [ROLE_USER] }
         - { path: ^/store, roles: [ROLE_USER, ROLE_ADMIN, IS_AUTHENTICATED_ANONYMOUSLY] }
         - { path: ^/, roles: [ROLE_USER, ROLE_ADMIN, IS_AUTHENTICATED_ANONYMOUSLY] }

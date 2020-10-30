@@ -46,6 +46,7 @@ class CommandRepository extends ServiceEntityRepository
     }
 
     private function optionsResearchCommands(QueryBuilderOption $request, array $criteria) {
+        $request->andWhere('c.delete = FALSE')->andWhere('c.isBasket = FALSE');
 
         if( ( array_key_exists('sentBefore', $criteria) || array_key_exists('sentAfter', $criteria) || 
             array_key_exists('sentBefore', $criteria) ) ) {
@@ -120,6 +121,21 @@ class CommandRepository extends ServiceEntityRepository
         $request = $this->createQueryBuilder('c')->select('COUNT(c)');
         return $request->getQuery()->getResult();
     }
+
+
+    public function storeFindDeliveryTypeForAdress(array $option) {
+        $request = $this->createQueryBuilder('t')
+            ->innerJoin('t.company', 'c')
+            ->andWhere('t.delete = FALSE AND t.activate = TRUE');
+        if($option['zip_code'] === null || $option['zip_code'] == "") {
+            $request->andWhere("'All' MEMBER OF c.area");
+        } else {
+            $request->andWhere(":zip_code MEMBRE OF c.area OR 'All' MEMBER OF c.area")
+                ->setParameter('zip_code', substr($zip_code, 0, 2));
+        }
+        return $request;
+    }
+
 
     // /**
     //  * @return Command[] Returns an array of Command objects

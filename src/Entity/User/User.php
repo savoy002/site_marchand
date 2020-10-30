@@ -340,6 +340,14 @@ class User implements UserInterface
         return $this;
     }
 
-
+    public function getBasket(): ?Command
+    {
+        $basket = null;
+        foreach ($this->commands as $command) {
+            if($command->getIsBasket())
+                $basket = $command;
+        }
+        return $basket;
+    }
 
 }

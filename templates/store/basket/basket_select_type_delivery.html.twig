@@ -1,0 +1,51 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %} Livraison - Panier {% endblock %}
+
+
+{% block body %} 
+
+	<div class="row div-title">
+		<div class="offset-1 col-10">
+			<h1>Votre panier.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("store_basket_article") }}">Articles</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("store_basket_adress") }}">Adresse</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Livraison</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+	
+	<div>
+		<div class="offset-1 col-10">
+			<h2>Choisissez l'adresse de livraison.</h2>
+
+			{{ form_start(form) }}
+
+				<div class="row form-div">
+					{% for choice in form.typeDelSelected.children %}
+						<div class="offset-1 col-5">
+							<div class="form-check">
+								{{ form_widget(choice) }}
+					            {{ form_label(choice) }} &#8364
+					            {{ form_errors(choice) }}
+							</div>
+						</div>
+					{% endfor %}
+				</div>
+
+			{{ form_end(form) }}
+
+		</div>
+	</div>
+
+
+{% endblock %}

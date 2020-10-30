@@ -1,0 +1,77 @@
+{% extends 'base.html.twig' %}
+
+{% block title %} Adresse - Panier {% endblock %}
+
+
+{% block body %}
+
+	<div class="row div-title">
+		<div class="offset-1 col-10">
+			<h1>Votre panier.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("store_basket_article") }}">Articles</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Adresse</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-1 col-10">
+			<h2>Choisissez l'adresse de livraison.</h2>
+		</div>
+		<div class="col-7">
+
+			{{ form_start(form) }}
+
+				<div class="row form-div">
+					<div class="offset-1 col-10">
+						{{ form_label(form.street) }}
+						{{ form_errors(form.street) }}
+						{{ form_widget(form.street) }}
+					</div>
+				</div>
+
+				<div class="row justify-content-center form-div">
+					<div class="col-5">
+						{{ form_label(form.zipCode) }}
+						{{ form_errors(form.zipCode) }}
+						{{ form_widget(form.zipCode) }}
+					</div>
+					<div class="col-5">
+						{{ form_label(form.city) }}
+						{{ form_errors(form.city) }}
+						{{ form_widget(form.city) }}
+					</div>
+				</div>
+
+				<div class="row form-div">
+					<div class="offset-2 col-4 div-button">
+						{{ form_label(form.submit) }}
+						{{ form_widget(form.submit) }}
+					</div>
+				</div>
+
+			{{ form_end(form) }}
+
+		</div>
+
+		<div class="offset-1 col-4">
+			<form class="form" action="{{ path("store_basket_adress") }}" method="post">
+				<h3>Adresse du compte.</h3>
+				<p>{{ user_adress.street }}</p>
+				<p>{{ user_adress.zipCode }} {{ user_adress.city }}</p>
+				<input hidden="" value="user_adress" name="user_adress">
+				<button class="btn btn-primary">Prendre l'adresse du compte</button>
+			</form>
+		</div>
+
+	</div>
+
+{% endblock %}

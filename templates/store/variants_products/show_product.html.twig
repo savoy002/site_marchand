@@ -10,9 +10,26 @@
 
 	<div class="row justify-content-center under_title">
 		<div class="col-4 offset-1">
-			<h4>Description.</h4>
-			<p>{{ product.description }}</p>
 			<p>Prix unitaire : {{ product.price|slice(0, product.price|length - 2)~','~product.price|slice(product.price|length - 2, product.price|length) }} &#8364 </p>
+			<p> {{( (product.stock > 0)?(product.stock ~ ' produits restant.'):('Rupture de stock.') )}} </p>
+			<div>
+				{% if form is defined %}
+					{{ form_start(form) }}
+						<div class="row justify-content-around form-div">
+							<div class="col">
+								{{ form_label(form.nbProducts) }}
+								{{ form_errors(form.nbProducts) }}
+								{{ form_widget(form.nbProducts) }}
+							</div>
+						</div>
+						<div class="row justify-content-around form-div">
+							<div class="col">
+								{{ form_row(form.submit) }}
+							</div>
+						</div>
+					{{ form_end(form) }}
+				{% endif %}
+			</div>
 		</div>
 		<div class="col-4">
 			{% set path = (product.imgFileName is null)?
@@ -23,12 +40,36 @@
 		<div class="col-1"></div>
 	</div>
 
-	<div class="row">
-		<p>Formulaire pour achat de produit.</p>
+	<div class="row show_product-row">
+		<div class="col offset-1">
+			<h4>Description.</h4>
+			<p>{{ product.description }}</p>
+		</div>
 	</div>
 
-	<div class="row">
-		<p>Liste des commentaire.</p>
+	<div class="row show_product-row">
+		<div class="col offset-1">
+			<h3>Commentaires.</h3>
+			{% if product.comments is not empty %}
+				{% for comment in product.comments %}
+					<div class="row show_product-row-comment">
+						<div class="col-12">
+							<h4>Note : 
+							{% for i in 1..5 %}
+								<span class="{{ (i > comment.mark)?
+												("star_not_checked"):
+												("star_checked") }}">&#x2605;</span>
+							{% endfor %}</h4>
+						</div>
+						<div class="col-12">
+							<p>{{ comment.text }}</p>
+						</div>
+					</div>
+				{% endfor %}
+			{% else %}
+				<p>Ce produit n'a pas encore de commentaire.</p>
+			{% endif %}
+		</div>
 	</div>
 
 {% endblock %}

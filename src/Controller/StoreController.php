@@ -13,6 +13,9 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 use App\Entity\User\User;
 use App\Entity\Command\Adress;
+use App\Entity\Command\Command;
+use App\Entity\Command\PieceCommand;
+use App\Entity\Command\TypeDelivery;
 use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
@@ -20,7 +23,10 @@ use App\Entity\Product\VariantProduct;
 use App\Form\Type\User\UserType;
 use App\Form\Type\User\ChangePasswordType;
 use App\Form\Type\User\UploadImageType;
+use App\Form\Type\Command\AddProductCommandType;
 use App\Form\Type\Command\ChangeAdressType;
+use App\Form\Type\Command\SelectTypeDeliveryType;
+
 
 
 class StoreController extends AbstractController
@@ -47,7 +53,7 @@ class StoreController extends AbstractController
         $var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
             ->findBy(['delete' => false, 'activate' => true, 'isWellcome' => true]);
         
-        return $this->render('store/wellcome_page.html.twig', ['products' => $var_products]);
+        return $this->render('store/wellcome_page.html.twig', ['products' => $var_products, 'basket' => $this->getBasket()]);
     }
 
     /**
@@ -111,11 +117,6 @@ class StoreController extends AbstractController
             ->storeResearchNumberVariantProduct($criteria)[0][1];
         $number_pages = intval( $number_var_products / self::NUMBER_PRODUCTS_BY_PAGE ) + 
             ( ( $number_var_products % self::NUMBER_PRODUCTS_BY_PAGE === 0 )?0:1 );
-        /*var_dump($number_var_products);
-        var_dump(intval($number_var_products / self::NUMBER_PRODUCTS_BY_PAGE));
-        var_dump($number_var_products % self::NUMBER_PRODUCTS_BY_PAGE);
-        var_dump($number_pages);
-        die();*/
 
         //Ajoute le numéro de page
         if($page != "" && $page !== null) {
@@ -137,13 +138,13 @@ class StoreController extends AbstractController
         
         return $this->render('store/variants_products/show_products.html.twig', 
             [ 'var_products' => $var_products, 'categories' => $categories, 'products' => $products, 'number' => $number_var_products,
-              'page' => $page, 'number_pages' => $number_pages, 'former_request' => $former_request ]);
+              'page' => $page, 'number_pages' => $number_pages, 'former_request' => $former_request, 'basket' => $this->getBasket() ]);
     }
 
     /**
      * @Route("/store/product/{code}", name="store_product")
      */
-    public function showProduct($code)
+    public function showProduct(Request $request, $code)
     {
         $var_product = $this->getDoctrine()->getRepository(VariantProduct::class)
             ->findOneBy(['delete' => false, 'activate' => true, 'code' => $code]);
@@ -151,7 +152,156 @@ class StoreController extends AbstractController
         if(is_null($var_product))
             return $this->redirectToRoute('store');
 
-        return $this->render('store/variants_products/show_product.html.twig', ['product' => $var_product]);
+        //Gestion du formulaire pour les ajouter au panier.
+        if($var_product->getStock() > 0) {
+            //Création du formulaire.
+            $piece_command = new PieceCommand();
+            $form = $this->createForm(AddProductCommandType::class, $piece_command, ['stock' => $var_product->getStock()]);
+            $form->handleRequest($request);
+            if($form->isSubmitted() && $form->isValid()) {
+                //Vérifie si l'utilisateur est connecté.
+                if(is_null($this->getUser()))
+                    return $this->redirectToRoute('app_login');
+                //Vérifie si il y a déjà une commande en cours.
+                foreach($this->getUser()->getCommands() as $command) {
+                    if($command->getIsBasket())
+                        $basket = $command;
+                }
+                if(!isset($basket)) {
+                    $basket = new Command();
+                    $basket->setUser($this->getUser());
+                    $this->getDoctrine()->getManager()->persist($this->getUser());
+                }
+                //Vérifie si la commande possède déjà le produit.
+                // ------ Partie à vérifier. -----
+                foreach ($basket->getProducts() as $piece) {
+                    if($piece->getProduct() === $var_product)
+                        $former_piece_product = $piece;
+                }
+                //Modifie le nombre de produits dans la commande si elle existe ou ajoute le produit dans la commande sinon. 
+                if(isset($former_piece_product)) {
+                    $former_piece_product->setNbProducts($piece_command->getNbProducts());
+                    $this->getDoctrine()->getManager()->persist($former_piece_product);
+                } else {
+                    $piece_command->setProduct($var_product);
+                    $piece_command->setCommand($basket);
+                    $this->getDoctrine()->getManager()->persist($var_product);
+                    $this->getDoctrine()->getManager()->persist($basket);
+                    $this->getDoctrine()->getManager()->persist($piece_command);
+                }
+
+                //Penser à gérer les stockes dans cette méthode ou dans la validation de la commande.
+
+                $this->getDoctrine()->getManager()->flush();
+                return $this->redirectToRoute('store_basket_article');
+            }
+        }
+        return $this->render('store/variants_products/show_product.html.twig', 
+            ['product' => $var_product, 'form' => $form->createView(), 'basket' => $this->getBasket()]);
+    }
+
+    /**
+     * @Route("/store/basket/article", name="store_basket_article")
+     */
+    public function basketShowArticle()
+    {
+
+        if($this->getBasket() === null)
+            return $this->redirectToRoute('store');
+
+        return $this->render('store/basket/basket_show_articles.html.twig', ['basket' => $this->getBasket()]);
+    }
+
+    /**
+     * @Route("/store/basket/adress", name="store_basket_adress")
+     */
+    public function basketChoiceAdressDel(Request $request)
+    {
+        if($this->getBasket() !== null) {
+            if(!$this->getBasket()->isEmptyProduct()) {
+                // --- Penser à remettre l'adresse déjà enregistrée dans le formulaire. ---
+                $adress = new Adress();
+                $form = $this->createForm(ChangeAdressType::class, $adress);
+                $user_adress = $this->getUser()->getLive();
+                $errors = array();
+                $form->handleRequest($request);
+                if($form->isSubmitted() && $form->isValid() || $request->request->get("user_adress") === "user_adress") {
+                    $former_adress = $this->getBasket()->getPlaceDel();
+                    //Regarde si l'utilisateur  ademandé d'utiliser l'adresse du compte.
+                    if($request->request->get("user_adress") === "user_adress") {
+                        $this->getBasket()->setPlaceDel($user_adress);
+                    } else {
+                        //Regarde si le code postale est valide.
+                        if(strlen($form->getData()->getZipCode()) != 5) {
+                            if(strlen($form->getData()->get('zipCode')) === 4) 
+                                $adress->setZipCode("0".$adress->getZipCode());
+                            else
+                                return $this->render('store/basket/basket_choice_adress.html.twig', 
+                                    ['form' => $form->createView(), 'errors' => $errors]);
+                        }
+                        $former_adress = $this->getBasket()->getPlaceDel();
+                        $this->getBasket()->setPlaceDel($adress);
+                    }
+                    //Gère la mémoire de l'ancienne adresse si elle existe.
+                    if($former_adress !== null) {
+                        $former_adress->removeCommand($this->getBasket());
+                        if($former_adress->isEmptyCommand() && $former_adress->isEmptyBelong())
+                            $former_adress->setDelete(true);
+                        $this->getDoctrine()->getManager()->persist($former_adress);
+                    }
+                    //Gère les sauvegardes des adresses et du panier.
+                    $this->getDoctrine()->getManager()->persist($this->getBasket());
+                    if($request->request->get("user_adress") === "user_adress")
+                        $this->getDoctrine()->getManager()->persist($user_adress);
+                    else
+                        $this->getDoctrine()->getManager()->persist($adress);
+                    //var_dump(is_null($this->getBasket()->getPlaceDel()));
+                    //die();
+                    $this->getDoctrine()->getManager()->flush();
+
+                    return $this->redirectToRoute('store_basket_delivery');
+                }
+                return $this->render('store/basket/basket_choice_adress.html.twig', 
+                    ['form' => $form->createView(), 'basket' => $this->getBasket(), 'user_adress' => $user_adress]);
+            }
+        }
+        
+        return $this->redirectToRoute('store_products');
+    }
+
+    /**
+     * @Route("/store/basket/delivery", name="store_basket_delivery")
+     */
+    public function basketSelectDelivery(Request $request)
+    {
+        if($this->getBasket() !== null) {
+            if(!$this->getBasket()->isEmptyProduct() && $this->getBasket()->getPlaceDel() !== null) {
+                $former_type_del = $this->getBasket()->getTypeDelSelected();
+                $form = $this->createForm(SelectTypeDeliveryType::class, $this->getBasket(), 
+                    ['zip_code' => $this->getBasket()->getPlaceDel()->getZipCode()]);
+                $form->handleRequest($request);
+                if($form->isSubmitted() && $form->isValid()) {
+                    if(!is_null($former_type_del))
+                        $this->getDoctrine()->getManager()->persist($former_type_del);
+                    $this->getDoctrine()->getManager()->persist($this->getBasket()->getTypeDelSelected());
+                    $this->getDoctrine()->getManager()->persist($this->getBasket());
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('store_basket_payment');
+                }
+                return $this->render('store/basket/basket_select_type_delivery.html.twig', 
+                    ['form' => $form->createView(), 'basket' => $this->getBasket()]);
+            }
+        }
+        return $this->redirectToRoute('store_products');
+    }
+
+    /**
+     * @Route("/store/basket/payment", name="store_basket_payment")
+     */
+    public function basketSelectPayment(Request $request)
+    {
+
+        return $this->redirectToRoute('store_test');
     }
 
     /**
@@ -160,9 +310,9 @@ class StoreController extends AbstractController
     public function infoUser()
     {
         if($this->getUser() === null)
-            return $this->redirectToRoute('store');
+            return $this->redirectToRoute('app_login');
 
-        return $this->render('store/user/info_user.html.twig', ['user' => $this->getUser()]);
+        return $this->render('store/user/info_user.html.twig', ['user' => $this->getUser(), 'basket' => $this->getBasket()]);
     }
 
     /**
@@ -195,7 +345,8 @@ class StoreController extends AbstractController
                     return $this->redirectToRoute("app_login");
                 }
             }
-            return $this->render('store/user/create_user.html.twig', ['form' => $form->createView(), 'errors' => $errors]);
+            return $this->render('store/user/create_user.html.twig', 
+                ['form' => $form->createView(), 'errors' => $errors]);
         } 
         return $this->redirectToRoute('store');
     }
@@ -229,7 +380,7 @@ class StoreController extends AbstractController
                 }
             }
             return $this->render('store/user/change_password.html.twig', 
-                ['form' => $form->createView(), 'errors' => $errors]);
+                ['form' => $form->createView(), 'errors' => $errors, 'basket' => $this->getBasket()]);
         }
         return $this->redirectToRoute('store');
     }
@@ -309,7 +460,7 @@ class StoreController extends AbstractController
                 }
                 return $this->redirectToRoute('store_user');
             }
-            return $this->render('store/user/change_image.html.twig', ['form' => $form->createView()]);    
+            return $this->render('store/user/change_image.html.twig', ['form' => $form->createView(), 'basket' => $this->getBasket()]);    
         }
         return $this->redirectToRoute('app_login');
     }
@@ -345,9 +496,14 @@ class StoreController extends AbstractController
                 $this->getDoctrine()->getManager()->flush();
                 return $this->redirectToRoute('store_user');
             }
-            return $this->render('store/user/change_adress.html.twig', ['form' => $form->createView()]);
+            return $this->render('store/user/change_adress.html.twig', ['form' => $form->createView(), 'basket' => $this->getBasket()]);
         }
         return $this->redirectToRoute('app_login');
+    }
+
+    protected function getBasket()
+    {
+        return ($this->getUser() !== null)?($this->getUser()->getBasket()):null;
     }
 
 }

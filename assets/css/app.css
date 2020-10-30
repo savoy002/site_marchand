@@ -79,3 +79,13 @@ footer {
 	padding-left: 10px;
 	padding-right: 10px;
 }
+
+.show_product-row {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+.show_product-row-comment {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}

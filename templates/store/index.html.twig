@@ -15,6 +15,9 @@
     <ul>
         <li>Your controller at <code><a href="{{ '/home/savoye/symfony_projects/site_marchand/src/Controller/StoreController.php'|file_link(0) }}">src/Controller/StoreController.php</a></code></li>
         <li>Your template at <code><a href="{{ '/home/savoye/symfony_projects/site_marchand/templates/store/index.html.twig'|file_link(0) }}">templates/store/index.html.twig</a></code></li>
+        {% if message is defined %}
+        	<li> {{ message }} </li>
+        {% endif %}
     </ul>
 </div>
 {% endblock %}

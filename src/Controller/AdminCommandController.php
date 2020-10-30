@@ -21,7 +21,7 @@ class AdminCommandController extends AbstractController
 {
 
 	//Le nombre de Command par page.
-    //Attention si vous changez la valeur de cette constante pensez aussi à changer celle des tests.
+    //Attention si vous changez la valeur de cette constante pensez aussi à changer celle du test.
 	const NUMBER_BY_PAGE = 5;
 
     //
@@ -172,11 +172,12 @@ class AdminCommandController extends AbstractController
 	 */
 	public function command($id) 
 	{
-		$command = $this->getDoctrine()->getRepository(Command::class)->findBy(['id' => $id]);
-		if(empty($command))
+		$command = $this->getDoctrine()->getRepository(Command::class)->findOneBy(['id' => $id, 'delete' => false, 'isBasket' => false]);
+
+		if(is_null($command))
 			return $this->redirect('commands');
 
-		return $this->render('admin/commands/commands/command.html.twig', ['command' => $command[0]]);
+		return $this->render('admin/commands/commands/command.html.twig', ['command' => $command]);
 	}
 
     //

@@ -42,7 +42,8 @@
 			<div class="row form-div justify-content-around">
 				<div class="col-5 col-xs-12">
 					<label for="name">Nom</label>
-					<input class="form-control form-control-sm" name="name" type="text" value="{{ (request.name is defined)?(request.name) }}">
+					<input class="form-control form-control-sm" name="name" type="text" 
+						value="{{ (request.name is defined)?(request.name) }}">
 				</div>
 				<div class="col-5 col-xs-12">
 					<label for="type_research_name">Type de recherche</label>
@@ -52,14 +53,17 @@
 							Contient
 						</option>
 						<option value="equal"
-							{{ (request.type_research_name is defined)?((request.type_research_name == 'equal') ? ('selected') ) }}>Égale</option>
+							{{ (request.type_research_name is defined)?((request.type_research_name == 'equal') ? ('selected') ) }}>
+							Égale
+						</option>
 					</select>
 				</div>
 			</div>
 			<div class="row form-div justify-content-around">
 				<div class="col-5 col-xs-12">
 					<label for="code">Code</label>
-					<input class="form-control form-control-sm" name="code" type="text" value="{{ (request.code is defined)?(request.code) }}">
+					<input class="form-control form-control-sm" name="code" type="text" 
+						value="{{ (request.code is defined)?(request.code) }}">
 				</div>
 				<div class="col-5 col-xs-12">
 					<label for="type_research_code">Type de recherche</label>
@@ -136,7 +140,8 @@
 						<option value="activate" {{ (request.activate is defined)?((request.activate == 'activate') ? ('selected') ) }}>
 							Activé
 						</option>
-						<option value="desactivate" {{ (request.activate is defined)?((request.activate == 'desactivate') ? ('selected') ) }}>
+						<option value="desactivate" 
+							{{ (request.activate is defined)?((request.activate == 'desactivate') ? ('selected') ) }}>
 							Désactivé
 						</option>
 					</select>
