@@ -39,41 +39,46 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 
 		//Création des Commands.
 
-		$command1 = new Command();
-		$command1->setCreatedAt(new DateTime('2020-06-07'));
-		$command1->setIsBasket(false);
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme = new Command();
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setCreatedAt(new DateTime('2020-06-07'));
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setIsBasket(false);
 
-		$command2 = new Command();
-		$command2->setCreatedAt(new DateTime('2019-03-26'));
-		$command2->setIsBasket(false);
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme = new Command();
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setCreatedAt(new DateTime('2019-03-26'));
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setIsBasket(false);
 
-		$command3 = new Command();
-		$command3->setCreatedAt(new DateTime('2019-11-12'));
-		$command3->setIsBasket(false);
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500 = new Command();
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setCreatedAt(new DateTime('2019-11-12'));
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setIsBasket(false);
 
-		$command4 = new Command();
-		$command4->setCreatedAt(new DateTime('2020-05-18'));
-		$command4->setIsBasket(false);
+		$command_u_test1_c_paris_v_asperge = new Command();
+		$command_u_test1_c_paris_v_asperge->setCreatedAt(new DateTime('2020-05-18'));
+		$command_u_test1_c_paris_v_asperge->setIsBasket(false);
 
-		$command5 = new Command();
-		$command5->setCreatedAt(new DateTime('2019-12-16'));
-		$command5->setIsBasket(false);
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire = new Command();
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setCreatedAt(new DateTime('2019-12-16'));
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setIsBasket(false);
 
-		$command6 = new Command();
-		$command6->setCreatedAt(new DateTime('2020-01-23'));
-		$command6->setIsBasket(false);
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert = new Command();
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setCreatedAt(new DateTime('2020-01-23'));
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setIsBasket(false);
 
-		$command7 = new Command();
-		$command7->setCreatedAt(new DateTime('2020-03-06'));
-		$command7->setIsBasket(false);
+		$command_u_test3_v_asperge = new Command();
+		$command_u_test3_v_asperge->setCreatedAt(new DateTime('2020-03-06'));
+		$command_u_test3_v_asperge->setIsBasket(false);
 
-		$command8 = new Command();
+		$command_u_test3_v_poire_conserve_500 = new Command();
+
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve = new Command();
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setCreatedAt(new DateTime('2020-06-22'));
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setIsBasket(false);
 
 		//Récupération des VariantsProducts, des Users et des Adress.
 
 		$research_variant_product = $this->container->get('doctrine')->getRepository(VariantProduct::class);
 		$sachet_poireau = $research_variant_product->findBy(['code' => 'sachet_poireau'])[0];
 		$pomme = $research_variant_product->findBy(['code' => 'pommes'])[0];
+		$poire_conserve_250 = $research_variant_product->findBy(['code' => 'poire_conserve_250'])[0];
 		$poire_conserve_500 = $research_variant_product->findBy(['code' => 'poire_conserve_500'])[0];
 		$asperge = $research_variant_product->findBy(['code' => 'sachet_asperge'])[0];
 		$sachet_poire = $research_variant_product->findBy(['code' => 'sachet_poire'])[0];
@@ -86,10 +91,12 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$test1 = $research_user->findBy(['username' => 'test1'])[0];
 		$test2 = $research_user->findBy(['username' => 'test2'])[0];
 		$test3 = $research_user->findBy(['username' => 'test3'])[0];
+		$test4 = $research_user->findBy(['username' => 'test4'])[0];
 
 		$research_adress = $this->container->get('doctrine')->getRepository(Adress::class);
 		$adress2 = $research_adress->findOneBy(['city' => 'Strasbourg']);
 		$adress4 = $research_adress->findOneBy(['city' => 'Paris']);
+		$adress7 = $research_adress->findOneBy(['city' => 'Poitiers']);
 
 		//Création  et récupération d'adresse.
 
@@ -97,7 +104,6 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
         $adress1->setStreet('1 Allée du Vexin');
         $adress1->setZipCode('95180');
         $adress1->setCity('Menucourt');
-
 
 		$adress3 = new Adress();
 		$adress3->setStreet('19 Rue Géruzez');
@@ -152,52 +158,59 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 
 		//Création des Deleveries.
 
-		$delivery1 = new delivery();
+		$delivery1 = new Delivery();
 		$delivery1->setDate(new DateTime('01-07-2020'));
 
-		$delivery2 = new delivery();
+		$delivery2 = new Delivery();
 		$delivery2->setDate(new DateTime('23-06-2020'));
 
-		$delivery3 = new delivery();
+		$delivery3 = new Delivery();
 		$delivery3->setDate(new DateTime('12-04-2020'));
 
-		$delivery4 = new delivery();
+		$delivery4 = new Delivery();
 		$delivery4->setDate(new DateTime('30-05-2020'));
 
-		$delivery5 = new delivery();
+		$delivery5 = new Delivery();
 		//$delivery5->setDate(new DateTime('12-05-2020'));
 
-		$delivery6 = new delivery();
+		$delivery6 = new Delivery();
 		$delivery6->setDate(new DateTime('16-07-2020'));
+
+		$delivery7 = new Delivery();
+		$delivery7->setDate(new DateTime('2020-06-28'));
 
 		//Création des liens entre les différents objets.
 
-		$command1->setDelivery($delivery1);
-		$command2->setDelivery($delivery2);
-		$command3->setDelivery($delivery3);
-		$command4->setDelivery($delivery4);
-		$command5->setDelivery($delivery5);
-		$command6->setDelivery($delivery6);
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setDelivery($delivery1);
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setDelivery($delivery2);
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setDelivery($delivery3);
+		$command_u_test1_c_paris_v_asperge->setDelivery($delivery4);
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setDelivery($delivery5);
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setDelivery($delivery6);
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setDelivery($delivery7);
 
-		$command1->setPlaceDel($adress1);
-		$command2->setPlaceDel($adress2);
-		$command3->setPlaceDel($adress3);
-		$command4->setPlaceDel($adress4);
-		$command5->setPlaceDel($adress5);
-		$command6->setPlaceDel($adress6);
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setPlaceDel($adress1);
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setPlaceDel($adress2);
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setPlaceDel($adress3);
+		$command_u_test1_c_paris_v_asperge->setPlaceDel($adress4);
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setPlaceDel($adress5);
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setPlaceDel($adress6);
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setPlaceDel($adress7);
 
-		$command1->setTypeDeliverySelected($typedelivery1);
-		$command2->setTypeDeliverySelected($typedelivery3);
-		$command3->setTypeDeliverySelected($typedelivery2);
-		$command4->setTypeDeliverySelected($typedelivery2);
-		$command5->setTypeDeliverySelected($typedelivery2);
-		$command6->setTypeDeliverySelected($typedelivery2);
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setTypeDelSelected($typedelivery1);
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setTypeDelSelected($typedelivery3);
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setTypeDelSelected($typedelivery2);
+		$command_u_test1_c_paris_v_asperge->setTypeDelSelected($typedelivery2);
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setTypeDelSelected($typedelivery2);
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setTypeDelSelected($typedelivery2);
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setTypeDelSelected($typedelivery1);
 
 		$companydelivery1->addType($typedelivery1);
 		$companydelivery1->addType($typedelivery2);
 		$companydelivery2->addType($typedelivery3);
 
 		$typedelivery1->addDelivery($delivery1);
+		$typedelivery1->addDelivery($delivery7);
 		$typedelivery2->addDelivery($delivery3);
 		$typedelivery2->addDelivery($delivery4);
 		$typedelivery2->addDelivery($delivery5);
@@ -209,108 +222,123 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$pieceCommand1 = new PieceCommand();
 		$pieceCommand1->setNbProducts(2);
 		$pieceCommand1->setProduct($sachet_poireau);
-		$pieceCommand1->setCommand($command1);
+		$pieceCommand1->setCommand($command_u_truc_c_menucourt_v_sachet_poireau_pomme);
 
 		$pieceCommand2 = new PieceCommand();
 		$pieceCommand2->setNbProducts(7);
 		$pieceCommand2->setProduct($poireau_conserve);
-		$pieceCommand2->setCommand($command2);
+		$pieceCommand2->setCommand($command_u_truc_c_strasbourg_v_poireau_conserve_pomme);
 
 		$pieceCommand3 = new PieceCommand();
 		$pieceCommand3->setNbProducts(6);
 		$pieceCommand3->setProduct($poire_tranchee);
-		$pieceCommand3->setCommand($command3);
+		$pieceCommand3->setCommand($command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500);
 
 		$pieceCommand4 = new PieceCommand();
 		$pieceCommand4->setNbProducts(3);
 		$pieceCommand4->setProduct($asperge);
-		$pieceCommand4->setCommand($command4);
+		$pieceCommand4->setCommand($command_u_test1_c_paris_v_asperge);
 
 		$pieceCommand5 = new PieceCommand();
 		$pieceCommand5->setNbProducts(4);
 		$pieceCommand5->setProduct($sachet_poire);
-		$pieceCommand5->setCommand($command5);
+		$pieceCommand5->setCommand($command_u_test1_c_charleville_mezieres_v_sachet_poire);
 
 		$pieceCommand6 = new PieceCommand();
 		$pieceCommand6->setNbProducts(6);
 		$pieceCommand6->setProduct($soupe_legume_vert);
-		$pieceCommand6->setCommand($command6);
+		$pieceCommand6->setCommand($command_u_test2_c_strasbourg_v_soupe_legume_vert);
 
 		$pieceCommand7 = new PieceCommand();
 		$pieceCommand7->setNbProducts(4);
 		$pieceCommand7->setProduct($asperge);
-		$pieceCommand7->setCommand($command7);
+		$pieceCommand7->setCommand($command_u_test3_v_asperge);
 
 		$pieceCommand8 = new PieceCommand();
 		$pieceCommand8->setNbProducts(3);
 		$pieceCommand8->setProduct($poire_conserve_500);
-		$pieceCommand8->setCommand($command8);
+		$pieceCommand8->setCommand($command_u_test3_v_poire_conserve_500);
 
 		$pieceCommand9 = new PieceCommand();
 		$pieceCommand9->setNbProducts(2);
 		$pieceCommand9->setProduct($pomme);
-		$pieceCommand9->setCommand($command1);
+		$pieceCommand9->setCommand($command_u_truc_c_menucourt_v_sachet_poireau_pomme);
 
 		$pieceCommand10 = new PieceCommand();
 		$pieceCommand10->setNbProducts(10);
 		$pieceCommand10->setProduct($pomme);
-		$pieceCommand10->setCommand($command2);
+		$pieceCommand10->setCommand($command_u_truc_c_strasbourg_v_poireau_conserve_pomme);
 
 		$pieceCommand11 = new PieceCommand();
 		$pieceCommand11->setNbProducts(6);
 		$pieceCommand11->setProduct($poireau_conserve);
-		$pieceCommand11->setCommand($command1);
+		$pieceCommand11->setCommand($command_u_truc_c_menucourt_v_sachet_poireau_pomme);
 
 		$pieceCommand12 = new PieceCommand();
 		$pieceCommand12->setNbProducts(3);
 		$pieceCommand12->setProduct($poire_conserve_500);
-		$pieceCommand12->setCommand($command3);
+		$pieceCommand12->setCommand($command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500);
+
+		$pieceCommand13 = new PieceCommand();
+		$pieceCommand13->setNbProducts(4);
+		$pieceCommand13->setProduct($asperge);
+		$pieceCommand13->setCommand($command_u_test4_c_poitiers_v_asperge_poireau_conserve);
+
+		$pieceCommand14 = new PieceCommand();
+		$pieceCommand14->setNbProducts(2);
+		$pieceCommand14->setProduct($poireau_conserve);
+		$pieceCommand14->setCommand($command_u_test4_c_poitiers_v_asperge_poireau_conserve);
 
 		//Création des liens entre les Commandes et les Users.
 
-		$truc->addCommand($command1);
-		$truc->addCommand($command2);
-		$truc->addCommand($command3);
-		$test1->addCommand($command4);
-		$test1->addCommand($command5);
-		$test2->addCommand($command6);
-		$test3->addCommand($command7);
-		$test3->addCommand($command8);
+		$truc->addCommand($command_u_truc_c_menucourt_v_sachet_poireau_pomme);
+		$truc->addCommand($command_u_truc_c_strasbourg_v_poireau_conserve_pomme);
+		$truc->addCommand($command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500);
+		$test1->addCommand($command_u_test1_c_paris_v_asperge);
+		$test1->addCommand($command_u_test1_c_charleville_mezieres_v_sachet_poire);
+		$test2->addCommand($command_u_test2_c_strasbourg_v_soupe_legume_vert);
+		$test3->addCommand($command_u_test3_v_asperge);
+		$test3->addCommand($command_u_test3_v_poire_conserve_500);
+		$test4->addCommand($command_u_test4_c_poitiers_v_asperge_poireau_conserve);
 
 		//Création des dates de réception.
 
-		$command1->setDateReceive(new DateTime('16-07-2020'));
-		$command2->setDateReceive(new DateTime('30-06-2020'));
-		$command3->setDateReceive(new DateTime('26-04-2020'));
-		$command4->setDateReceive(new DateTime('08-06-2020'));
-		//$command5->setDateReceive(new DateTime('20-05-2020'));
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setDateReceive(new DateTime('16-07-2020'));
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setDateReceive(new DateTime('30-06-2020'));
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setDateReceive(new DateTime('26-04-2020'));
+		$command_u_test1_c_paris_v_asperge->setDateReceive(new DateTime('08-06-2020'));
+		//$command_u_test1_c_charleville_mezieres_v_sachet_poire->setDateReceive(new DateTime('20-05-2020'));
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setDateReceive(new DateTime('2020-06-28'));
 
 		//Calcule des prix des Commands.
 
-		$command1->setCompleted(true);
-		$command2->setCompleted(true);
-		$command3->setCompleted(true);
-		$command4->setCompleted(true);
-		$command5->setCompleted(true);
-		$command6->setCompleted(true);
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setCompleted(true);
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setCompleted(true);
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setCompleted(true);
+		$command_u_test1_c_paris_v_asperge->setCompleted(true);
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setCompleted(true);
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setCompleted(true);
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setCompleted(true);
 
-		$command1->calculPriceTotal();
-		$command2->calculPriceTotal();
-		$command3->calculPriceTotal();
-		$command4->calculPriceTotal();
-		$command5->calculPriceTotal();
-		$command6->calculPriceTotal();
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->calculPriceTotal();
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->calculPriceTotal();
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->calculPriceTotal();
+		$command_u_test1_c_paris_v_asperge->calculPriceTotal();
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire->calculPriceTotal();
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert->calculPriceTotal();
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->calculPriceTotal();
 
 		//Sauvegarde des entités et des modifications effectuées.
 
-		$manager->persist($command1);
-		$manager->persist($command2);
-		$manager->persist($command3);
-		$manager->persist($command4);
-		$manager->persist($command5);
-		$manager->persist($command6);
-		$manager->persist($command7);
-		$manager->persist($command8);
+		$manager->persist($command_u_truc_c_menucourt_v_sachet_poireau_pomme);
+		$manager->persist($command_u_truc_c_strasbourg_v_poireau_conserve_pomme);
+		$manager->persist($command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500);
+		$manager->persist($command_u_test1_c_paris_v_asperge);
+		$manager->persist($command_u_test1_c_charleville_mezieres_v_sachet_poire);
+		$manager->persist($command_u_test2_c_strasbourg_v_soupe_legume_vert);
+		$manager->persist($command_u_test3_v_asperge);
+		$manager->persist($command_u_test3_v_poire_conserve_500);
+		$manager->persist($command_u_test4_c_poitiers_v_asperge_poireau_conserve);
 
 		$manager->persist($adress1);
 		$manager->persist($adress2);
@@ -318,6 +346,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$manager->persist($adress4);
 		$manager->persist($adress5);
 		$manager->persist($adress6);
+		$manager->persist($adress7);
 
 		$manager->persist($companydelivery1);
 		$manager->persist($companydelivery2);
@@ -332,6 +361,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$manager->persist($delivery4);
 		$manager->persist($delivery5);
 		$manager->persist($delivery6);
+		$manager->persist($delivery7);
 
 		$manager->persist($pieceCommand1);
 		$manager->persist($pieceCommand2);
@@ -345,6 +375,8 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$manager->persist($pieceCommand10);
 		$manager->persist($pieceCommand11);
 		$manager->persist($pieceCommand12);
+		$manager->persist($pieceCommand13);
+		$manager->persist($pieceCommand14);
 
 		$manager->persist($sachet_poireau);
 		$manager->persist($pomme);
@@ -367,5 +399,3 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 	}
 
 }
-
-

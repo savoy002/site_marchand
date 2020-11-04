@@ -33,15 +33,23 @@ class CommandRepositoryTest extends KernelTestCase {
      */
     public function testAdminResearchCommandAndNumberCommands()
     {
+        $commandsFindBy = $this->entityManager->getRepository(Command::class)->findBy(['delete' => false]);
         $criteria = array("number_by_page" => self::NUMBER_BY_PAGE);
         $commands = $this->entityManager->getRepository(Command::class)->adminResearchCommands($criteria);
         $numberCommands = $this->entityManager->getRepository(Command::class)->adminResearchNumberCommands($criteria)[0][1];
-        $this->assertEquals(8, $numberCommands);
-        $this->assertEquals(self::NUMBER_BY_PAGE, sizeof($commands));
+        $this->assertEquals(sizeof($commandsFindBy), $numberCommands, 
+            "La méthode adminResearchNumberCommands ne retourne pas le nombre de Commands recherché.");
+        if(sizeof($commands) >= self::NUMBER_BY_PAGE)
+            $this->assertEquals(self::NUMBER_BY_PAGE, sizeof($commands), 
+                "Le nombre de Commands retourné par adminResearchCommands n'est pas égale au nombre de Commands par page.");
+        else
+            $this->assertEquals(sizeof($commandsFindBy), sizeof($commands), 
+                "Le nombre de Commands retourné par adminResearchCommands n'est pas égale au nombre de Commands recherché");
     }
 
     /**
      * Vérification du nombre de commandes renvoyé correspond à la page demandée sans recherche.
+     * Les tests ne fonctionnent pas si le nombre de Commands dans la base de données est inférieur à 5.
      */
     public function testAdminResearchCommandWithPage()
     {

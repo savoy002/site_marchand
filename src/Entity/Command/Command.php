@@ -293,17 +293,27 @@ class Command
 
     public function setTypeDelSelected(?TypeDelivery $typeDelSelected): self
     {
-        if($this->typeDelSelected != null && $this->typeDelSelected != $typeDelSelected){
+        if($this->typeDelSelected != null && $this->typeDelSelected != $typeDelSelected)
             $this->typeDelSelected->removeCommand($this);
-        }
         $this->typeDelSelected = $typeDelSelected;
         if($typeDelSelected !== null) {
-            if(!$typeDelSelected->hasCommands($this)) {
+            if(!$typeDelSelected->hasCommands($this))
                 $typeDelSelected->addCommand($this);
-            }
         }
 
         return $this;
+    }
+
+
+
+    public function containProduct(VariantProduct $product): bool
+    {
+        $contain = false;
+        foreach($this->getProducts() as $pieceCommand) {
+            if($pieceCommand->getProduct() === $product)
+                $contain = true;
+        }
+        return $contain;
     }
 
 }

@@ -100,10 +100,16 @@ class UserFixtures extends Fixture
         $adress4->setZipCode('75007');
         $adress4->setCity('Paris');
 
+        $adress7 = new Adress();
+        $adress7->setStreet('3 Rue Riffault');
+        $adress7->setZipCode('86000');
+        $adress7->setCity('Poitiers');
+
         //Création des liens entre les Adress et les Users.
 
         $adress2->addBelong($userTest);
         $adress4->addBelong($test1);
+        $adress7->addBelong($test4);
 
         //Sauvegarde des données.
     	
@@ -113,6 +119,7 @@ class UserFixtures extends Fixture
 
         $manager->persist($adress2);
         $manager->persist($adress4);
+        $manager->persist($adress7);
 
         $manager->persist($test1);
         $manager->persist($test2);

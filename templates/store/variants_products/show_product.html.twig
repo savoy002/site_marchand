@@ -2,6 +2,11 @@
 
 {% block title %} {{ product.name }} {% endblock %}
 
+{% block javascripts %}
+	{{ parent() }}
+    {{ encore_entry_script_tags('star_mark_manage') }}
+{% endblock %}
+
 {% block body %}
 
 	<div class="row justify-content-center div-title">
@@ -13,21 +18,21 @@
 			<p>Prix unitaire : {{ product.price|slice(0, product.price|length - 2)~','~product.price|slice(product.price|length - 2, product.price|length) }} &#8364 </p>
 			<p> {{( (product.stock > 0)?(product.stock ~ ' produits restant.'):('Rupture de stock.') )}} </p>
 			<div>
-				{% if form is defined %}
-					{{ form_start(form) }}
+				{% if form_command is not null %}
+					{{ form_start(form_command) }}
 						<div class="row justify-content-around form-div">
 							<div class="col">
-								{{ form_label(form.nbProducts) }}
-								{{ form_errors(form.nbProducts) }}
-								{{ form_widget(form.nbProducts) }}
+								{{ form_label(form_command.nbProducts) }}
+								{{ form_errors(form_command.nbProducts) }}
+								{{ form_widget(form_command.nbProducts) }}
 							</div>
 						</div>
 						<div class="row justify-content-around form-div">
 							<div class="col">
-								{{ form_row(form.submit) }}
+								{{ form_row(form_command.submit) }}
 							</div>
 						</div>
-					{{ form_end(form) }}
+					{{ form_end(form_command) }}
 				{% endif %}
 			</div>
 		</div>
@@ -42,24 +47,24 @@
 
 	<div class="row show_product-row">
 		<div class="col offset-1">
-			<h4>Description.</h4>
+			<h3>Description.</h3>
 			<p>{{ product.description }}</p>
 		</div>
 	</div>
 
-	<div class="row show_product-row">
+	<div class="row justify-content-center show_product-row">
 		<div class="col offset-1">
 			<h3>Commentaires.</h3>
 			{% if product.comments is not empty %}
 				{% for comment in product.comments %}
-					<div class="row show_product-row-comment">
+					<div class="row justify-content-center show_product-row-comment">
 						<div class="col-12">
-							<h4>Note : 
-							{% for i in 1..5 %}
+							<p>{{ comment.user.username }}
+								{% for i in 1..5 %}
 								<span class="{{ (i > comment.mark)?
 												("star_not_checked"):
 												("star_checked") }}">&#x2605;</span>
-							{% endfor %}</h4>
+								{% endfor %}</p>
 						</div>
 						<div class="col-12">
 							<p>{{ comment.text }}</p>
@@ -70,6 +75,36 @@
 				<p>Ce produit n'a pas encore de commentaire.</p>
 			{% endif %}
 		</div>
+	</div>
+
+	<div class="row justify-content-center show_product-row">
+		{% if form_comment is not null %}
+			<div class="col-10 offset-1">
+				<h3>Ajouter un commentaire.</h3>
+				{{ form_start(form_comment) }}
+				<div class="row justify-content-start form-div">
+					<div class="col-8">
+						{{ form_label(form_comment.text) }}
+						{{ form_errors(form_comment.text) }}
+						{{ form_widget(form_comment.text) }}
+					</div>
+				</div>
+				<div class="row justify-content-start form-div">
+					<div class="col-8">
+						{{ form_row(form_comment.mark) }}
+						{% for i in 1..5 %}
+							<span class="star_not_checked" name="star" num="{{ i }}">&#x2605;</span>
+						{% endfor %}
+					</div>
+				</div>
+				<div class="row justify-content-start form-div">
+					<div class="col-8">
+						{{form_row(form_comment.submit)}}
+					</div>
+				</div>
+				{{ form_end(form_comment) }}
+			</div>
+		{% endif %}
 	</div>
 
 {% endblock %}

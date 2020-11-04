@@ -4,8 +4,7 @@
 window.onload = function() {
 
 	const stars = document.getElementsByName('star');
-	const mark = document.getElementsByName('mark')[0];
-	const cancel = document.getElementsByName('cancel')[0];
+	const mark = document.getElementsByName('comment[mark]')[0];
 
 	//console.log(stars);
 	//console.log(mark);
@@ -23,12 +22,5 @@ window.onload = function() {
 			//console.log(mark);
 		}
 	});
-
-	cancel.onclick = function() {
-		for(let i = 0; i < 5; i++)
-			stars[i].setAttribute("class", "star_not_checked");
-		mark.setAttribute("value", "");
-		//console.log(mark);
-	}
 
 }

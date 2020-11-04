@@ -5,7 +5,7 @@
 
 {% block javascripts %}
 	{{ parent() }}
-    {{ encore_entry_script_tags('star_mark_manage') }}
+    {{ encore_entry_script_tags('star_mark_manage_research') }}
 {% endblock %}
 
 {% block body %}
@@ -79,7 +79,7 @@
 								{% for i in 1..5 %}
 									<span class="{{ (i > request.mark)?
 													("star_not_checked"):
-													("star_checked") }}" name="star" num="1">&#x2605;</span>
+													("star_checked") }}" name="star" num="{{ i }}">&#x2605;</span>
 								{% endfor %}
 							{% else %}
 								<span class="star_not_checked" name="star" num="1">&#x2605;</span>
@@ -88,7 +88,8 @@
 								<span class="star_not_checked" name="star" num="4">&#x2605;</span>
 								<span class="star_not_checked" name="star" num="5">&#x2605;</span>
 							{% endif %}
-							<p name="cancel">Annuler</p>
+							{# <p name="cancel">Annuler</p> #}
+							<button name="cancel" class="btn btn-danger" {# onclick="cancel();" #}>Annuler</button>
 						</div>
 					</div>
 				</div>

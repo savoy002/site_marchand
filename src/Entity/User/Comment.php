@@ -58,7 +58,7 @@ class Comment
     public function __construct() 
     {
         $this->delete = false;
-        $this->createAt = new DateTime();
+        $this->createdAt = new DateTime();
     }
 
     public function getId(): ?int

@@ -13,6 +13,7 @@ use DateTime;
 
 use App\Entity\Command\Adress;
 use App\Entity\Command\Command;
+use App\Entity\Product\VariantProduct;
 use App\Entity\User\Comment;
 
 
@@ -340,6 +341,8 @@ class User implements UserInterface
         return $this;
     }
 
+
+
     public function getBasket(): ?Command
     {
         $basket = null;
@@ -348,6 +351,28 @@ class User implements UserInterface
                 $basket = $command;
         }
         return $basket;
+    }
+
+    public function didBuyProduct(VariantProduct $product): bool
+    {
+        $contain = false;
+        foreach ($this->getCommands() as $command) {
+            if(!is_null($command->getDateReceive())) {
+                if($command->containProduct($product))
+                    $contain = true;
+            }
+        }
+        return $contain;
+    }
+
+    public function isAlreadyComment(VariantProduct $product): bool
+    {
+        $contain = false;
+        foreach($this->getComments() as $comment) {
+            if($comment->getProduct() === $product)
+                $contain = true;
+        }
+        return $contain;
     }
 
 }

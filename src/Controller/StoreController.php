@@ -12,6 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 use App\Entity\User\User;
+use App\Entity\User\Comment;
 use App\Entity\Command\Adress;
 use App\Entity\Command\Command;
 use App\Entity\Command\PieceCommand;
@@ -23,6 +24,7 @@ use App\Entity\Product\VariantProduct;
 use App\Form\Type\User\UserType;
 use App\Form\Type\User\ChangePasswordType;
 use App\Form\Type\User\UploadImageType;
+use App\Form\Type\User\CommentType;
 use App\Form\Type\Command\AddProductCommandType;
 use App\Form\Type\Command\ChangeAdressType;
 use App\Form\Type\Command\SelectTypeDeliveryType;
@@ -156,9 +158,9 @@ class StoreController extends AbstractController
         if($var_product->getStock() > 0) {
             //Création du formulaire.
             $piece_command = new PieceCommand();
-            $form = $this->createForm(AddProductCommandType::class, $piece_command, ['stock' => $var_product->getStock()]);
-            $form->handleRequest($request);
-            if($form->isSubmitted() && $form->isValid()) {
+            $form_command = $this->createForm(AddProductCommandType::class, $piece_command, ['stock' => $var_product->getStock()]);
+            $form_command->handleRequest($request);
+            if($form_command->isSubmitted() && $form_command->isValid()) {
                 //Vérifie si l'utilisateur est connecté.
                 if(is_null($this->getUser()))
                     return $this->redirectToRoute('app_login');
@@ -196,8 +198,25 @@ class StoreController extends AbstractController
                 return $this->redirectToRoute('store_basket_article');
             }
         }
+        if(!is_null($this->getUser())) {
+            if($this->getUser()->didBuyProduct($var_product) && !$this->getUser()->isAlreadyComment($var_product)) {
+                $comment = new Comment();
+                $form_comment = $this->createForm(CommentType::class, $comment);
+                $form_comment->handleRequest($request);
+                if($form_comment->isSubmitted() && $form_comment->isValid()) {
+                    $this->getUser()->addComment($comment);
+                    $var_product->addComment($comment);
+                    $this->getDoctrine()->getManager()->persist($comment);
+                    $this->getDoctrine()->getManager()->persist($this->getUser());
+                    $this->getDoctrine()->getManager()->flush();
+                    $form_comment = null;
+                }
+            }
+        }
         return $this->render('store/variants_products/show_product.html.twig', 
-            ['product' => $var_product, 'form' => $form->createView(), 'basket' => $this->getBasket()]);
+            ['product' => $var_product, 'form_command' => (isset($form_command))?($form_command->createView()):(null), 
+             'form_comment' => (isset($form_comment) && !is_null($form_comment))?($form_comment->createView()):(null), 
+             'basket' => $this->getBasket()]);
     }
 
     /**
