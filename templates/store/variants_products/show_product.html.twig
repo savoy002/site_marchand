@@ -57,19 +57,7 @@
 			<h3>Commentaires.</h3>
 			{% if product.comments is not empty %}
 				{% for comment in product.comments %}
-					<div class="row justify-content-center show_product-row-comment">
-						<div class="col-12">
-							<p>{{ comment.user.username }}
-								{% for i in 1..5 %}
-								<span class="{{ (i > comment.mark)?
-												("star_not_checked"):
-												("star_checked") }}">&#x2605;</span>
-								{% endfor %}</p>
-						</div>
-						<div class="col-12">
-							<p>{{ comment.text }}</p>
-						</div>
-					</div>
+					{% include 'structure/store/case_comment.html.twig' with { 'comment' : comment } %}
 				{% endfor %}
 			{% else %}
 				<p>Ce produit n'a pas encore de commentaire.</p>

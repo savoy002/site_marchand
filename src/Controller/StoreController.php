@@ -328,8 +328,8 @@ class StoreController extends AbstractController
      */
     public function infoUser()
     {
-        if($this->getUser() === null)
-            return $this->redirectToRoute('app_login');
+        if($this->getUser()->getRoles()[0] != "ROLE_USER")
+            return $this->redirectToRoute('store');
 
         return $this->render('store/user/info_user.html.twig', ['user' => $this->getUser(), 'basket' => $this->getBasket()]);
     }
@@ -375,7 +375,7 @@ class StoreController extends AbstractController
      */
     public function changePassword(Request $request) 
     {
-        if($this->getUser() !== null) {
+        if($this->getUser()->getRoles()[0] === "ROLE_USER") {
             $user = $this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getId());
             $form = $this->createForm(ChangePasswordType::class/*, $user*/);
             $form->handleRequest($request);
@@ -409,14 +409,14 @@ class StoreController extends AbstractController
      */
     public function deleteUser() 
     {
-        if($this->getUser() !== null) {
+        if($this->getUser()->getRoles()[0] === "ROLE_USER") {
             $user = $this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getId());
             $user->setDelete(true);
             $this->getDoctrine()->getManager()->persist($user);
             $this->getDoctrine()->getManager()->flush();
             return $this->redirectToRoute('app_logout');
         }
-        return $this->redirectToRoute('store_user');
+        return $this->redirectToRoute('store');
     }
 
     /**
@@ -445,7 +445,7 @@ class StoreController extends AbstractController
      */
     public function changeImageUser(Request $request) 
     {
-        if($this->getUser() !== null) {
+        if($this->getUser()->getRoles()[0] === "ROLE_USER") {
             $form = $this->createForm(UploadImageType::class);
             $form->handleRequest($request);
             if($form->isSubmitted() && $form->isValid()) {
@@ -481,14 +481,14 @@ class StoreController extends AbstractController
             }
             return $this->render('store/user/change_image.html.twig', ['form' => $form->createView(), 'basket' => $this->getBasket()]);    
         }
-        return $this->redirectToRoute('app_login');
+        return $this->redirectToRoute('store');
     }
 
     /**
      * @Route("store/user/change_adress", name="store_user_change_adress")
      */
     public function changeAdressUser(Request $request) {
-        if($this->getUser() !== null) {
+        if($this->getUser()->getRoles()[0] === "ROLE_USER") {
             $adress = new Adress();
             $form = $this->createForm(ChangeAdressType::class, $adress);
             $errors = array();
@@ -517,7 +517,19 @@ class StoreController extends AbstractController
             }
             return $this->render('store/user/change_adress.html.twig', ['form' => $form->createView(), 'basket' => $this->getBasket()]);
         }
-        return $this->redirectToRoute('app_login');
+        return $this->redirectToRoute('store');
+    }
+
+    /**
+     * @Route("store/user/comments", name="store_user_comments")
+     */
+    public function showCommentsUser() {
+        if($this->getUser()->getRoles()[0] === "ROLE_USER") {
+            $comments = $this->getDoctrine()->getRepository(Comment::class)->findBy(['delete' => false, 'user' => $this->getUser()]);
+
+            return $this->render('store/user/comments.html.twig', ['comments' => $comments]);
+        }
+        return $this->redirectToRoute("store");
     }
 
     protected function getBasket()

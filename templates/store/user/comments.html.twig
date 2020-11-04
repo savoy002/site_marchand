@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %} Commentaires {% endblock %}
+
+
+{% block body %}
+	<div class="row">
+		<div class="offset-2 col">
+			<h1>Vos commentaires.</h1>
+		</div>
+	</div>
+	
+	<div class="row">
+		{% for comment in comments %}
+			<div class="col offset-2">
+				{% include 'structure/store/case_comment.html.twig' with { 'comment' : comment } %}
+				<div class="row">
+					<div class="col">
+						{{ comment.product.name }}
+						<a href="{{ path("store_product", {code:comment.product.code})}}">
+							<button class="btn btn-primary">Voir</button>
+						</a>
+					</div>
+				</div>
+			</div>
+		{% endfor %}
+	</div>
+
+{% endblock %}
