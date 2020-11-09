@@ -12,19 +12,22 @@
 	</div>
 	
 	<div class="row">
-		{% for comment in comments %}
-			<div class="col offset-2">
-				{% include 'structure/store/case_comment.html.twig' with { 'comment' : comment } %}
-				<div class="row">
+		<div class="col-8 offset-2">
+			{% for comment in comments %}
+				<div class="row store_user_commands-row-comment">
 					<div class="col">
-						{{ comment.product.name }}
-						<a href="{{ path("store_product", {code:comment.product.code})}}">
-							<button class="btn btn-primary">Voir</button>
-						</a>
+						<div class="row">
+							<div class="col">
+								<h4>
+									{{ comment.product.name }}
+									<a class="btn btn-primary" href="{{ path("store_product", {code:comment.product.code})}}">Voir</a>
+								</h4>
+							</div>
+						</div>
+						{% include 'structure/store/case_comment.html.twig' with { 'comment' : comment, 'show_user' : false } %}
 					</div>
 				</div>
-			</div>
-		{% endfor %}
+			{% endfor %}
+		</div>
 	</div>
-
 {% endblock %}

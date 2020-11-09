@@ -3,25 +3,42 @@
 {% block title %} {{user.username}} {% endblock %}
 
 {% block body %}
-	<div class="offset-1">
-		<h1>{{ user.username }}</h1>
-		<div class="col">
+		
+	<div class="row">
+		<div class="offset-2 col">
+			<h1>{{ user.username }}</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col offset-2">
 			<p>Adresse email : {{ user.email }}</p>
 		</div>
-		<div class="col">
+		<div class="w-100"></div>
+		<div class="col offset-2">
 			{{ (user.live is not null)?
 			   ("Adresse : " ~ user.live.street ~ " " ~ user.live.zipCode ~ " " ~ user.live.city):
 			   ("Vous n'avez pas d'adresse attribuée à votre compte.") }}
 			<a href="{{ path('store_user_change_adress') }}" class="btn btn-info">Changer d'adresse</a>
 		</div>
-		<div class="col">
+		<div class="w-100"></div>
+		<div class="col offset-2">
 			<img src="{{ asset( (user.imgFileName is null)?
 								('img/sans_image.png'):('img/uploads/User/' ~ user.imgFileName) ) }}"
 				 width="60" height="60">
 			<a href="{{ path('store_user_change_image') }}" class="btn btn-info">Changer d'image de profile</a>
 		</div>
-		<div class="col">
-			<a href="{{ path('store_user_comments') }}"><button class="btn btn-primary">Commentaires</button></a>
+		<div class="w-100"></div>
+		<div class="col offset-2">
+			<div class="row justify-content-around">
+				<div class="col-3">
+					<a href="{{ path('store_user_commands') }}"><button class="btn btn-primary">Commandes</button></a>
+				</div>
+				<div class="col-3">
+					<a href="{{ path('store_user_comments') }}"><button class="btn btn-primary">Commentaires</button></a>
+				</div>
+			</div>
 		</div>
+		<div class="col-2"></div>
 	</div>
 {% endblock %}

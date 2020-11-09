@@ -1,0 +1,94 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %} Commande {% endblock %}
+
+{% block body %}
+	
+	<div class="row div-title">
+		<div class="col offset-2 ">
+			<h1>Commande numéro {{ command.id }}.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col offset-2">
+			<div class="row">
+				<div class="col">
+					<h4>
+						Créer le : {{ command.createdAt|format_datetime('full', 'none', locale='fr') }}.
+					</h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<h4>
+						{{ (command.delivery is null)?
+						   ('Pas encore envoyée'):
+						   ('Envoyée le : ' ~ command.delivery.date|format_datetime('full', 'none', locale='fr')) }}.
+					</h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<h4>
+						{{ (command.dateReceive is null)?
+						   ('Non reçu'):
+						   ('Reçu le : ' ~ command.dateReceive|format_datetime('full', 'none', locale='fr')) }}.
+					</h4>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<h4>Adresse de livraison.</h4>
+					<p>{{ command.placeDel.street }}</p>
+					<p>{{ command.placeDel.zipCode }} {{ command.placeDel.city }}</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<h4>Livraison choisie : </h4>
+					<p>
+						<img src="{{ asset('img/uploads/Command/CompanyDelivery/' ~ command.typeDelSelected.company.logoFileName) }}"
+							width="60" height="60" />
+						{{ command.typeDelSelected.name }}
+						{{ command.typeDelSelected.price|slice(0, command.typeDelSelected.price|length - 2)~','~command.typeDelSelected.price|slice(command.typeDelSelected.price|length - 2, command.typeDelSelected.price|length) }} &#8364
+					</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<h4>Les produits commandés.</h4>
+					<div class="row">
+						{% for piece_product in command.products %}
+							<div class="col-12">
+								<p>
+									{{ piece_product.nbProducts }}
+									{% if piece_product.product.delete %}
+										{{ piece_product.product.name }} (le produit n'est plus en vente)
+									{% else %}
+										{% if piece_product.product.activate %}
+											<a href="{{ path('store_product', {code:piece_product.product.code}) }}">
+												{{ piece_product.product.name }}
+											</a>
+										{% else %}
+											{{ piece_product.product.name }} (le produit est temporairement retiré des ventes)
+										{% endif %}
+									{% endif %}
+									{{ piece_product.product.price|slice(0, piece_product.product.price|length - 2)~','~piece_product.product.price|slice(piece_product.product.price|length - 2, piece_product.product.price|length) }} &#8364
+								</p>
+							</div>
+						{% endfor %}
+					</div>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col">
+					<h4>Le prix totale est de : {{ command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) }} &#8364</h4>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock %}
+

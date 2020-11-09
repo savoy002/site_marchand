@@ -521,13 +521,44 @@ class StoreController extends AbstractController
     }
 
     /**
+     * @Route("store/user/commands", name="store_user_commands")
+     */
+    public function showCommandsUser() {
+        if($this->getUser()->getRoles()[0] === "ROLE_USER") {
+            $commands = $this->getDoctrine()->getRepository(Command::class)
+                ->findBy(['user' => $this->getUser(), 'delete' => false, 'isBasket' => false]);
+
+            return $this->render('store/user/command/commands.html.twig', ['commands' => $commands, 'basket' => $this->getBasket()]);
+        }
+        return $this->redirectToRoute('store');
+    }
+
+    /**
+     * @Route("store/user/command/{id}", name="store_user_command")
+     */
+    public function showCommandUser($id) {
+        if($this->getUser()->getRoles()[0] === "ROLE_USER") {
+            $command = $this->getDoctrine()->getRepository(Command::class)->findOneBy(['user' => $this->getUser(), 'id' => $id]);
+
+            if(is_null($command)) 
+                return $this->redirectToRoute('store_user_commands');
+
+            if($command->getIsBasket() || !$command->getCompleted())
+                return $this->redirectToRoute('store_user_commands');
+
+            return $this->render('store/user/command/command.html.twig', ['command' => $command, 'basket' => $this->getBasket()]);
+        }
+        return $this->redirectToRoute('store');
+    }
+
+    /**
      * @Route("store/user/comments", name="store_user_comments")
      */
     public function showCommentsUser() {
         if($this->getUser()->getRoles()[0] === "ROLE_USER") {
             $comments = $this->getDoctrine()->getRepository(Comment::class)->findBy(['delete' => false, 'user' => $this->getUser()]);
 
-            return $this->render('store/user/comments.html.twig', ['comments' => $comments]);
+            return $this->render('store/user/comments.html.twig', ['comments' => $comments, 'basket' => $this->getBasket()]);
         }
         return $this->redirectToRoute("store");
     }

@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %} Commandes {% endblock %}
+
+
+{% block body %}
+	<div class="row div-title">
+		<div class="col offset-2">
+			<h1>Vos commandes.</h1>
+		</div>
+	</div>
+	
+	<div class="row under_title">
+		<div class="col offset-2">
+			{% for command in commands %}
+				<div class="row justify-content-around store_user_commands-row-command">
+					<div class="col-6">
+						<p>Commande du {{ command.createdAt|date("d/m/Y") }},
+							{{ (command.dateReceive is null)?('Non reçu'):('Reçu le ' ~ command.dateReceive|date("d/m/Y")) }}.</p>
+					</div>
+					<div class="col-4">
+						<a href="{{ path('store_user_command', {id: command.id}) }}" class="btn btn-primary">Voir</a>
+					</div>
+				</div>
+			{% endfor %}
+		</div>
+		<div class='col-2'></div>
+	</div>
+{% endblock %}

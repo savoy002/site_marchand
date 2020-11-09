@@ -136,14 +136,14 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		//Création des TypeDeliveries.
 
 		$typedelivery1 = new TypeDelivery();
-		$typedelivery1->setName('UPR simple');
+		$typedelivery1->setName('UPS simple');
 		$typedelivery1->setPrice(800);
 		$typedelivery1->setTimeMin(3);
 		$typedelivery1->setTimeMax(4);
 		$typedelivery1->setActivate(true);
 
 		$typedelivery2 = new TypeDelivery();
-		$typedelivery2->setName('UPR rapide');
+		$typedelivery2->setName('UPS rapide');
 		$typedelivery2->setPrice(1200);
 		$typedelivery2->setTimeMin(1);
 		$typedelivery2->setTimeMax(2);

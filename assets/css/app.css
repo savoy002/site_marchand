@@ -1,3 +1,6 @@
+
+/* Balise */
+
 header {
 	/*margin: 5px, 10px, 5px, 10px;*/
 	margin-top: 10px;
@@ -24,6 +27,22 @@ footer {
 	padding-left: 10px;
 }
 
+
+/* Étoiles */
+
+.star_checked {
+	color: #ebf100;
+	font-size: 150%;
+}
+
+.star_not_checked {
+	color: grey;
+	font-size: 150%;
+}
+
+
+/* Formulaire */
+
 .form-div-button {
 	margin-top: 10px;
 	margin-bottom: 10px;
@@ -44,15 +63,8 @@ footer {
 	margin-bottom: 10px;
 }
 
-.star_checked {
-	color: #ebf100;
-	font-size: 150%;
-}
 
-.star_not_checked {
-	color: grey;
-	font-size: 150%;
-}
+/* Titre */
 
 .div-title {
 	margin-top: 30px;
@@ -60,6 +72,24 @@ footer {
 }
 
 .under_title {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+
+/* Image */
+
+.row_image {
+	width: 280px;
+	height: 280px;
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+
+/* Case spécifique */
+
+.show_product-row {
 	margin-top: 20px;
 	margin-bottom: 20px;
 }
@@ -73,19 +103,19 @@ footer {
 	height: 300px;
 }
 
-.row_image {
-	width: 280px;
-	height: 280px;
-	padding-left: 10px;
-	padding-right: 10px;
-}
-
-.show_product-row {
+.show_product-row-comment {
 	margin-top: 20px;
 	margin-bottom: 20px;
 }
 
-.show_product-row-comment {
-	margin-top: 10px;
-	margin-bottom: 10px;
+.store_user_commands-row-comment {
+	margin-top: 30px;
+	margin-bottom: 30px;
 }
+
+.store_user_commands-row-command {
+	margin-top: 20px;
+	margin-bottom: 20px;
+}
+
+
