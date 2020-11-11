@@ -1,0 +1,24 @@
+{% extends 'base_email.html.twig' %}
+
+
+{% block title %} Vérification d'adresse mail {% endblock %}
+
+
+{% block body %}
+
+	<div class="row">
+		<div class="col">
+			<h3>Vérification d'adresse mail.</h3>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<h4>Bonjour {{ username }}.</h4>
+			<p>Pour valider votre adresse mail et activer votre compte veiller utiliser le lien suivant.</p>
+			<a class="btn btn-primary" href="{{ path(store_user_verify, {code:code}) }}">Lien</a>
+			<p>Si vous n'êtes pas l'utilisateur de ce compte merci de supprimer ce mail.</p>
+		</div>
+	</div>
+
+{% endblock %}

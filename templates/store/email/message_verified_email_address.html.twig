@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %} Vérification {% endblock %}
+
+
+{% block body %}
+
+	<div class="row">
+		<div class="col">
+			<h2>Vérification effectué.</h2>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<p>Votre compte <b>{{ username }}</b> et adresse mail <b>{{ email_address }}</b> ont été vérifié, vous pouvez maintenant effectuer des achats.</p>
+		</div>
+	</div>
+
+{% endblock %}
+

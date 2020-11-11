@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+
+{% block title %} Mail envoyé {% endblock %}
+
+
+{% block body %}
+
+	<div class="row">
+		<div class="col">
+			<h2>Mail envoyé.</h2>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="col">
+			<p>{{ username }}, le mail de vérification a été envoyé à l'adresse : {{ email_adress }}.</p>
+		</div>
+	</div>
+
+{% endblock %}
+

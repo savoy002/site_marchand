@@ -97,6 +97,11 @@ class User implements UserInterface
      */
     private $commands;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\User\Access", mappedBy="user", orphanRemoval=true)
+     */
+    private $accesses;
+
     public function __construct() {
         $this->createdAt = new DateTime();
         $this->valid = false;
@@ -105,6 +110,7 @@ class User implements UserInterface
         $this->superAdmin = false;
         $this->comments = new ArrayCollection();
         $this->commands = new ArrayCollection();
+        $this->accesses = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -373,6 +379,39 @@ class User implements UserInterface
                 $contain = true;
         }
         return $contain;
+    }
+
+    /**
+     * @return Collection|Access[]
+     */
+    public function getAccesses(): Collection
+    {
+        return $this->accesses;
+    }
+
+    public function addAccess(Access $access): self
+    {
+        if (!$this->accesses->contains($access)) {
+            $this->accesses[] = $access;
+            
+            if($access->getUser() != $this)
+                $access->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccess(Access $access): self
+    {
+        if ($this->accesses->contains($access)) {
+            $this->accesses->removeElement($access);
+            // set the owning side to null (unless already changed)
+            if ($access->getUser() === $this) {
+                $access->setUser(null);
+            }
+        }
+
+        return $this;
     }
 
 }

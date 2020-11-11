@@ -1,0 +1,42 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Changement d'adresse mail{% endblock %}
+
+{% block body %} 
+
+	{% if errors is not empty %}
+		<ul>
+			{% for error in errors %}
+				<li> {{ error }} </li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+
+	<h1>Changer l'adresse mail.</h1>
+
+	{{ form_start(form) }}
+
+		<div class="row justify-content-around form-div">
+			<div class="col-5">
+				{{ form_row(form.email) }}
+			</div>
+			<div class="col-5">
+				{{ form_row(form.password) }}
+			</div>
+		</div>
+
+		<div class="row justify-content-start form-div-button">
+			<div class="offset-sm-1">
+				{{ form_row(form.submit) }}
+			</div>
+			<div class="col-1">
+				<a href="{{ path("store_user") }}" class="btn btn-danger">Annuler</a>
+			</div>
+		</div>
+
+
+	{{ form_end(form) }}
+
+	
+
+{% endblock %}

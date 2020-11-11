@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20201008065047 extends AbstractMigration
+final class Version20201110091520 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -24,6 +24,7 @@ final class Version20201008065047 extends AbstractMigration
 
         $this->addSql('CREATE TABLE User (id INT AUTO_INCREMENT NOT NULL, adr_id_user INT DEFAULT NULL, username VARCHAR(180) NOT NULL, roles TEXT NOT NULL COMMENT \'(DC2Type:json_array)\', password VARCHAR(255) NOT NULL, email VARCHAR(255) NOT NULL, created_at_user DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, valid_user TINYINT(1) DEFAULT \'0\' NOT NULL, deleted_user TINYINT(1) DEFAULT \'0\' NOT NULL, admin_user TINYINT(1) DEFAULT \'0\' NOT NULL, super_admin TINYINT(1) DEFAULT \'0\' NOT NULL, img VARCHAR(255) DEFAULT NULL, UNIQUE INDEX UNIQ_2DA17977F85E0677 (username), UNIQUE INDEX UNIQ_2DA17977BBC2C8AC (img), INDEX IDX_2DA17977EB5D4312 (adr_id_user), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE Comment (id INT AUTO_INCREMENT NOT NULL, user_id_comment INT DEFAULT NULL, prod_id_comment INT DEFAULT NULL, mark_comment INT NOT NULL, text_comment LONGTEXT NOT NULL, created_at_comment DATETIME DEFAULT CURRENT_TIMESTAMP NOT NULL, deleted_comment TINYINT(1) DEFAULT \'0\' NOT NULL, INDEX IDX_5BC96BF0ED8E3DF0 (user_id_comment), INDEX IDX_5BC96BF09A7C4C37 (prod_id_comment), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE Access (id INT AUTO_INCREMENT NOT NULL, id_user_acc INT NOT NULL, code_acc VARCHAR(255) NOT NULL, created_at_acc DATETIME NOT NULL, used_acc TINYINT(1) NOT NULL, INDEX IDX_1C52E6297F2FD9D (id_user_acc), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE Command (id INT AUTO_INCREMENT NOT NULL, adr_id_com INT DEFAULT NULL, del_id_com INT DEFAULT NULL, user_id_com INT DEFAULT NULL, type_del_id_com INT DEFAULT NULL, create_at_com DATETIME NOT NULL, completed TINYINT(1) NOT NULL, date_receive DATETIME DEFAULT NULL, is_basket TINYINT(1) NOT NULL, price_total INT DEFAULT NULL, deleted_com TINYINT(1) DEFAULT \'0\' NOT NULL, INDEX IDX_4177D348AC18573C (adr_id_com), INDEX IDX_4177D348347BAB22 (del_id_com), INDEX IDX_4177D3489F403581 (user_id_com), INDEX IDX_4177D34829787D07 (type_del_id_com), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE TypeDelivery (id INT AUTO_INCREMENT NOT NULL, comp_del_id_del INT NOT NULL, name_type_del VARCHAR(255) NOT NULL, price_type_del INT NOT NULL, time_min_type_del INT NOT NULL, time_max_type_del INT NOT NULL, activate_type_del TINYINT(1) DEFAULT \'0\' NOT NULL, deleted_type_del TINYINT(1) DEFAULT \'0\' NOT NULL, INDEX IDX_8AAFDB36875C0859 (comp_del_id_del), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE PieceCommand (id INT AUTO_INCREMENT NOT NULL, com_id_piece_com INT DEFAULT NULL, prod_id_piece_com INT DEFAULT NULL, nb_prod INT NOT NULL, INDEX IDX_7A07E462D3121940 (com_id_piece_com), INDEX IDX_7A07E46274EB3D94 (prod_id_piece_com), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
@@ -38,6 +39,7 @@ final class Version20201008065047 extends AbstractMigration
         $this->addSql('ALTER TABLE User ADD CONSTRAINT FK_2DA17977EB5D4312 FOREIGN KEY (adr_id_user) REFERENCES Adress (id)');
         $this->addSql('ALTER TABLE Comment ADD CONSTRAINT FK_5BC96BF0ED8E3DF0 FOREIGN KEY (user_id_comment) REFERENCES User (id)');
         $this->addSql('ALTER TABLE Comment ADD CONSTRAINT FK_5BC96BF09A7C4C37 FOREIGN KEY (prod_id_comment) REFERENCES VariantProduct (id)');
+        $this->addSql('ALTER TABLE Access ADD CONSTRAINT FK_1C52E6297F2FD9D FOREIGN KEY (id_user_acc) REFERENCES User (id)');
         $this->addSql('ALTER TABLE Command ADD CONSTRAINT FK_4177D348AC18573C FOREIGN KEY (adr_id_com) REFERENCES Adress (id)');
         $this->addSql('ALTER TABLE Command ADD CONSTRAINT FK_4177D348347BAB22 FOREIGN KEY (del_id_com) REFERENCES Delivery (id)');
         $this->addSql('ALTER TABLE Command ADD CONSTRAINT FK_4177D3489F403581 FOREIGN KEY (user_id_com) REFERENCES User (id)');
@@ -59,6 +61,7 @@ final class Version20201008065047 extends AbstractMigration
         $this->abortIf($this->connection->getDatabasePlatform()->getName() !== 'mysql', 'Migration can only be executed safely on \'mysql\'.');
 
         $this->addSql('ALTER TABLE Comment DROP FOREIGN KEY FK_5BC96BF0ED8E3DF0');
+        $this->addSql('ALTER TABLE Access DROP FOREIGN KEY FK_1C52E6297F2FD9D');
         $this->addSql('ALTER TABLE Command DROP FOREIGN KEY FK_4177D3489F403581');
         $this->addSql('ALTER TABLE PieceCommand DROP FOREIGN KEY FK_7A07E462D3121940');
         $this->addSql('ALTER TABLE Command DROP FOREIGN KEY FK_4177D34829787D07');
@@ -76,6 +79,7 @@ final class Version20201008065047 extends AbstractMigration
         $this->addSql('ALTER TABLE CategoriesVariantsProducts DROP FOREIGN KEY FK_A33B8CCDBCD66E2D');
         $this->addSql('DROP TABLE User');
         $this->addSql('DROP TABLE Comment');
+        $this->addSql('DROP TABLE Access');
         $this->addSql('DROP TABLE Command');
         $this->addSql('DROP TABLE TypeDelivery');
         $this->addSql('DROP TABLE PieceCommand');

@@ -8,11 +8,12 @@ use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\HttpFoundation\File\Exception\FileException;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
+use Symfony\Component\Mailer\MailerInterface;
+use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-use App\Entity\User\User;
-use App\Entity\User\Comment;
 use App\Entity\Command\Adress;
 use App\Entity\Command\Command;
 use App\Entity\Command\PieceCommand;
@@ -20,15 +21,18 @@ use App\Entity\Command\TypeDelivery;
 use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
+use App\Entity\User\Access;
+use App\Entity\User\User;
+use App\Entity\User\Comment;
 
 use App\Form\Type\User\UserType;
 use App\Form\Type\User\ChangePasswordType;
 use App\Form\Type\User\UploadImageType;
 use App\Form\Type\User\CommentType;
+use App\Form\Type\User\ChangeMailType;
 use App\Form\Type\Command\AddProductCommandType;
 use App\Form\Type\Command\ChangeAdressType;
 use App\Form\Type\Command\SelectTypeDeliveryType;
-
 
 
 class StoreController extends AbstractController
@@ -164,6 +168,9 @@ class StoreController extends AbstractController
                 //Vérifie si l'utilisateur est connecté.
                 if(is_null($this->getUser()))
                     return $this->redirectToRoute('app_login');
+                //Vérifie que l'utilisateur a été vérifié.
+                if(!$this->getUser()->getValid())
+                    return $this->redirectToRoute('store_user');
                 //Vérifie si il y a déjà une commande en cours.
                 foreach($this->getUser()->getCommands() as $command) {
                     if($command->getIsBasket())
@@ -331,7 +338,7 @@ class StoreController extends AbstractController
         if($this->getUser()->getRoles()[0] != "ROLE_USER")
             return $this->redirectToRoute('store');
 
-        return $this->render('store/user/info_user.html.twig', ['user' => $this->getUser(), 'basket' => $this->getBasket()]);
+        return $this->render('store/user/info_user/info_user.html.twig', ['user' => $this->getUser(), 'basket' => $this->getBasket()]);
     }
 
     /**
@@ -398,10 +405,87 @@ class StoreController extends AbstractController
                     return $this->redirectToRoute("store_user");
                 }
             }
-            return $this->render('store/user/change_password.html.twig', 
+            return $this->render('store/user/info_user/change_password.html.twig', 
                 ['form' => $form->createView(), 'errors' => $errors, 'basket' => $this->getBasket()]);
         }
         return $this->redirectToRoute('store');
+    }
+
+    // ---- Méthode pas vérifiée. ----
+    /**
+     * @Route("/store/user/change_mail", name="store_change_mail")
+     */
+    public function changeMailAdress(Request $request)
+    {
+        if($this->getUser()->getRoles()[0] === "ROLE_USER"){
+            $form = $this->createForm(ChangeMailType::class);
+            $form->handleRequest($request);
+            $errors = array();
+            if($form->isSubmitted() && $form->isValid()) {
+                $valid = true;
+                if(!$this->passwordEncoder->isPasswordValid($this->getUser(), $form->get('password')->getData())) {
+                    $errors[] = "Le mot de passe est incorrecte.";
+                    $valid = false;
+                }
+                if($valid) {
+                    $this->getUser()->setEmail($form->get('email')->getData());
+                    $this->getDoctrine()->getManager()->persist($this->getUser());
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('store_user');
+                }
+            }
+            return $this->render('store/user/info_user/change_mail.html.twig', 
+                ['form' => $form->createView(), 'errors' => $errors, 'basket' => $this->getBasket()]);
+        }
+        return $this->redirectToRoute('store');
+    }
+
+    //--- Méthode à vérifier avec un serveur fonctionnel et configurer. ---
+    /**
+     * @Route("/store/email/verify_account", name="store_send_email_verify")
+     */
+    public function sendVerifyEmail(MailerInterface $mailer)
+    {
+        if(!$this->getUser()->getValid()) {
+            var_dump(uniqid());
+            die();
+            $access = new Access();
+            $access->setCode(uniqid());
+            $email = (new Email())->from('')->to($this->getUser()->getEmail())->subject("Vérification d'adresse mail.")
+                ->htmlTemplate('store/email/email_verify_email_address.html.twig')
+                ->context(['username' => $this->getUser()->getUsername(), 'code' => $access->getCode()]);
+            try {
+                $mailer->send($email);
+            } catch(TransportExceptionInterface $e) {
+                return $this->redirectToRoute('store_user');
+            }
+            $this->getUser()->addAccess($access);
+            $this->getDoctrine()->getManager()->persit($access);
+            $this->getDoctrine()->getManager()->persit($this->getUser());
+            $this->getDoctrine()->getManager()->flush();
+            return $this->render('store/email/send_mail.html.twig', 
+                ['email_adress' => $$this->getUser()->getEmail(), 'username' => $this->getUser()->getUsername()]);    
+        }
+        return $this->redirectToRoute('store_user');
+    }
+
+    /**
+     * @Route("store/user/verify/{code}", name="store_user_verify")
+     */
+    public function verifyUser($code)
+    {
+        $access = $this->getDoctrine()->getRepository(Access::class)
+            ->findOneBy(['code' => $code, 'user' => $this->getUser()->getId(), 'used' => false]);
+        if(!is_null($access)) {
+            $access->setUsed(true);
+            $this->getUser()->setValid(true);
+            $this->getDoctrine()->getManager()->persist($access);
+            $this->getDoctrine()->getManager()->persist($this->getUser());
+            $this->getDoctrine()->getManager()->flush();
+            $this->render('store/store/user/info_user/message_verified_email_address.html.twig', 
+                ['username' => $this->getUser()->getUsername(), 'email_address' => $this->getUser()->getEmail()]);
+        }
+        return $this->redirectToRoute('store_user');
     }
 
     /**
@@ -417,27 +501,6 @@ class StoreController extends AbstractController
             return $this->redirectToRoute('app_logout');
         }
         return $this->redirectToRoute('store');
-    }
-
-    /**
-     * @Route("store/user/verify", name="store_user_verify")
-     */
-    public function verifyUser()
-    {
-        //Envoyer un mail de vérification d'utilisateur.
-
-
-        return $this->redirectToRoute('store_user');
-    }
-
-
-    public function activateVerifyUser($id) 
-    {
-        $this->getDoctrine()->getRepository(User::class)->find($id);
-        $user->setValid(true);
-        $this->getDoctrine()->getManager()->persist($user);
-        $this->getDoctrine()->getManager()->flush();
-        return $this->redirectToRoute('store_test');
     }
 
     /**
@@ -479,7 +542,7 @@ class StoreController extends AbstractController
                 }
                 return $this->redirectToRoute('store_user');
             }
-            return $this->render('store/user/change_image.html.twig', ['form' => $form->createView(), 'basket' => $this->getBasket()]);    
+            return $this->render('store/user/info_user/change_image.html.twig', ['form' => $form->createView(), 'basket' => $this->getBasket()]);    
         }
         return $this->redirectToRoute('store');
     }
@@ -515,7 +578,8 @@ class StoreController extends AbstractController
                 $this->getDoctrine()->getManager()->flush();
                 return $this->redirectToRoute('store_user');
             }
-            return $this->render('store/user/change_adress.html.twig', ['form' => $form->createView(), 'basket' => $this->getBasket()]);
+            return $this->render('store/user/info_user/change_adress.html.twig', 
+                ['form' => $form->createView(), 'basket' => $this->getBasket()]);
         }
         return $this->redirectToRoute('store');
     }
@@ -567,5 +631,18 @@ class StoreController extends AbstractController
     {
         return ($this->getUser() !== null)?($this->getUser()->getBasket()):null;
     }
+
+    /*protected function activateVerifyUser($id) 
+    {
+        $success = false;
+        $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+        if(!is_null($user)) {
+            $user->setValid(true);
+            $this->getDoctrine()->getManager()->persist($user);
+            $this->getDoctrine()->getManager()->flush();
+            $success = true;
+        }
+        return $success;
+    }*/
 
 }
