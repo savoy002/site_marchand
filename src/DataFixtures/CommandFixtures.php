@@ -15,7 +15,7 @@ use App\DataFixtures\ProductFixtures;
 use App\DataFixtures\UserFixtures;
 
 use App\Entity\Command\Command;
-use App\Entity\Command\Adress;
+use App\Entity\Command\Address;
 use App\Entity\Command\Companydelivery;
 use App\Entity\Command\Delivery;
 use App\Entity\Command\PieceCommand;
@@ -73,7 +73,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setCreatedAt(new DateTime('2020-06-22'));
 		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setIsBasket(false);
 
-		//Récupération des VariantsProducts, des Users et des Adress.
+		//Récupération des VariantsProducts, des Users et des Address.
 
 		$research_variant_product = $this->container->get('doctrine')->getRepository(VariantProduct::class);
 		$sachet_poireau = $research_variant_product->findBy(['code' => 'sachet_poireau'])[0];
@@ -93,32 +93,32 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$test3 = $research_user->findBy(['username' => 'test3'])[0];
 		$test4 = $research_user->findBy(['username' => 'test4'])[0];
 
-		$research_adress = $this->container->get('doctrine')->getRepository(Adress::class);
-		$adress2 = $research_adress->findOneBy(['city' => 'Strasbourg']);
-		$adress4 = $research_adress->findOneBy(['city' => 'Paris']);
-		$adress7 = $research_adress->findOneBy(['city' => 'Poitiers']);
+		$research_address = $this->container->get('doctrine')->getRepository(Address::class);
+		$address2 = $research_address->findOneBy(['city' => 'Strasbourg']);
+		$address4 = $research_address->findOneBy(['city' => 'Paris']);
+		$address7 = $research_address->findOneBy(['city' => 'Poitiers']);
 
 		//Création  et récupération d'adresse.
 
-		$adress1 = new Adress();
-        $adress1->setStreet('1 Allée du Vexin');
-        $adress1->setZipCode('95180');
-        $adress1->setCity('Menucourt');
+		$address1 = new Address();
+        $address1->setStreet('1 Allée du Vexin');
+        $address1->setZipCode('95180');
+        $address1->setCity('Menucourt');
 
-		$adress3 = new Adress();
-		$adress3->setStreet('19 Rue Géruzez');
-		$adress3->setZipCode('51100');
-		$adress3->setCity('Reims');
+		$address3 = new Address();
+		$address3->setStreet('19 Rue Géruzez');
+		$address3->setZipCode('51100');
+		$address3->setCity('Reims');
 
-		$adress5 = new Adress();
-		$adress5->setStreet('12 Rue Dubois Crancé');
-		$adress5->setZipCode('08000');
-		$adress5->setCity('Charleville-Mézières');
+		$address5 = new Address();
+		$address5->setStreet('12 Rue Dubois Crancé');
+		$address5->setZipCode('08000');
+		$address5->setCity('Charleville-Mézières');
 
-		$adress6 = new Adress();
-		$adress6->setStreet('6 Rue Spielmann');
-		$adress6->setZipCode('67000');
-		$adress6->setCity('Strasbourg');
+		$address6 = new Address();
+		$address6->setStreet('6 Rue Spielmann');
+		$address6->setZipCode('67000');
+		$address6->setCity('Strasbourg');
 
 		//Création des CompaniesDeliveries.
 
@@ -189,13 +189,13 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setDelivery($delivery6);
 		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setDelivery($delivery7);
 
-		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setPlaceDel($adress1);
-		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setPlaceDel($adress2);
-		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setPlaceDel($adress3);
-		$command_u_test1_c_paris_v_asperge->setPlaceDel($adress4);
-		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setPlaceDel($adress5);
-		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setPlaceDel($adress6);
-		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setPlaceDel($adress7);
+		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setPlaceDel($address1);
+		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setPlaceDel($address2);
+		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setPlaceDel($address3);
+		$command_u_test1_c_paris_v_asperge->setPlaceDel($address4);
+		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setPlaceDel($address5);
+		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setPlaceDel($address6);
+		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setPlaceDel($address7);
 
 		$command_u_truc_c_menucourt_v_sachet_poireau_pomme->setTypeDelSelected($typedelivery1);
 		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setTypeDelSelected($typedelivery3);
@@ -340,13 +340,13 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$manager->persist($command_u_test3_v_poire_conserve_500);
 		$manager->persist($command_u_test4_c_poitiers_v_asperge_poireau_conserve);
 
-		$manager->persist($adress1);
-		$manager->persist($adress2);
-		$manager->persist($adress3);
-		$manager->persist($adress4);
-		$manager->persist($adress5);
-		$manager->persist($adress6);
-		$manager->persist($adress7);
+		$manager->persist($address1);
+		$manager->persist($address2);
+		$manager->persist($address3);
+		$manager->persist($address4);
+		$manager->persist($address5);
+		$manager->persist($address6);
+		$manager->persist($address7);
 
 		$manager->persist($companydelivery1);
 		$manager->persist($companydelivery2);

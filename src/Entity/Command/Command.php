@@ -8,7 +8,7 @@ use Doctrine\ORM\Mapping as ORM;
 
 use DateTime;
 
-use App\Entity\Command\Adress;
+use App\Entity\Command\Address;
 use App\Entity\Command\Delivery;
 use App\Entity\Command\PieceCommand;
 use App\Entity\Product\VariantProduct;
@@ -58,7 +58,7 @@ class Command
     private $delete;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Command\Adress", inversedBy="commands")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Command\Address", inversedBy="commands")
      * @ORM\JoinColumn(name="adr_id_com", referencedColumnName="id")
      */
     private $placeDel;
@@ -191,19 +191,19 @@ class Command
         return $this;
     }
 
-    public function getPlaceDel(): ?Adress
+    public function getPlaceDel(): ?Address
     {
         return $this->placeDel;
     }
 
-    public function setPlaceDel(?Adress $adress): self
+    public function setPlaceDel(?Address $address): self
     {
         if($this->placeDel != null)
             $this->placeDel->removeCommand($this);
-        $this->placeDel = $adress;
-        if($adress !== null) {
-            if(!$adress->hasCommand($this))
-                $adress->addCommand($this);
+        $this->placeDel = $address;
+        if($address !== null) {
+            if(!$address->hasCommand($this))
+                $address->addCommand($this);
         }
 
         return $this;

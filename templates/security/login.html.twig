@@ -11,7 +11,8 @@
 
     {% if app.user %}
         <div class="mb-3">
-            Vous êtes authentifier en tant que {{ app.user.username }}, <a href="{{ path('app_logout') }}">Déconnexion</a>
+            Vous êtes authentifier en tant que {{ app.user.username }}, 
+            <a class="btn btn-primary" href="{{ path('app_logout') }}">Déconnexion</a>
         </div>
     {% endif %}
 
@@ -36,11 +37,16 @@
         </div>
     #}
 
-    <button class="btn btn-lg btn-primary" type="submit">
-        Valider
-    </button>
+    <div class="row form-div-button">
+        <div class="offset-2 col-4">
+            <button class="btn btn-primary" type="submit">Valider</button>
+        </div>
+        <div class="col-4">
+            <a class="btn btn-primary" href="{{ path("store_create_user") }}">Créer un compte</a>
+        </div>
+    </div>
 </form>
 
-<div><a href="{{ path("store_create_user") }}"><button class="btn btn-primary">Créer un compte</button></a></div>
+<div></div>
 
 {% endblock %}

@@ -57,7 +57,7 @@ class CommandRepository extends ServiceEntityRepository
                 $request->innerJoin('c.delivery', 'd');
         }
 
-        if(array_key_exists('adress', $criteria))
+        if(array_key_exists('address', $criteria))
             $request->innerJoin('c.placeDel', 'a');
 
         if(array_key_exists('createdBefore', $criteria))
@@ -89,17 +89,20 @@ class CommandRepository extends ServiceEntityRepository
                 $request->andWhere('c.priceTotal >= :price')->setParameter('price', $criteria['price']['value']);
         }
 
-        if(array_key_exists('adress', $criteria)) {
-            if($criteria['adress']['type'] == 'completed')
+        if(array_key_exists('address', $criteria)) {
+            if($criteria['address']['type'] == 'completed')
                 $request
-                    ->andWhere("LOWER(a.street) LIKE LOWER(:adress) OR LOWER(a.zipCode) LIKE LOWER(:adress) OR LOWER(a.city) LIKE LOWER(:adress)")
-                    ->setParameter('adress', "%".$criteria['adress']['value']."%");
-            if($criteria['adress']['type'] == 'street')
-                $request->andWhere("LOWER(a.street) LIKE LOWER(:adress)")->setParameter('adress', "%".$criteria['adress']['value']."%");
-            if($criteria['adress']['type'] == 'zip_code')
-                $request->andWhere("LOWER(a.zipCode) LIKE LOWER(:adress)")->setParameter('adress', "%".$criteria['adress']['value']."%");
-            if($criteria['adress']['type'] == 'city')
-                $request->andWhere("LOWER(a.city) LIKE LOWER(:adress)")->setParameter('adress', "%".$criteria['adress']['value']."%");
+                    ->andWhere("LOWER(a.street) LIKE LOWER(:address) OR LOWER(a.zipCode) LIKE LOWER(:address) OR 
+                        LOWER(a.city) LIKE LOWER(:address)")
+                    ->setParameter('address', "%".$criteria['address']['value']."%");
+            if($criteria['address']['type'] == 'street')
+                $request->andWhere("LOWER(a.street) LIKE LOWER(:address)")
+                        ->setParameter('address', "%".$criteria['address']['value']."%");
+            if($criteria['address']['type'] == 'zip_code')
+                $request->andWhere("LOWER(a.zipCode) LIKE LOWER(:address)")
+                        ->setParameter('address', "%".$criteria['address']['value']."%");
+            if($criteria['address']['type'] == 'city')
+                $request->andWhere("LOWER(a.city) LIKE LOWER(:address)")->setParameter('address', "%".$criteria['address']['value']."%");
         }
 
         if(array_key_exists('status', $criteria)) {
@@ -123,7 +126,7 @@ class CommandRepository extends ServiceEntityRepository
     }
 
 
-    public function storeFindDeliveryTypeForAdress(array $option) {
+    public function storeFindDeliveryTypeForAddress(array $option) {
         $request = $this->createQueryBuilder('t')
             ->innerJoin('t.company', 'c')
             ->andWhere('t.delete = FALSE AND t.activate = TRUE');

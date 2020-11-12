@@ -111,11 +111,11 @@ class AdminCommandController extends AbstractController
                 $former_request['type_research_price'] = $request->request->get('type_research_price');
             }
 
-            if($request->request->get('adress_value') != "" && $request->request->get('adress_value') !== null) {
-                $criteria['adress'] = array('value' => $request->request->get('adress_value'), 
-                    'type' => $request->request->get('type_research_adress'));
-                $former_request['adress_value'] = $request->requset>get('adress_value');
-                $former_request['type_research_adress'] = $request->requset>get('type_research_adress');
+            if($request->request->get('address_value') != "" && $request->request->get('address_value') !== null) {
+                $criteria['address'] = array('value' => $request->request->get('address_value'), 
+                    'type' => $request->request->get('type_research_address'));
+                $former_request['address_value'] = $request->requset>get('address_value');
+                $former_request['type_research_address'] = $request->requset>get('type_research_address');
             }
 
             if($request->request->get('status') != "" && $request->request->get('status') !== null) {

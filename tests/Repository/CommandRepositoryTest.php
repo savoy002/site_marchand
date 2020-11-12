@@ -216,10 +216,10 @@ class CommandRepositoryTest extends KernelTestCase {
     ///**
     // * Vérification des recherches de commandes en fonction de l'adresse de la livraison.
     // */
-    /*public function testAdminResearchCommandWithAdress()
+    /*public function testAdminResearchCommandWithAddress()
     {
         $criteria = array("number_by_page" => self::NUMBER_BY_PAGE);
-        $criteria['adress'] = ['type' => 'completed', 'value' => '1'];
+        $criteria['address'] = ['type' => 'completed', 'value' => '1'];
         $commands = $this->entityManager->getRepository(Command::class)->adminResearchCommands($criteria);
         $this->assertFalse(empty($commands), 'Aucune commande retournée.');
         foreach ($commands as $command) {
@@ -227,21 +227,21 @@ class CommandRepositoryTest extends KernelTestCase {
                 $command->getPlaceDel()->getStreet().' '.$command->getPlaceDel()->getZipCode().' '.$command->getPlaceDel()->getCity(), 
                 "L'adresse ne contient pas le mot de demandé.");
         }
-        $criteria['adress'] = ['type' => 'street', 'value' => 'cran'];
+        $criteria['address'] = ['type' => 'street', 'value' => 'cran'];
         $commands = $this->entityManager->getRepository(Command::class)->adminResearchCommands($criteria);
         $this->assertFalse(empty($commands), 'Aucune commande retournée.');
         foreach ($commands as $command) {
             $this->assertNotFalse(strpos($command->getPlaceDel()->getStreet(), 'cran'), 
                 "L'adresse ne contient pas le mot de demandé dans la rue.");
         }
-        $criteria['adress'] = ['type' => 'zip_code', 'value' => '67'];
+        $criteria['address'] = ['type' => 'zip_code', 'value' => '67'];
         $commands = $this->entityManager->getRepository(Command::class)->adminResearchCommands($criteria);
         $this->assertFalse(empty($commands), 'Aucune commande retournée.');
         foreach ($commands as $command) {
             $this->assertNotFalse(strpos($command->getPlaceDel()->getZipCode(), '67'), 
                 "L'adresse ne contient pas le mot de demandé dans code postale.");
         }
-        $criteria['adress'] = ['type' => 'city', 'value' => 'STRAS'];
+        $criteria['address'] = ['type' => 'city', 'value' => 'STRAS'];
         $commands = $this->entityManager->getRepository(Command::class)->adminResearchCommands($criteria);
         $this->assertFalse(empty($commands), 'Aucune commande retournée.');
         foreach ($commands as $command) {

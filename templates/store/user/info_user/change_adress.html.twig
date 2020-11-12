@@ -1,13 +1,13 @@
 {% extends 'base.html.twig' %}
 
 
-{% block title %} Adresse d'utilisateur. {% endblock %}
+{% block title %} Changement d'adresse {% endblock %}
 
 
 {% block body %}
 	<div class="row">
 		<div class="offset-2 col">
-			<h1>Changer l'image de l'utilisateur.</h1>
+			<h1>Changer nouvelle adresse.</h1>
 		</div>
 	</div>
 
@@ -48,6 +48,9 @@
 			<div class="offset-2 col-4 div-button">
 				{{ form_label(form.submit) }}
 				{{ form_widget(form.submit) }}
+			</div>
+			<div class="col-1">
+				<a href="{{ path("store_user") }}" class="btn btn-danger">Annuler</a>
 			</div>
 		</div>
 

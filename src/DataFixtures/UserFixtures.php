@@ -8,7 +8,7 @@ use Doctrine\Common\Persistence\ObjectManager;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 use App\Entity\User\User;
-use App\Entity\Command\Adress;
+use App\Entity\Command\Address;
 
 class UserFixtures extends Fixture
 {
@@ -54,7 +54,7 @@ class UserFixtures extends Fixture
         $test1->setRoles(['ROLE_USER']);
         $test1->setAdmin(true);
         $test1->setPassword($this->passwordEncoder->encodePassword($test1, 'test1'));
-        $test1->setValid(false);
+        $test1->setValid(true);
 
         $test2 = new User();
         $test2->setUsername('test2');
@@ -62,7 +62,7 @@ class UserFixtures extends Fixture
         $test2->setRoles(['ROLE_USER']);
         $test2->setAdmin(true);
         $test2->setPassword($this->passwordEncoder->encodePassword($test2, 'test2'));
-        $test2->setValid(false);
+        $test2->setValid(true);
 
         $test3 = new User();
         $test3->setUsername('test3');
@@ -70,7 +70,7 @@ class UserFixtures extends Fixture
         $test3->setRoles(['ROLE_USER']);
         $test3->setAdmin(true);
         $test3->setPassword($this->passwordEncoder->encodePassword($test3, 'test3'));
-        $test3->setValid(false);
+        $test3->setValid(true);
 
         $test4 = new User();
         $test4->setUsername('test4');
@@ -78,7 +78,7 @@ class UserFixtures extends Fixture
         $test4->setRoles(['ROLE_USER']);
         $test4->setAdmin(true);
         $test4->setPassword($this->passwordEncoder->encodePassword($test4, 'test4'));
-        $test4->setValid(false);
+        $test4->setValid(true);
 
         $test5 = new User();
         $test5->setUsername('test5');
@@ -88,28 +88,28 @@ class UserFixtures extends Fixture
         $test5->setPassword($this->passwordEncoder->encodePassword($test5, 'test5'));
         $test5->setValid(false);
 
-        //Création des Adress.
+        //Création des Address.
 
-        $adress2 = new Adress();
-        $adress2->setStreet('5 Rue des Boeufs');
-        $adress2->setZipCode('67000');
-        $adress2->setCity('Strasbourg');
+        $address2 = new Address();
+        $address2->setStreet('5 Rue des Boeufs');
+        $address2->setZipCode('67000');
+        $address2->setCity('Strasbourg');
 
-        $adress4 = new Adress();
-        $adress4->setStreet('7 Rue du Champ de Mars');
-        $adress4->setZipCode('75007');
-        $adress4->setCity('Paris');
+        $address4 = new Address();
+        $address4->setStreet('7 Rue du Champ de Mars');
+        $address4->setZipCode('75007');
+        $address4->setCity('Paris');
 
-        $adress7 = new Adress();
-        $adress7->setStreet('3 Rue Riffault');
-        $adress7->setZipCode('86000');
-        $adress7->setCity('Poitiers');
+        $address7 = new Address();
+        $address7->setStreet('3 Rue Riffault');
+        $address7->setZipCode('86000');
+        $address7->setCity('Poitiers');
 
-        //Création des liens entre les Adress et les Users.
+        //Création des liens entre les Address et les Users.
 
-        $adress2->addBelong($userTest);
-        $adress4->addBelong($test1);
-        $adress7->addBelong($test4);
+        $address2->addBelong($userTest);
+        $address4->addBelong($test1);
+        $address7->addBelong($test4);
 
         //Sauvegarde des données.
     	
@@ -117,9 +117,9 @@ class UserFixtures extends Fixture
     	$manager->persist($userTest);
     	$manager->persist($admin);
 
-        $manager->persist($adress2);
-        $manager->persist($adress4);
-        $manager->persist($adress7);
+        $manager->persist($address2);
+        $manager->persist($address4);
+        $manager->persist($address7);
 
         $manager->persist($test1);
         $manager->persist($test2);

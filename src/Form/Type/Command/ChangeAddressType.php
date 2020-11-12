@@ -10,9 +10,9 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
-use App\Entity\Command\Adress;
+use App\Entity\Command\Address;
 
-class ChangeAdressType extends AbstractType 
+class ChangeAddressType extends AbstractType 
 {
 
 	public function buildForm(FormBuilderInterface $builder, array $option) 
@@ -27,7 +27,7 @@ class ChangeAdressType extends AbstractType
 
 	public function configureOptions(OptionsResolver $resolver)
 	{
-		$resolver->setDefaults(['data_class' => Adress::class]);
+		$resolver->setDefaults(['data_class' => Address::class]);
 	}
 
 }

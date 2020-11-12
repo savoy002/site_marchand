@@ -63,11 +63,11 @@
 		</div>
 
 		<div class="offset-1 col-4">
-			<form class="form" action="{{ path("store_basket_adress") }}" method="post">
+			<form class="form" action="{{ path("store_basket_address") }}" method="post">
 				<h3>Adresse du compte.</h3>
-				<p>{{ user_adress.street }}</p>
-				<p>{{ user_adress.zipCode }} {{ user_adress.city }}</p>
-				<input hidden="" value="user_adress" name="user_adress">
+				<p>{{ user_address.street }}</p>
+				<p>{{ user_address.zipCode }} {{ user_address.city }}</p>
+				<input hidden="" value="user_address" name="user_address">
 				<button class="btn btn-primary">Prendre l'adresse du compte</button>
 			</form>
 		</div>

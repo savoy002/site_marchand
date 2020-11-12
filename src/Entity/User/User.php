@@ -11,7 +11,7 @@ use Symfony\Component\Validator\Constraints as Assert;
 
 use DateTime;
 
-use App\Entity\Command\Adress;
+use App\Entity\Command\Address;
 use App\Entity\Command\Command;
 use App\Entity\Product\VariantProduct;
 use App\Entity\User\Comment;
@@ -82,7 +82,7 @@ class User implements UserInterface
     private $imgFileName;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Command\Adress", inversedBy="belongs")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Command\Address", inversedBy="belongs")
      * @ORM\JoinColumn(name="adr_id_user", referencedColumnName="id")
      */
     private $live;
@@ -267,18 +267,18 @@ class User implements UserInterface
         return $this;
     }
 
-    public function getLive(): ?Adress
+    public function getLive(): ?Address
     {
         return $this->live;
     }
 
-    public function setLive(?Adress $adress): self 
+    public function setLive(?Address $address): self 
     {
         if($this->live !== null)
             $this->live->removeBelong($this);
-        $this->live = $adress;
-        if($adress != null)
-            $adress->addBelong($this);
+        $this->live = $address;
+        if($address != null)
+            $address->addBelong($this);
 
         return $this;
     }

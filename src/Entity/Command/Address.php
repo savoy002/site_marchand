@@ -10,10 +10,10 @@ use App\Entity\User\User;
 use App\Entity\Command\Command;
 
 /**
- * @ORM\Entity(repositoryClass="App\Repository\Command\AdressRepository")
- * @ORM\Table(name="Adress")
+ * @ORM\Entity(repositoryClass="App\Repository\Command\AddressRepository")
+ * @ORM\Table(name="Address")
  */
-class Adress
+class Address
 {
     /**
      * @ORM\Id()
