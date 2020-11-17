@@ -63,9 +63,9 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setCreatedAt(new DateTime('2020-01-23'));
 		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setIsBasket(false);
 
-		$command_u_test3_v_asperge = new Command();
-		$command_u_test3_v_asperge->setCreatedAt(new DateTime('2020-03-06'));
-		$command_u_test3_v_asperge->setIsBasket(false);
+		$command_u_test2_v_asperge = new Command();
+		$command_u_test2_v_asperge->setCreatedAt(new DateTime('2020-03-06'));
+		//$command_u_test2_v_asperge->setIsBasket(false);
 
 		$command_u_test3_v_poire_conserve_500 = new Command();
 
@@ -170,7 +170,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$delivery4 = new Delivery();
 		$delivery4->setDate(new DateTime('30-05-2020'));
 
-		$delivery5 = new Delivery();
+		//$delivery5 = new Delivery();
 		//$delivery5->setDate(new DateTime('12-05-2020'));
 
 		$delivery6 = new Delivery();
@@ -185,7 +185,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$command_u_truc_c_strasbourg_v_poireau_conserve_pomme->setDelivery($delivery2);
 		$command_u_truc_c_reims_v_poire_tranchee_poire_conserve_500->setDelivery($delivery3);
 		$command_u_test1_c_paris_v_asperge->setDelivery($delivery4);
-		$command_u_test1_c_charleville_mezieres_v_sachet_poire->setDelivery($delivery5);
+		//$command_u_test1_c_charleville_mezieres_v_sachet_poire->setDelivery($delivery5);
 		$command_u_test2_c_strasbourg_v_soupe_legume_vert->setDelivery($delivery6);
 		$command_u_test4_c_poitiers_v_asperge_poireau_conserve->setDelivery($delivery7);
 
@@ -213,7 +213,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$typedelivery1->addDelivery($delivery7);
 		$typedelivery2->addDelivery($delivery3);
 		$typedelivery2->addDelivery($delivery4);
-		$typedelivery2->addDelivery($delivery5);
+		//$typedelivery2->addDelivery($delivery5);
 		$typedelivery2->addDelivery($delivery6);
 		$typedelivery3->addDelivery($delivery2);
 
@@ -252,7 +252,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$pieceCommand7 = new PieceCommand();
 		$pieceCommand7->setNbProducts(4);
 		$pieceCommand7->setProduct($asperge);
-		$pieceCommand7->setCommand($command_u_test3_v_asperge);
+		$pieceCommand7->setCommand($command_u_test2_v_asperge);
 
 		$pieceCommand8 = new PieceCommand();
 		$pieceCommand8->setNbProducts(3);
@@ -297,7 +297,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$test1->addCommand($command_u_test1_c_paris_v_asperge);
 		$test1->addCommand($command_u_test1_c_charleville_mezieres_v_sachet_poire);
 		$test2->addCommand($command_u_test2_c_strasbourg_v_soupe_legume_vert);
-		$test3->addCommand($command_u_test3_v_asperge);
+		$test2->addCommand($command_u_test2_v_asperge);
 		$test3->addCommand($command_u_test3_v_poire_conserve_500);
 		$test4->addCommand($command_u_test4_c_poitiers_v_asperge_poireau_conserve);
 
@@ -336,7 +336,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$manager->persist($command_u_test1_c_paris_v_asperge);
 		$manager->persist($command_u_test1_c_charleville_mezieres_v_sachet_poire);
 		$manager->persist($command_u_test2_c_strasbourg_v_soupe_legume_vert);
-		$manager->persist($command_u_test3_v_asperge);
+		$manager->persist($command_u_test2_v_asperge);
 		$manager->persist($command_u_test3_v_poire_conserve_500);
 		$manager->persist($command_u_test4_c_poitiers_v_asperge_poireau_conserve);
 
@@ -359,7 +359,7 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$manager->persist($delivery2);
 		$manager->persist($delivery3);
 		$manager->persist($delivery4);
-		$manager->persist($delivery5);
+		//$manager->persist($delivery5);
 		$manager->persist($delivery6);
 		$manager->persist($delivery7);
 

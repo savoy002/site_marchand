@@ -23,7 +23,7 @@
 			</div>
 		</div>
 
-		<div class="row justify-content-center ">
+		<div class="row justify-content-center">
 
 			<form class="form" action="{{ path("commands") }}" method="post">
 
@@ -100,7 +100,7 @@
 				</div>
 				<div class="row form-div justify-content-around">
 					<div class="col-5 col-xs-12">
-						<lable for="type_research_address">Addresse</lable>
+						<label for="type_research_address">Addresse</label>
 						<select class="custom-select custom-select-sm" name="type_research_address">
 							<option value="completed"
 							{{ (request.type_research_address is defined)?((request.type_research_address == 'completed') ? ('selected') ) }}>Complète</option>
@@ -130,7 +130,7 @@
 							<option value="notCompleted" {{ (request.status is defined)?((request.status == 'notCompleted')? ('selected') ) }} >
 								Pas complète
 							</option>
-							<option value="notReceive" {{ (request.status is defined)?((request.status == 'notReceive')? ('selected') ) }} >
+							<option value="notReceived" {{ (request.status is defined)?((request.status == 'notReceived')? ('selected') ) }} >
 								Pas reçu
 							</option>
 							<option value="notSend" {{ (request.status is defined)?((request.status == 'notSend')? ('selected') ) }} >
@@ -176,7 +176,7 @@
 				</div>
 				<div class="row justify-content-around form-div-button">
 					<div class="col-5"><button class="btn btn-primary" type="submit">Rechercher</button></div>
-					<div class="col-5"><a href="{{ path("users") }}" class="btn btn-danger">Annuler</a></div>
+					<div class="col-5"><a href="{{ path("commands") }}" class="btn btn-danger">Annuler</a></div>
 				</div>
 
 				{# Fin du formulaire. #}
@@ -242,25 +242,28 @@
 
 				{# Début des paginations. #}
 
-				<div class="row justify-content-around ">
-					<div class="col-5">
-						<nav aria-label="Page navigation example">
-						  <ul class="pagination">
-						    <li class="page-item">
-						      <input type="submit" value="Début" name="page" class="btn {{ (page != 1)?("btn-primary"):("btn-secondary") }}">
-						    </li>
-						    {% for num in range(1, number_pages) %}
-						    	<input type="submit" value="{{ num }}" name="page" class="btn {{ (num != page )?("btn-primary"):("btn-secondary") }}">
-						    {% endfor %}
-						    <li class="page-item">
-						      <input type="submit" value="Fin" name="page" class="btn {{ (page != number_pages)?("btn-primary"):("btn-secondary") }}">
-						    </li>
-						  </ul>
-						</nav>
+				{% if number_pages > 0 %}
+					<div class="row justify-content-around ">
+						<div class="offset-1 col-6">
+							<nav aria-label="Page navigation example">
+							  <ul class="pagination">
+							    <li class="page-item">
+							      <input type="submit" value="Début" name="page" 
+							      		class="btn {{ (page != 1)?("btn-primary"):("btn-secondary") }}">
+							    </li>
+							    {% for num in range(1, number_pages) %}
+							    	<input type="submit" value="{{ num }}" name="page" 
+											class="btn {{ (num != page )?("btn-primary"):("btn-secondary") }}">
+							    {% endfor %}
+							    <li class="page-item">
+							      <input type="submit" value="Fin" name="page" 
+							      		class="btn {{ (page != number_pages)?("btn-primary"):("btn-secondary") }}">
+							    </li>
+							  </ul>
+							</nav>
+						</div>
 					</div>
-					<div class="col-5">
-					</div>
-				</div>
+				{% endif %}
 
 				{# Fin des paginations. #}
 
