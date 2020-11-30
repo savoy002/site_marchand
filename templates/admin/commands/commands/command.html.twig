@@ -98,10 +98,10 @@
 										{% if piece_product.product %}
 											<td>{{ piece_product.product.name }}</td>
 											<td>
-												{{ piece_product.product.price|slice(0, piece_product.product.price|length - 2)~','~piece_product.product.price|slice(piece_product.product.price|length - 2, piece_product.product.price|length) }}
+												{{ piece_product.priceProduct|slice(0, piece_product.priceProduct|length - 2)~','~piece_product.priceProduct|slice(piece_product.priceProduct|length - 2, piece_product.priceProduct|length) }}
 											</td>
 											<td>{{ piece_product.nbProducts }}</td>
-											{% set total_price = piece_product.product.price * piece_product.nbProducts %}
+											{% set total_price = piece_product.priceProduct * piece_product.nbProducts %}
 											<td>
 												{{ total_price|slice(0, total_price|length - 2)~','~total_price|slice(total_price|length - 2, total_price|length) }}
 											</td>
@@ -128,7 +128,7 @@
 								<tr>
 									<td colspan="3">Livraison de {{ command.delivery.type.company.name }}</td>
 									<td>
-										{{ command.delivery.type.price|slice(0, command.delivery.type.price|length - 2)~','~command.delivery.type.price|slice(command.delivery.type.price|length - 2, command.delivery.type.price|length) }}
+										{{ command.typeDelSelected.priceDelivery|slice(0, command.typeDelSelected.priceDelivery|length - 2)~','~command.typeDelSelected.priceDelivery|slice(command.typeDelSelected.priceDelivery|length - 2, command.typeDelSelected.priceDelivery|length) }}
 									</td>
 									<td><a class="btn btn-info" href="">Voir</a></td>
 								</tr>

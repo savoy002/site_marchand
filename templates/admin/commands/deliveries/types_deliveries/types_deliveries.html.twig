@@ -15,7 +15,11 @@
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
+			    <!-- Vérifier le fonctionnement du not seul dans le if. -->
+			    {% if not is_admin %}
+			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
+			    {% endif %}
 			    <li class="breadcrumb-item active" aria-current="page">Types de livraison</li>
 			  </ol>
 			</nav>
@@ -61,11 +65,13 @@
 
 		{% endif %}
 
-		<div class="{{ (types|length > 0)?('col offset-sm-1'):('col-12') }}">
-			<a href="{{ path("create_type_delivery") }}" class="btn btn-primary">Créer un type</a>
-		</div>
+		<!-- Vérifier le fonctionnement du not seul dans le if. -->
+		{% if not is_admin %}
+			<div class="{{ (types|length > 0)?('col offset-sm-1'):('col-12') }}">
+				<a href="{{ path("create_type_delivery") }}" class="btn btn-primary">Créer un type</a>
+			</div>
+		{% endif %}
 
 	</div>
-
 
 {% endblock %}

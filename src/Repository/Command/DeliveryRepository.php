@@ -5,6 +5,7 @@ namespace App\Repository\Command;
 use App\Entity\Command\Delivery;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\ORM\QueryBuilder as QueryBuilderOption;
 
 /**
  * @method Delivery|null find($id, $lockMode = null, $lockVersion = null)
@@ -18,6 +19,62 @@ class DeliveryRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Delivery::class);
     }
+
+    public function companyResearchDeliveries(array $criteria)
+    {
+        $request = $this->createQueryBuilder('d');
+
+        $request = $this->optionsResearchDeliveries($request, $criteria);
+
+        if(array_key_exists('page', $criteria))
+            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
+
+        if(array_key_exists('orderBy', $criteria))
+            $request->orderBy('d.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
+
+        $request->setMaxResults($criteria['number_by_page']);
+
+        return $request->getQuery()->getResult();
+    }
+
+    public function companyResearchNumberDeliveries(array $criteria) 
+    {
+        $request = $this->createQueryBuilder('d')->select('COUNT(d)');
+
+        $request = $this->optionsResearchDeliveries($request, $criteria);
+
+        return $request->getQuery()->getResult();
+    }
+
+    private function optionsResearchDeliveries(QueryBuilderOption $request, array $criteria) 
+    {
+        if(array_key_exists('company', $criteria))
+            $request->innerJoin('d.type', 't');
+
+        if(array_key_exists('sentBefore', $criteria))
+            $request->andWhere('DATE_DIFF(d.date, :sentBefore) <= 0')->setParameter('sentBefore', $criteria['sentBefore']);
+        if(array_key_exists('sentAfter', $criteria))
+            $request->andWhere('DATE_DIFF(d.date, :sentAfter) >= 0')->setParameter('sentAfter', $criteria['sentAfter']);
+
+        if(array_key_exists('type', $criteria))
+            $request->andWhere('d.type = :id_type')->setParameter('id_type', $criteria['type']);
+
+        if(array_key_exists('company', $criteria))
+            $request->andWhere('t.company = :id_company')->setParameter('id_company', $criteria['company']);
+
+        return $request;
+    }
+
+    public function findDeliveriesByCompany($id) 
+    {
+        $request = $this->createQueryBuilder('d')
+            ->innerJoin('d.type', 't')
+            ->where('id IN t.company.id')
+            ->setParameter('id', $id);
+
+        return $request->getQuery()->getResult();
+    }
+
 
     // /**
     //  * @return Delivery[] Returns an array of Delivery objects

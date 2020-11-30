@@ -172,7 +172,9 @@ class AdminCommandController extends AbstractController
 	 */
 	public function command($id) 
 	{
-		$command = $this->getDoctrine()->getRepository(Command::class)->findOneBy(['id' => $id, 'delete' => false, 'isBasket' => false]);
+        if($this->isAdmin())
+		  $command = $this->getDoctrine()->getRepository(Command::class)
+                ->findOneBy(['id' => $id, 'delete' => false, 'isBasket' => false]);
 
 		if(is_null($command))
 			return $this->redirect('commands');
@@ -185,11 +187,13 @@ class AdminCommandController extends AbstractController
     //
 
     /**
-     * @Route("/admin/menu_deliveries", name="menu_delivey")
+     * @Route("/admin/delivery/menu_deliveries", name="menu_delivery")
      */
     public function menuDeliveries() 
     {
-        return $this->render('admin/commands/deliveries/menu_delivery.html.twig');
+        //Modifier le template pour les administrateurs d'entreprises.
+        return $this->render('admin/commands/deliveries/menu_delivery.html.twig', 
+            ['admin' => $this->getUser(), 'is_admin' => $this->isAdmin() ]);
     }
 
     //
@@ -197,164 +201,188 @@ class AdminCommandController extends AbstractController
     //
 
     /**
-     * @Route("/admin/companies_deliveries", name="companies_deliveries")
+     * @Route("/admin/delivery/companies_deliveries", name="companies_deliveries")
      */
     public function companiesDeliveries() 
     {
-        $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
+        if($this->isAdmin()) {
+            $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
 
-        return $this->render('admin/commands/deliveries/companies_deliveries/companies_deliveries.html.twig', 
-            ['companies' => $companies]);
+            return $this->render('admin/commands/deliveries/companies_deliveries/companies_deliveries.html.twig', 
+                ['companies' => $companies]);
+        } else 
+            return $this->redirectToRoute("menu_delivery");
     }
 
     /**
-     * @Route("/admin/company_delivery/{id}", name="company_delivery")
+     * @Route("/admin/delivery/company_delivery/{id}", name="company_delivery")
      */
     public function companyDelivery($id)
     {
-        $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false, 'id' => $id]);
-        if(empty($company))
-            return $this->redirectToRoute('companies_deliveries');
-        $departments = new Departments();
-        $listDepartments = $departments->getListDepartment();
-        return $this->render('admin/commands/deliveries/companies_deliveries/company_delivery.html.twig', 
-            ['company' => $company[0], 'departments' => $listDepartments]);
+        if($this->isAdmin() || $this->getCompanyId() == $id) {
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false, 'id' => $id]);
+            if(empty($company))
+                return $this->redirectToRoute('companies_deliveries');
+            $departments = new Departments();
+            $listDepartments = $departments->getListDepartment();
+            return $this->render('admin/commands/deliveries/companies_deliveries/company_delivery.html.twig', 
+                ['company' => $company[0], 'departments' => $listDepartments, 'is_admin' => $this->isAdmin()]);
+        } else 
+            return $this->redirectToRoute("menu_delivery");
     }
 
     /**
-     * @Route("/admin/companies_deliveries/create", name="create_company_delivery")
+     * @Route("/admin/delivery/companies_deliveries/create", name="create_company_delivery")
      */
     public function createCompanyDelivery(Request $request)
     {
-        $company = new CompanyDelivery();
-        $form = $this->createForm(CompanyDeliveryType::class, $company);
-        $form->handleRequest($request);
-        $errors = array();
-        if($form->isSubmitted() && $form->isValid()) {
-            $image = $form->get('image')->getData();
-            if($image) {
-                $res = $this->saveImage($image, 'company_delivery_image_directory');
-                if(gettype($res) === "string")
-                    $company->setLogoFileName($res);
-                else 
-                    return $this->render('admin/commands/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
-                        ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
+        if($this->isAdmin()) {
+            $company = new CompanyDelivery();
+            $form = $this->createForm(CompanyDeliveryType::class, $company);
+            $form->handleRequest($request);
+            $errors = array();
+            if($form->isSubmitted() && $form->isValid()) {
+                $image = $form->get('image')->getData();
+                if($image) {
+                    $res = $this->saveImage($image, 'company_delivery_image_directory');
+                    if(gettype($res) === "string")
+                        $company->setLogoFileName($res);
+                    else 
+                        return $this->render('admin/commands/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
+                            ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
+                }
+                if($form->get('all_france')->getData() == "yes") {
+                    $company->setArea(["All"]);
+                    $this->getDoctrine()->getManager()->persist($company);
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('companies_deliveries');
+                } else {
+                    $this->getDoctrine()->getManager()->persist($company);
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('choice_departement_company_delivery', ['id' => $company->getId()]);
+                }
             }
-            if($form->get('all_france')->getData() == "yes") {
-                $company->setArea(["All"]);
-                $this->getDoctrine()->getManager()->persist($company);
-                $this->getDoctrine()->getManager()->flush();
-                return $this->redirectToRoute('companies_deliveries');
-            } else {
-                $this->getDoctrine()->getManager()->persist($company);
-                $this->getDoctrine()->getManager()->flush();
-                return $this->redirectToRoute('choice_departement_company_delivery', ['id' => $company->getId()]);
-            }
-        }
-        return $this->render('admin/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
-            ['form' => $form->createView(), 'errors' => $errors, 'create' => true]);
+            return $this->render('admin/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
+                ['form' => $form->createView(), 'errors' => $errors, 'create' => true]);
+        } else 
+            return $this->redirectToRoute("menu_delivery");
     }
 
     /**
-     * @Route("/admin/company_delivery/{id}/modify", name="modify_company_delivery")
+     * @Route("/admin/delivery/company_delivery/{id}/modify", name="modify_company_delivery")
      */
     public function modifyCompanyDelivery(Request $request, $id)
     {
-        $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
-        if(is_null($company))
-            return $this->redirectToRoute('companies_deliveries');
-        $option = [];
-        if(!in_array("All", $company->getArea()))
-            $option['all_france_value'] = "no";
-        else 
-            $option['all_france_value'] = "yes";
-        $form = $this->createForm(CompanyDeliveryType::class, $company, $option);
-        $form->handleRequest($request);
-        $errors = array();
-        if($form->isSubmitted() && $form->isValid()) {
-            $image = $form->get('image')->getData();
-            if($image) {
-                $res = $this->saveImage($image, 'company_delivery_image_directory');
-                if(gettype($res) === "string")
-                    $company->setLogoFileName($res);
-                else 
-                    return $this->render('admin/commands/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
-                        ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
-            }
-            if($form->get('all_france')->getData() == "yes") {
-                $company->setArea(["All"]);
-                $this->getDoctrine()->getManager()->persist($company);
-                $this->getDoctrine()->getManager()->flush();
+        if($this->isAdmin() || $this->getCompanyId() == $id) {
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
-            } else {
-                if(in_array("All", $company->getArea()))
-                    $company->setArea([]);
-                $this->getDoctrine()->getManager()->persist($company);
-                $this->getDoctrine()->getManager()->flush();
-                return $this->redirectToRoute('choice_departement_company_delivery', ['id' => $company->getId()]);
+            $option = [];
+            if(!in_array("All", $company->getArea()))
+                $option['all_france_value'] = "no";
+            else 
+                $option['all_france_value'] = "yes";
+            $form = $this->createForm(CompanyDeliveryType::class, $company, $option);
+            $form->handleRequest($request);
+            $errors = array();
+            if($form->isSubmitted() && $form->isValid()) {
+                $image = $form->get('image')->getData();
+                if($image) {
+                    $res = $this->saveImage($image, 'company_delivery_image_directory');
+                    if(gettype($res) === "string")
+                        $company->setLogoFileName($res);
+                    else 
+                        return $this->render('admin/commands/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
+                            ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
+                }
+                if($form->get('all_france')->getData() == "yes") {
+                    $company->setArea(["All"]);
+                    $this->getDoctrine()->getManager()->persist($company);
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('companies_deliveries');
+                } else {
+                    if(in_array("All", $company->getArea()))
+                        $company->setArea([]);
+                    $company->setActivate(false);
+                    $this->getDoctrine()->getManager()->persist($company);
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('choice_departement_company_delivery', ['id' => $company->getId()]);
+                }
             }
-        }
-        return $this->render('admin/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
-            ['form' => $form->createView(), 'errors' => $errors, 'create' => false, 'id' => $company->getId(), 
-            'name' => $company->getName()]);
+            return $this->render('admin/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
+                ['form' => $form->createView(), 'errors' => $errors, 'create' => false, 'id' => $company->getId(), 
+                'name' => $company->getName()]);
+        } else 
+            return $this->redirectToRoute("menu_delivery");
     }
 
     /**
-     * @Route("/admin/company_delivery/{id}/choice_departement", name="choice_departement_company_delivery")
+     * @Route("/admin/delivery/company_delivery/{id}/choice_departement", name="choice_departement_company_delivery")
      */
     public function choiceDepartementCompanyDelivery(Request $request, $id)
     {
-        $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
-        if(is_null($company))
-            return $this->redirectToRoute('companies_deliveries');
-        $form = $this->createForm(ChoiceDepartmentType::class, $company);
-        $form->handleRequest($request);
-        $errors = array();
-        if($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->persist($company);
-            $this->getDoctrine()->getManager()->flush();
-            return $this->redirectToRoute('company_delivery', ['id' => $id]);
-        }
-        return $this->render('admin/commands/deliveries/companies_deliveries/manage_departements.html.twig', 
-            ['form' => $form->createView(), 'errors' => $errors, 'name' => $company->getName()]);
+        if($this->isAdmin() || $this->getCompanyId() == $id) {
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            if(is_null($company))
+                return $this->redirectToRoute('companies_deliveries');
+            $form = $this->createForm(ChoiceDepartmentType::class, $company);
+            $form->handleRequest($request);
+            $errors = array();
+            if($form->isSubmitted() && $form->isValid()) {
+                $this->getDoctrine()->getManager()->persist($company);
+                $this->getDoctrine()->getManager()->flush();
+                return $this->redirectToRoute('company_delivery', ['id' => $id]);
+            }
+            return $this->render('admin/commands/deliveries/companies_deliveries/manage_departements.html.twig', 
+                ['form' => $form->createView(), 'errors' => $errors, 'name' => $company->getName()]);
+        } else 
+            return $this->redirectToRoute("menu_delivery");
     }
 
     /**
-     * @Route("/admin/company_delivery/{id}/activate", name="activate_deactivate_company_delivery")
+     * @Route("/admin/delivery/company_delivery/{id}/activate", name="activate_deactivate_company_delivery")
      */
     public function activateDeactivateCompanyDelivery($id)
     {
-        $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
-        if(is_null($company))
-            return $this->redirectToRoute('companies_deliveries');
-        $company->setActivate(!$company->getActivate());
-        //Attention lorsque l'activité d'une entreprise est modifiée ses types sont modifiés avec.
-        foreach ($company->getType() as $type) {
-            $type->setActivate($company->getType());
-            $this->getDoctrine()->getManager()->persist($type);
-        }
-        $this->getDoctrine()->getManager()->persist($company);
-        $this->getDoctrine()->getManager()->flush();
-        return $this->redirectToRoute('company_delivery', ['id' => $id]);
+        if($this->isAdmin() || $this->getCompanyId() == $id) {
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            if(is_null($company))
+                return $this->redirectToRoute('companies_deliveries');
+            $company->setActivate(!$company->getActivate());
+            //Attention lorsque l'activité d'une entreprise est modifiée ses types sont modifiés avec.
+            foreach ($company->getTypes() as $type) {
+                $type->setActivate($company->getActivate());
+                $this->getDoctrine()->getManager()->persist($type);
+            }
+            $this->getDoctrine()->getManager()->persist($company);
+            $this->getDoctrine()->getManager()->flush();
+            return $this->redirectToRoute('company_delivery', ['id' => $id]);
+        } else 
+            return $this->redirectToRoute("menu_delivery");
     }
 
     /**
-     * @Route("/admin/company_delivery/{id}/delete", name="delete_company_delivery")
+     * @Route("/admin/delivery/company_delivery/{id}/delete", name="delete_company_delivery")
      */
     public function deleteCompanyDelivery($id)
     {
-        $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
-        if(is_null($company))
+        if($this->isAdmin()) {
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            if(is_null($company))
+                return $this->redirectToRoute('companies_deliveries');
+            $company->setDelete(true);
+            //Attention la suppression d'une entreprise supprime ses types et son administrateur avec.
+            foreach ($company->getTypes() as $type) {
+                $type->setDelete(true);
+                $this->getDoctrine()->getManager()->persist($type);
+            }
+            $company->getOwner()->setDelete(true);
+            $this->getDoctrine()->getManager()->persist($company->getOwner());
+            $this->getDoctrine()->getManager()->persist($company);
+            $this->getDoctrine()->getManager()->flush();
             return $this->redirectToRoute('companies_deliveries');
-        $company->setDelete(true);
-        //Attention la suppression d'une entreprise supprime ses types avec.
-        foreach ($company->getType() as $type) {
-            $type->setDelete(true);
-            $this->getDoctrine()->getManager()->persist($type);
-        }
-        $this->getDoctrine()->getManager()->persist($company);
-        $this->getDoctrine()->getManager()->flush();
-        return $this->redirectToRoute('companies_deliveries');
+        } else 
+            return $this->redirectToRoute("menu_delivery");
     }
 
     //
@@ -362,120 +390,150 @@ class AdminCommandController extends AbstractController
     //
 
     /**
-     * @Route("/admin/types_deliveries", name="types_deliveries")
+     * @Route("/admin/delivery/types_deliveries", name="types_deliveries")
      */
     public function typesDeliveries()
     {
-        $types = $this->getDoctrine()->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
+        if($this->isAdmin())
+            $types = $this->getDoctrine()->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
+        else {
+            $types = $this->getDoctrine()->getRepository(TypeDelivery::class)
+                ->findBy(['company' => $this->getCompanyId(), 'delete' => false]);
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+                ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
+        }
 
-        return $this->render('admin/commands/deliveries/types_deliveries/types_deliveries.html.twig', ['types' => $types]);
+        return $this->render('admin/commands/deliveries/types_deliveries/types_deliveries.html.twig', 
+            ['types' => $types, 'is_admin' => $this->isAdmin(), 'company' => $company]);
     }
 
     /**
-     * @Route("/admin/type_delivery/{id}", name="type_delivery")
+     * @Route("/admin/delivery/type_delivery/{id}", name="type_delivery")
      */
     public function typeDelivery($id)
     {
-        $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        if($this->isAdmin())
+            $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        else {
+            $type = $this->getDoctrine()->getRepository(TypeDelivery::class)
+                ->findOneBy(['id' => $id, 'company' => $this->getCompanyId(), 'delete' => false]);
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+                ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
+        }
         if(is_null($type))
             return $this->redirectToRoute('types_deliveries');
         
-        return $this->render('admin/commands/deliveries/types_deliveries/type_delivery.html.twig', ['type' => $type]);
+        return $this->render('admin/commands/deliveries/types_deliveries/type_delivery.html.twig', 
+            ['type' => $type, 'is_admin' => $this->isAdmin(), 'company' => $company]);
     }
 
     /**
-     * @Route("/admin/types_deliveries/create", name="create_type_delivery")
+     * @Route("/admin/delivery/types_deliveries/create", name="create_type_delivery")
      */
     public function createTypeDelivery(Request $request)
     {
-        $type = new TypeDelivery();
-        $form = $this->createForm(TypeDeliveryType::class, $type);
-        $form->handleRequest($request);
-        $errors = array();
-        if($form->isSubmitted() && $form->isValid()) {
-            $valid = true;
-            if($type->getTimeMin() > $type->getTimeMax()) {
-                $errors[] = "Le temps minimum de livraison ne peut pas être supérieur au temps maximum de livraison.";
-                $valid = false;
+        if(!$this->isAdmin()) {
+            $type = new TypeDelivery();
+            $form = $this->createForm(TypeDeliveryType::class, $type);
+            $form->handleRequest($request);
+            $errors = array();
+            if($form->isSubmitted() && $form->isValid()) {
+                $valid = true;
+                if($type->getTimeMin() > $type->getTimeMax()) {
+                    $errors[] = "Le temps minimum de livraison ne peut pas être supérieur au temps maximum de livraison.";
+                    $valid = false;
+                }
+                if($type->getPrice() < 0) {
+                    $errors[] = "Le prix de livraison ne peut pas être négatif.";
+                    $valid = false;
+                }
+                if($valid) {
+                    $type->setCompany($this->getUser()->getCompanyDelivery());
+                    $this->getDoctrine()->getManager()->persist($this->getUser()->getCompanyDelivery());
+                    $this->getDoctrine()->getManager()->persist($type);
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('types_deliveries');
+                }
             }
-            if($type->getPrice() < 0) {
-                $errors[] = "Le prix de livraison ne peut pas être négatif.";
-                $valid = false;
-            }
-            if($valid) {
-                $this->getDoctrine()->getManager()->persist($type);
-                $this->getDoctrine()->getManager()->flush();
-                return $this->redirectToRoute('types_deliveries');
-            }
-        }
-        return $this->render('admin/commands/deliveries/types_deliveries/form_type_delivery.html.twig', 
-            [ 'form' => $form->createView(), 'errors' => $errors, 'create' => true]);
+            return $this->render('admin/commands/deliveries/types_deliveries/form_type_delivery.html.twig', 
+                [ 'form' => $form->createView(), 'errors' => $errors, 'create' => true]);
+        } else 
+            return $this->redirectToRoute('types_deliveries');
     }
 
     /**
-     * @Route("/admin/type_delivery/{id}/modify", name="modify_type_delivery")
+     * @Route("/admin/delivery/type_delivery/{id}/modify", name="modify_type_delivery")
      */
     public function modifyTypeDelivery(Request $request, $id)
     {
         $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
-        if(!is_null($type))
+        if(is_null($type))
             return $this->redirectToRoute('types_deliveries');
-        $form = $this->createForm(TypeDeliveryType::class, $type);
-        $form->handleRequest($request);
-        $errors = array();
-        if($form->isSubmitted() && $form->isValid()) {
-            $valid = true;
-            if($type->getTimeMin() > $type->getTimeMax()) {
-                $errors[] = "Le temps minimum de livraison ne peut pas être supérieur au temps maximum de livraison.";
-                $valid = false;
+        if($this->getCompanyId() === $type->getCompany()->getId()) {
+            $form = $this->createForm(TypeDeliveryType::class, $type);
+            $form->handleRequest($request);
+            $errors = array();
+            if($form->isSubmitted() && $form->isValid()) {
+                $valid = true;
+                if($type->getTimeMin() > $type->getTimeMax()) {
+                    $errors[] = "Le temps minimum de livraison ne peut pas être supérieur au temps maximum de livraison.";
+                    $valid = false;
+                }
+                if($type->getPrice() < 0) {
+                    $errors[] = "Le prix de livraison ne peut pas être négatif.";
+                    $valid = false;
+                }
+                if($valid) {
+                    $this->getDoctrine()->getManager()->persist($type);
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('types_deliveries');
+                }
             }
-            if($type->getPrice() < 0) {
-                $errors[] = "Le prix de livraison ne peut pas être négatif.";
-                $valid = false;
-            }
-            if($valid) {
-                $this->getDoctrine()->getManager()->persist($type);
-                $this->getDoctrine()->getManager()->flush();
-                return $this->redirectToRoute('types_deliveries');
-            }
-        }
-        return $this->render('admin/commands/deliveries/types_deliveries/form_type_delivery.html.twig', 
-            [ 'form' => $form->createView(), 'errors' => $errors, 'create' => false, 'id' => $type->getId(), 
-            'name' => $type->getName()]);
+            return $this->render('admin/commands/deliveries/types_deliveries/form_type_delivery.html.twig', 
+                [ 'form' => $form->createView(), 'errors' => $errors, 'create' => false, 'company' => $type->getCompany(),
+                  'is_admin' => $this->isAdmin(), 'id' => $type->getId(), 'name' => $type->getName()]);
+        } else
+            return $this->redirectToRoute("menu_delivery");
     }
 
     /**
-     * @Route("/admin/type_delivery/{id}/activate", name="activate_deactivate_type_delivery")
+     * @Route("/admin/delivery/type_delivery/{id}/activate", name="activate_deactivate_type_delivery")
      */
     public function activateDeactivateTypeDelivery($id)
     {
         $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
-        if(is_null($type))
-            return $this->redirectToRoute('types_deliveries');
-        $type->setActivate(!$type->getActivate());
-        $this->getDoctrine()->getManager()->persist($type);
-        $this->getDoctrine()->getManager()->flush();
-        return $this->redirectToRoute('type_delivery', ['id' => $id]);
+            if(is_null($type))
+                return $this->redirectToRoute('types_deliveries');
+        if($this->getCompanyId() === $type->getCompany()->getId() || $this->isAdmin()) {
+            $type->setActivate(!$type->getActivate());
+            $this->getDoctrine()->getManager()->persist($type);
+            $this->getDoctrine()->getManager()->flush();
+            return $this->redirectToRoute('type_delivery', ['id' => $id]);
+        } else
+            return $this->redirectToRoute("menu_delivery");
     }
 
     /**
-     * @Route("/admin/type_delivery/{id}/delete", name="delete_type_delivery")
+     * @Route("/admin/delivery/type_delivery/{id}/delete", name="delete_type_delivery")
      */
     public function deleteTypeDelivery($id)
     {
         $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($type))
             return $this->redirectToRoute('types_deliveries');
-        $type->setDelete(true);
-        $this->getDoctrine()->getManager()->persist($type);
-        $this->getDoctrine()->getManager()->flush();
-        return $this->redirectToRoute('types_deliveries');
+        if($this->getCompanyId() == $type->getCompany()->getId()) {
+            $type->setDelete(true);
+            $this->getDoctrine()->getManager()->persist($type);
+            $this->getDoctrine()->getManager()->flush();
+            return $this->redirectToRoute('types_deliveries');
+        } else
+            return $this->redirectToRoute("menu_delivery");
     }
 
-    /**
-     * @Route("admin/company_delivery/{id}/types_deliveries", name="types_by_company")
-     */
-    public function typesDeliveriesByCompany($id) 
+    ///**
+    // * @Route("admin/delivery/company_delivery/{id}/types_deliveries", name="types_by_company")
+    // */
+    /*public function typesDeliveriesByCompany($id) 
     {
         $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($company))
@@ -483,38 +541,139 @@ class AdminCommandController extends AbstractController
 
         return $this->render('admin/commands/deliveries/types_deliveries/types_deliveries_by_company_delivery.html.twig',
             ['company' => $company]);
-    }
+    }*/
 
     //
     //Partie Delivery.
     //
 
     /**
-     * @Route("admin/deliveries", name="deliveries")
+     * @Route("admin/delivery/deliveries", name="deliveries")
      */
-    public function deliveries() 
+    public function deliveries(Request $request) 
     {
-        $deliveries = $this->getDoctrine()->getRepository(Delivery::class)->findBy(['delete' => false]);
+        $former_request = array();
+        $errors = array();
+        $criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
+        //Recherche la demande de page de l'administrateur si elle existe.
+        $page = $request->request->get('page');
 
-        return $this->render('admin/commands/deliveries/deliveries/deliveries.html.twig', ['deliveries' => $deliveries]);
+        //Ajout le critère d'entreprise is il n'est pas un administrateur
+        if(!$this->isAdmin()){
+            $criteria['company'] = $this->getCompanyId();
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+                ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
+        }
+
+        //Gestion de la sélection si il y an a une.
+        if($request->request->get('research') === "research") {
+
+            if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null 
+             &&  $request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
+                if($request->request->get('sentBefore') >= $request->request->get('sentAfter')) {
+                    $criteria['sentBefore'] = $request->request->get('sentBefore');
+                    $former_request['sentBefore'] =  $request->request->get('sentBefore');
+                    $criteria['sentAfter'] = $request->request->get('sentAfter');
+                    $former_request['sentAfter'] =  $request->request->get('sentAfter');
+                } else {
+                    $errors[] = "La date d'avant l'envoie ne peut pas être inférieur à la date d'après l'envoie.";
+                }
+            } else {
+                if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null) {
+                    $criteria['sentBefore'] = $request->request->get('sentBefore');
+                    $former_request['sentBefore'] =  $request->request->get('sentBefore');
+                }
+                if($request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
+                    $criteria['sentAfter'] = $request->request->get('sentAfter');
+                    $former_request['sentAfter'] =  $request->request->get('sentAfter');
+                }
+            }
+
+            if($request->request->get('type') != "" && $request->request->get('type') !== null) {
+                $criteria['type'] = $request->request->get('type');
+                $former_request['type'] = $request->request->get('type');
+            }
+
+            if($request->request->get('company') != "" && $request->request->get('company') !== null) {
+                $criteria['company'] = $request->request->get('company');
+                $former_request['company'] = $request->request->get('company');
+            }
+
+            //Calcul le nombre de livraisons et de pages.
+            $number_deliveries = intval($this->getDoctrine()->getRepository(Delivery::class)
+                ->companyResearchNumberDeliveries($criteria)[0][1]);
+            $number_pages = 
+                intval( $number_deliveries / self::NUMBER_BY_PAGE ) + 
+                ( ( $number_deliveries % self::NUMBER_BY_PAGE === 0 )?0:1 );
+
+            if($page != "" && $page !== null) {
+                if($page === 'Début') {
+                    $criteria['page'] = 0;
+                    $page = 1;
+                } else if($page === 'Fin') {
+                    $criteria['page'] = $number_pages - 1;
+                    $page = $number_pages;
+                } else {
+                    $criteria['page'] = intval($page) - 1;
+                }
+            } else
+                $page = 1;
+
+        } else {
+            $page = 1;
+            //Calcul le nombre de commandes et de pages.
+            $number_deliveries = intval($this->getDoctrine()->getRepository(Delivery::class)
+                ->companyResearchNumberDeliveries($criteria)[0][1]);
+            $number_pages = 
+                    intval( $number_deliveries / self::NUMBER_BY_PAGE ) + 
+                    ( ( $number_deliveries % self::NUMBER_BY_PAGE === 0 )?0:1 );
+        }
+        //Recherche les livrasons à retourner.
+        $deliveries = $this->getDoctrine()->getRepository(Delivery::class)->companyResearchDeliveries($criteria);
+
+        //Recherche les types de livraison pour les recherches.
+        if($this->isAdmin())
+            $types = $this->getDoctrine()->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
+        else 
+            $types = $this->getDoctrine()->getRepository(TypeDelivery::class)
+                ->findBy(['delete' => false, 'company' => $this->getCompanyId()]);
+
+        //Recherche les entreprises de livraison pour les recherches si l'utilisateur est un administrateur.
+        $companies = array();
+        if($this->isAdmin())
+            $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
+
+        //$deliveries = $this->getDoctrine()->getRepository(Delivery::class)->findBy(['delete' => false]);
+
+        return $this->render('admin/commands/deliveries/deliveries/deliveries.html.twig', 
+            ['deliveries' => $deliveries, 'number_pages' => $number_pages, 'page' => $page, 'request' => $former_request, 
+             'errors' => $errors, 'types' => $types, 'company' => $company, 'companies' => $companies, 'is_admin' => $this->isAdmin()]);
     }
 
     /**
-     * @Route("admin/delivery/{id}", name="delivery")
+     * @Route("admin/delivery/delivery/{id}", name="delivery")
      */
     public function delivery($id) 
     {
-        $delivery = $this->getDoctrine()->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        if($this->isAdmin()) {
+            $delivery = $this->getDoctrine()->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        } else {
+            //Ajouter une méthode dans le repository pour chercher la livraison de l'entreprise.
+            $delivery = $this->getDoctrine()->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+                ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
+        }
         if(is_null($delivery))
             return $this->redirectToRoute('deliveries');
         
-        return $this->render('admin/commands/deliveries/deliveries/delivery.html.twig', ['delivery' => $delivery]);
+        return $this->render('admin/commands/deliveries/deliveries/delivery.html.twig', 
+            ['delivery' => $delivery, 'is_admin' => $this->isAdmin(), 'company' => $company]);
     }
 
-    /**
-     * @Route("admin/type_delivery/{id}/deliveries", name="deliveries_by_type")
-     */
-    public function deliveriesByType($id) 
+    ///**
+    //* @Route("admin/delivery/type_delivery/{id}/deliveries", name="deliveries_by_type")
+    // */
+    /*public function deliveriesByType($id) 
     {
         $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($type))
@@ -522,7 +681,7 @@ class AdminCommandController extends AbstractController
 
         return $this->render('admin/commands/deliveries/deliveries/deliveries_by_type_delivery.html.twig', 
             ['type' => $type]);
-    }
+    }*/
 
 
     //
@@ -548,6 +707,23 @@ class AdminCommandController extends AbstractController
         } catch( IOExceptionInterface $e) {
             return $e;
         }
+    }
+
+    //
+    //Le méthode indique l'administrateur est un administrateur du site et non d'une entreprise.
+    //
+    protected function isAdmin(){
+        return $this->getUser()->getRoles() === ["ROLE_ADMIN"];
+    }
+
+    //
+    //La méthode pour récupérer l'identifiant de l'entreprise de livraison à partir l'administrateur de l'entreprise.
+    //
+    protected function getCompanyId(){
+        return 
+            (!is_null($this->getUser()->getCompanyDelivery()) && $this->getUser()->getRoles() === ["ROLE_COMPANY_ADMIN"])
+             ? $this->getUser()->getCompanyDelivery()->getId()
+             : null;
     }
 
 }

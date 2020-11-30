@@ -61,9 +61,14 @@ class TypeDelivery
     private $company;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="typeDelSelected")
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\TypeDeliverySelected", mappedBy="typeDelivery", orphanRemoval=true)
      */
     private $commands;
+
+    ///**
+    // * @ORM\OneToMany(targetEntity="App\Entity\Command\Command", mappedBy="typeDelSelected")
+    // */
+    //private $commands;
 
     public function __construct()
     {
@@ -191,8 +196,10 @@ class TypeDelivery
     public function setCompany(?CompanyDelivery $company): self
     {
 
-        if($this->company !== null)
-            $company->removeType($this);
+        if($this->company !== null){
+            if($company->hasType($this))
+                $company->removeType($this);
+        }
 
         $this->company = $company;
 
@@ -209,12 +216,12 @@ class TypeDelivery
         return $this->commands;
     }
 
-    public function hasCommands(Command $command): bool
+    public function hasCommands(TypeDeliverySelected $command): bool
     {
         return $this->commands->contains($command);
     }
 
-    public function addCommand(Command $command): self
+    public function addCommand(TypeDeliverySelected $command): self
     {
         if(!$this->hasCommands($command)) {
             $this->commands[] = $command;
@@ -226,7 +233,7 @@ class TypeDelivery
         return $this;
     }
 
-    public function removeCommand(Command $command): self
+    public function removeCommand(TypeDeliverySelected $command): self
     {
         if($this->hasCommands($command)) {
             $this->commands->removeElement($command);
@@ -245,5 +252,36 @@ class TypeDelivery
 
         return $this->getName().' '.$price;
     }
+
+    ///**
+    // * @return Collection|TypeDeliverySelected[]
+    // */
+    /*public function getCommand(): Collection
+    {
+        return $this->command;
+    }
+
+    public function addCommand(TypeDeliverySelected $command): self
+    {
+        if (!$this->command->contains($command)) {
+            $this->command[] = $command;
+            $command->setTypeDelivery($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommand(TypeDeliverySelected $command): self
+    {
+        if ($this->command->contains($command)) {
+            $this->command->removeElement($command);
+            // set the owning side to null (unless already changed)
+            if ($command->getTypeDelivery() === $this) {
+                $command->setTypeDelivery(null);
+            }
+        }
+
+        return $this;
+    }*/
 
 }

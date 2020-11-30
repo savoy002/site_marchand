@@ -114,7 +114,6 @@ class CommandRepository extends ServiceEntityRepository
                 $request->andWhere('c.dateReceive IS NULL');
             if($criteria['status'] === 'notSend')
                 $request->andWhere('c.delivery IS NULL');
-            //OR c.delivery IN (SELECT d FROM App\Entity\Command\Delivery d WHERE d.date IS NULL)
         }
 
         return $request;

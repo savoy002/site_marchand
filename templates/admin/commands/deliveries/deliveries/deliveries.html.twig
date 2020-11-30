@@ -15,51 +15,157 @@
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
+			    <!-- Vérifier le fonctionnement du not seul dans le if. -->
+			    {% if not is_admin %}
+			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
+			    {% endif %}
 			    <li class="breadcrumb-item active" aria-current="page">Livraisons</li>
 			  </ol>
 			</nav>
 		</div>
 	</div>
 
-	<div class="row justify-content-start offset-1">
+	<div class="row justify-content-center">
 
-		{% if deliveries|length > 0 %}
+		<form class="form" action="{{ path("deliveries") }}" method="post">
 
-			<div class="row">
-				<div class="col-10 offset-1 table-responsive">
-					<table class="table table-bordered">
-						<thead class="thead-dark">
-							<tr>
-								<th>Date</th>
-								<th>Type</th>
-								<th>Voir</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for delivery in deliveries %}
-								<tr>
-									<td>{{ delivery.date|date("d/m/Y") }}</td>
-									<td>
-										{{ (delivery.type is not null)?
-											((delivery.type.delete == false)?(delivery.type.name):('Supprimé')):
-											('Supprimé') }}
-									</td>
-									<td><a class="btn btn-info" href="{{ path("delivery", {id:delivery.id}) }}">Voir</a></td>
-								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
+			{% if errors is not empty %}
+				<ul>
+					{% for error in errors %}
+						<li> {{ error }} </li>
+					{% endfor %}
+				</ul>
+			{% endif %}
+
+			{# Début du formulaire. #}
+
+			<input hidden="hidden" name="research" value="research">
+			<div class="row form-div justify-content-around">
+				<div class="col-5 col-xs-12">
+					<label for="sentBefore">Envoyée avant le </label>
+					<input class="form-control form-control-sm" name="sentBefore" type="date" 
+						{{ (request.sentBefore is defined)?('value=' ~ request.sentBefore) }} >
+				</div>
+				<div class="col-5 col-xs-12">
+					<label for="sentAfter">Envoyée après le </label>
+					<input class="form-control form-control-sm" name="sentAfter" type="date" 
+						{{ (request.sentAfter is defined)?('value=' ~ request.sentAfter) }} >
 				</div>
 			</div>
-
-		{% else %}
-
-			<div class="col-12 justify-content-center">
-				<p>Aucune livraison trouvée.</p>
+			
+			<div class="row form-div justify-content-around">
+				<div class="col-5 col-xs-12">
+					{% if types|length > 1 %}
+						<label for="type">Type de livraison</label>
+						<select class="custom-select custom-select-sm" name="type">
+							<option value="">Tous</option>
+							{% for type in types %}
+								<option value="{{ type.id }}" 
+									{{ (request.type is defined)?((request.type ==type.id)?('selected')) }} >
+									{{ type.name }}
+								</option>
+							{% endfor %}
+						</select>
+					{% endif %}
+				</div>
+				<div class="col-5 col-xs-12">
+					{% if is_admin and companies|length > 1 %}
+						<label for="type">Entreprise</label>
+						<select class="custom-select custom-select-sm" name="company">
+							<option value="">Tous</option>
+							{% for company in companies %}
+								<option value="{{ company.id }}"
+									{{ (request.company is defined)?((request.company ==company.id)?('selected')) }}>
+									{{ company.name }}
+								</option>
+							{% endfor %}
+						</select>
+					{% endif %}
+				</div>
+			</div>
+			<div class="row justify-content-around form-div-button">
+				<div class="col-5"><button class="btn btn-primary" type="submit">Rechercher</button></div>
+				<div class="col-5"><a href="{{ path("deliveries") }}" class="btn btn-danger">Annuler</a></div>
 			</div>
 
-		{% endif %}
+			{# Fin du formulaire. #}
+
+			{# Début des résultats de recherche. #}
+
+			{% if deliveries|length > 0 %}
+
+				<div class="row">
+					<div class="col-10 offset-1 table-responsive">
+						<table class="table table-bordered">
+							<thead class="thead-dark">
+								<tr>
+									<th>Date</th>
+									{% if is_admin %}
+										<th>Entreprise</th>
+									{% endif %}
+									<th>Type</th>
+									<th>Voir</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for delivery in deliveries %}
+									<tr>
+										<td>{{ delivery.date|date("d/m/Y") }}</td>
+										{% if is_admin %}
+											<td>{{ delivery.type.company.name }}</td>
+										{% endif %}
+										<td>
+											{{ (delivery.type is not null)?
+												((delivery.type.delete == false)?(delivery.type.name):('Supprimé')):
+												('Supprimé') }}
+										</td>
+										<td><a class="btn btn-info" href="{{ path("delivery", {id:delivery.id}) }}">Voir</a></td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+
+			{% else %}
+
+				<div class="col-12 justify-content-center">
+					<p>Aucune livraison trouvée.</p>
+				</div>
+
+			{% endif %}
+
+			{# Fin des résultats de recherche. #}
+
+			{# Début des paginations. #}
+
+			{% if number_pages > 0 %}
+				<div class="row justify-content-around ">
+					<div class="offset-1 col-6">
+						<nav aria-label="Page navigation example">
+						  <ul class="pagination">
+						    <li class="page-item">
+						      <input type="submit" value="Début" name="page" 
+						      		class="btn {{ (page != 1)?("btn-primary"):("btn-secondary") }}">
+						    </li>
+						    {% for num in range(1, number_pages) %}
+						    	<input type="submit" value="{{ num }}" name="page" 
+										class="btn {{ (num != page )?("btn-primary"):("btn-secondary") }}">
+						    {% endfor %}
+						    <li class="page-item">
+						      <input type="submit" value="Fin" name="page" 
+						      		class="btn {{ (page != number_pages)?("btn-primary"):("btn-secondary") }}">
+						    </li>
+						  </ul>
+						</nav>
+					</div>
+				</div>
+			{% endif %}
+
+			{# Fin des paginations. #}
+
+		</form>
 
 	</div>
 

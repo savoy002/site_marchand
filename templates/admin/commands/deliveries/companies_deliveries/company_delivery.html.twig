@@ -15,7 +15,7 @@
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("companies_deliveries") }}">Entreprise de livraison</a></li>
 			    <li class="breadcrumb-item active" aria-current="page"> {{ company.name }} </li>
 			  </ol>
@@ -68,45 +68,51 @@
 				<h2> {{ company.name }} livre dans toute la France.</h2>
 			{% endif %}
 		</div>
-		<div class="col-10 offset-1">
-			<a href="{{ path("choice_departement_company_delivery", {id:company.id}) }}" class="btn btn-primary">
-				Modifier les départements de livraison
-			</a>
-		</div>
+		{% if not is_admin %}
+			<div class="col-10 offset-1">
+				<a href="{{ path("choice_departement_company_delivery", {id:company.id}) }}" class="btn btn-primary">
+					Modifier les départements de livraison
+				</a>
+			</div>
+		{% endif %}
 	</div>
 	
 	<div class="row justify-content-start div-button">
 		<div class="col-md-6 offset-md-1">
 
-			<a href="{{ path("modify_company_delivery", {id:company.id}) }}" class="btn btn-primary">Modifier</a>
+			{% if not is_admin %}
+				<a href="{{ path("modify_company_delivery", {id:company.id}) }}" class="btn btn-primary">Modifier</a>
+			{% endif %}
 
-			<a href="{{ path("types_by_company", {id:company.id}) }}" class="btn btn-info">Voir type</a>
+				{# <a href="{{ path("types_by_company", {id:company.id}) }}" class="btn btn-info">Voir type</a> #}
 
-			<a href="{{ path("activate_deactivate_company_delivery", {id:company.id}) }}" class="btn btn-danger">
+			<a href="{{ path("activate_deactivate_company_delivery", {id:company.id}) }}" class="btn btn-warning">
 				{{ (company.activate)?("Désactiver"):("Activer") }}
-			</a> 
+			</a>
 
-			<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Supprimer</button>
+			{% if is_admin %}
+				<button type="button" class="btn btn-danger" data-toggle="modal" data-target="#delete">Supprimer</button>
 
-			<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
-			  <div class="modal-dialog modal-dialog-centered" role="document">
-			    <div class="modal-content">
-			      <div class="modal-header">
-			        <h5 class="modal-title" id="exampleModalCenterTitle">Supprimer</h5>
-			        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-			          <span aria-hidden="true">&times;</span>
-			        </button>
-			      </div>
-			      <div class="modal-body">
-			        <p>Etes vous sûr de supprimer l'entreprise {{ company.name }} ?</p>
-			      </div>
-			      <div class="modal-footer">
-			      	<a href="{{ path("delete_company_delivery", {id:company.id}) }}" class="btn btn-danger">Oui</a>
-			        <button class="btn btn-primary" data-dismiss="modal">Non</button>
-			      </div>
-			    </div>
-			  </div>
-			</div>
+				<div class="modal fade" id="delete" tabindex="-1" role="dialog" aria-labelledby="" aria-hidden="true">
+				  <div class="modal-dialog modal-dialog-centered" role="document">
+				    <div class="modal-content">
+				      <div class="modal-header">
+				        <h5 class="modal-title" id="exampleModalCenterTitle">Supprimer</h5>
+				        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+				          <span aria-hidden="true">&times;</span>
+				        </button>
+				      </div>
+				      <div class="modal-body">
+				        <p>Etes vous sûr de supprimer l'entreprise {{ company.name }} ?</p>
+				      </div>
+				      <div class="modal-footer">
+				      	<a href="{{ path("delete_company_delivery", {id:company.id}) }}" class="btn btn-danger">Oui</a>
+				        <button class="btn btn-primary" data-dismiss="modal">Non</button>
+				      </div>
+				    </div>
+				  </div>
+				</div>
+			{% endif %}
 
 		</div>
 	</div>

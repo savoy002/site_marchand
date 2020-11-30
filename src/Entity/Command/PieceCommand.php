@@ -24,6 +24,11 @@ class PieceCommand
     private $nbProducts;
 
     /**
+     * @ORM\Column(type="integer", name="mem_price_prod")
+     */
+    private $priceProduct;
+
+    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Command\Command", inversedBy="products")
      * @ORM\JoinColumn(name="com_id_piece_com", referencedColumnName="id")
      */
@@ -48,6 +53,18 @@ class PieceCommand
     public function setNbProducts(int $nbProducts): self
     {
         $this->nbProducts = $nbProducts;
+
+        return $this;
+    }
+
+    public function getPriceProduct(): ?int
+    {
+        return $this->priceProduct;
+    }
+
+    public function setPriceProduct(int $priceProduct): self
+    {
+        $this->priceProduct = $priceProduct;
 
         return $this;
     }
@@ -83,4 +100,15 @@ class PieceCommand
 
         return $this;
     }
+
+
+    public function calculPriceProduct():self
+    {
+        if(is_null($this->priceProduct) && !is_null($this->product))
+            $this->priceProduct = $this->product->getPrice();
+
+        return $this;
+    }
+
+
 }

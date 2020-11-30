@@ -51,8 +51,8 @@
 					<p>
 						<img src="{{ asset('img/uploads/Command/CompanyDelivery/' ~ command.typeDelSelected.company.logoFileName) }}"
 							width="60" height="60" />
-						{{ command.typeDelSelected.name }}
-						{{ command.typeDelSelected.price|slice(0, command.typeDelSelected.price|length - 2)~','~command.typeDelSelected.price|slice(command.typeDelSelected.price|length - 2, command.typeDelSelected.price|length) }} &#8364
+						{{ command.typeDelSelected.typeDelivery.name }}
+						{{ command.typeDelSelected.priceDelivery|slice(0, command.typeDelSelected.priceDelivery|length - 2)~','~command.typeDelSelected.priceDelivery|slice(command.typeDelSelected.priceDelivery|length - 2, command.typeDelSelected.priceDelivery|length) }} &#8364
 					</p>
 				</div>
 			</div>
@@ -75,7 +75,7 @@
 											{{ piece_product.product.name }} (le produit est temporairement retiré des ventes)
 										{% endif %}
 									{% endif %}
-									{{ piece_product.product.price|slice(0, piece_product.product.price|length - 2)~','~piece_product.product.price|slice(piece_product.product.price|length - 2, piece_product.product.price|length) }} &#8364
+									{{ piece_product.priceProduct|slice(0, piece_product.priceProduct|length - 2)~','~piece_product.priceProduct|slice(piece_product.priceProduct|length - 2, piece_product.priceProduct|length) }} &#8364
 								</p>
 							</div>
 						{% endfor %}

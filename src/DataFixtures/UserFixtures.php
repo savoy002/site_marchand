@@ -88,6 +88,13 @@ class UserFixtures extends Fixture
         $test5->setPassword($this->passwordEncoder->encodePassword($test5, 'test5'));
         $test5->setValid(false);
 
+        $ups = new User();
+        $ups->setUsername('UPS');
+        $ups->setEmail('fausseadressemail@ups.com');
+        $ups->setRoles(['ROLE_COMPANY_ADMIN']);
+        $ups->setPassword($this->passwordEncoder->encodePassword($ups, 'trucups'));
+        $ups->setValid(true);
+
         //Création des Address.
 
         $address2 = new Address();
@@ -126,6 +133,7 @@ class UserFixtures extends Fixture
         $manager->persist($test3);
         $manager->persist($test4);
         $manager->persist($test5);
+        $manager->persist($ups);
 
         $manager->flush();
     }

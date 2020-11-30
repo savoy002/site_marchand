@@ -10,6 +10,7 @@ use App\Entity\Command\Address;
 use App\Entity\Command\Command;
 use App\Entity\Command\PieceCommand;
 use App\Entity\Command\TypeDelivery;
+use App\Entity\Command\typeDeliverySelected;
 use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
@@ -208,7 +209,6 @@ class StoreController extends AbstractController
      */
     public function basketShowArticle()
     {
-
         if($this->getBasket() === null)
             return $this->redirectToRoute('store');
 
@@ -279,14 +279,17 @@ class StoreController extends AbstractController
     {
         if($this->getBasket() !== null) {
             if(!$this->getBasket()->isEmptyProduct() && $this->getBasket()->getPlaceDel() !== null) {
-                $former_type_del = $this->getBasket()->getTypeDelSelected();
-                $form = $this->createForm(SelectTypeDeliveryType::class, $this->getBasket(), 
+                if(is_null($this->getBasket()->getTypeDelSelected())){
+                    $typeDeliverySelected = new typeDeliverySelected();  
+                    $typeDeliverySelected->setCommand($this->getBasket());
+                } else
+                    $typeDeliverySelected = $this->getBasket()->getTypeDelSelected();
+                $form = $this->createForm(SelectTypeDeliveryType::class, $typeDeliverySelected, 
                     ['zip_code' => $this->getBasket()->getPlaceDel()->getZipCode()]);
                 $form->handleRequest($request);
                 if($form->isSubmitted() && $form->isValid()) {
-                    if(!is_null($former_type_del))
-                        $this->getDoctrine()->getManager()->persist($former_type_del);
-                    $this->getDoctrine()->getManager()->persist($this->getBasket()->getTypeDelSelected());
+                    $this->getDoctrine()->getManager()->persist($typeDeliverySelected->getTypeDelivery());
+                    $this->getDoctrine()->getManager()->persist($typeDeliverySelected);
                     $this->getDoctrine()->getManager()->persist($this->getBasket());
                     $this->getDoctrine()->getManager()->flush();
                     return $this->redirectToRoute('store_basket_payment');

@@ -24,7 +24,11 @@
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
+			    <!-- Vérifier le fonctionnement du not seul dans le if. -->
+			    {% if not is_admin %}
+			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
+			    {% endif %}
 			    <li class="breadcrumb-item"><a href="{{ path("types_deliveries") }}">Type de livraison</a></li>
 			    <li class="breadcrumb-item active" aria-current="page">
 			    	{{ (create)?("Ajout du type de livraison"):("Modification de type de livraison" ~ name) }}
@@ -63,14 +67,14 @@
 			</div>
 		</div>
 
-		<div class="row justify-content-around form-div">
+		{#<div class="row justify-content-around form-div">
 			<div class="col-5">
 				{{ form_label(form.company) }}
 				{{ form_errors(form.company) }}
 				{{ form_widget(form.company) }}
 			</div>
 			<div class="col-5"></div>
-		</div>
+		</div>#}
 
 		<div class="row justify-content-start form-div-button">
 			<div class="offset-sm-1">
@@ -86,7 +90,5 @@
 		</div>
 
 	{{ form_end(form) }}
-
-
 
 {% endblock %}

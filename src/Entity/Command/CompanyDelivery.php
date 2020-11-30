@@ -2,6 +2,7 @@
 
 namespace App\Entity\Command;
 
+use App\Entity\User\User;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -48,6 +49,11 @@ class CompanyDelivery
      * @ORM\OneToMany(targetEntity="App\Entity\Command\TypeDelivery", mappedBy="company", orphanRemoval=false)
      */
     private $types;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\User\User", mappedBy="companyDelivery", cascade={"persist", "remove"})
+     */
+    private $owner;
 
     public function __construct()
     {
@@ -154,4 +160,29 @@ class CompanyDelivery
 
         return $this;
     }
+
+    public function getOwner(): ?User
+    {
+        return $this->owner;
+    }
+
+    public function setOwner(?User $owner): self
+    {
+        if(!is_null($owner)) {
+            if($owner->getRoles() === ["ROLE_COMPANY_ADMIN"]) {
+                $this->owner = $owner;
+
+                // set (or unset) the owning side of the relation if necessary
+                $newCompanyDelivery = null === $owner ? null : $this;
+                if ($owner->getCompanyDelivery() !== $newCompanyDelivery) {
+                    $owner->setCompanyDelivery($newCompanyDelivery);
+                }
+            }
+        } else {
+            $this->owner = $owner;
+        }
+
+        return $this;
+    }
+
 }

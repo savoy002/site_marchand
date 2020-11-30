@@ -24,10 +24,16 @@
 
 	<div class="row offset-1">
 		<div class="col col-3">
-			<a href="{{ path("companies_deliveries") }}" class="btn btn-primary">Entreprises</a>
+			{% if is_admin %}
+				<a href="{{ path("companies_deliveries") }}" class="btn btn-primary">Entreprises</a>
+			{% else %}
+				<a href="{{ path("company_delivery", {id: admin.companyDelivery.id}) }}" class="btn btn-primary">
+					{# {{admin.companyDelivery.name}} #} Entreprise
+				</a>
+			{% endif %}
 		</div>
 		<div class="col col-3">
-			<a href="{{ path("types_deliveries") }}" class="btn btn-primary">Types</a>		
+			<a href="{{ path("types_deliveries") }}" class="btn btn-primary">Types</a>
 		</div>
 		<div class="col col-3">
 			<a href="{{ path("deliveries") }}" class="btn btn-primary">Livraisons</a>

@@ -53,6 +53,11 @@ class Command
     private $priceTotal;
 
     /**
+     * @ORM\Column(type="string", length=255, name="num_com", unique=true)
+     */
+    private $num;
+
+    /**
      * @ORM\Column(type="boolean", name="deleted_com", options={"default":false})
      */
     private $delete;
@@ -81,10 +86,15 @@ class Command
     private $user;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Command\TypeDelivery", inversedBy="commands")
-     * @ORM\JoinColumn(name="type_del_id_com", referencedColumnName="id")
+     * @ORM\OneToOne(targetEntity="App\Entity\Command\TypeDeliverySelected", mappedBy="command", cascade={"persist", "remove"})
      */
     private $typeDelSelected;
+
+    ///**
+    // * @ORM\ManyToOne(targetEntity="App\Entity\Command\TypeDelivery", inversedBy="commands")
+    // * @ORM\JoinColumn(name="type_del_id_com", referencedColumnName="id")
+    // */
+    //private $typeDelSelected;
 
     public function __construct()
     {
@@ -92,6 +102,7 @@ class Command
         $this->completed = false;
         $this->isBasket = true;
         $this->priceTotal = null;
+        $this->num = uniqid();
         $this->delete = false;
         $this->products = new ArrayCollection();
     }
@@ -168,17 +179,29 @@ class Command
             if(!empty($this->products)) {
 
                 foreach ($this->products as $pieceCommand)
-                    $this->priceTotal += $pieceCommand->getNbProducts() * $pieceCommand->getProduct()->getPrice();
+                    $this->priceTotal += $pieceCommand->getNbProducts() * $pieceCommand->getPriceProduct();
 
             }
 
-            if($this->delivery !== null)
-                $this->priceTotal += $this->delivery->getType()->getPrice();
+            if($this->typeDelSelected !== null)
+                $this->priceTotal += $this->typeDelSelected->getPriceDelivery();
 
         }
 
         return $this;
     }
+
+    public function getNum(): string
+    {
+        return $this->num;
+    }
+
+    /*public function setNum(string $num): self
+    {
+        $this->num = $num;
+
+        return $this;
+    }*/
 
     public function getDelete(): bool 
     {
@@ -286,7 +309,7 @@ class Command
         return $this;
     }
 
-    public function getTypeDelSelected(): ?TypeDelivery
+    /*public function getTypeDelSelected(): ?TypeDelivery
     {
         return $this->typeDelSelected;
     }
@@ -302,8 +325,24 @@ class Command
         }
 
         return $this;
+    }*/
+
+    public function getTypeDelSelected(): ?TypeDeliverySelected
+    {
+        return $this->typeDelSelected;
     }
 
+    public function setTypeDelSelected(TypeDeliverySelected $typeDelSelected): self
+    {
+        $this->typeDelSelected = $typeDelSelected;
+
+        // set the owning side of the relation if necessary
+        if ($typeDelSelected->getCommand() !== $this) {
+            $typeDelSelected->setCommand($this);
+        }
+
+        return $this;
+    }
 
 
     public function containProduct(VariantProduct $product): bool
@@ -315,5 +354,6 @@ class Command
         }
         return $contain;
     }
+
 
 }

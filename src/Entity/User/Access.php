@@ -20,7 +20,7 @@ class Access
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255, name="code_acc")
+     * @ORM\Column(type="string", length=255, name="code_acc", unique=true)
      */
     private $code;
 

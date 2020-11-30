@@ -11,6 +11,7 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use App\Entity\Command\Command;
 use App\Entity\Command\TypeDelivery;
+use App\Entity\Command\TypeDeliverySelected;
 
 
 class SelectTypeDeliveryType extends AbstractType
@@ -20,7 +21,7 @@ class SelectTypeDeliveryType extends AbstractType
 	{
 		$zip_code = $option['zip_code'];
 		$builder
-			->add('typeDelSelected', EntityType::class, 
+			->add('typeDelivery', EntityType::class, 
 				['label' => 'Moyen de livraison', 'class' => TypeDelivery::class, 'required' => true, 
 				 'attr' => ['class' => 'form-control'],
 				 'expanded' => true,
@@ -37,7 +38,7 @@ class SelectTypeDeliveryType extends AbstractType
 	public function configureOptions(OptionsResolver $resolver)
 	{
 		$resolver->setDefaults([
-			'data_class' => Command::class,
+			'data_class' => TypeDeliverySelected::class,
 			'zip_code' => null
 		]);
 	}

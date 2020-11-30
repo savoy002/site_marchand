@@ -189,6 +189,7 @@
 							<table class="table table-bordered">
 								<thead class="thead-dark">
 									<tr>
+										<th>Numéro</th>
 										<th>Date de création</th>
 										<th>Complète</th>
 										<th>Adresse de livraison</th>
@@ -201,6 +202,7 @@
 								<tbody>
 									{% for command in commands %}
 										<tr>
+											<td>{{ command.num }}</td>
 											<td>{{ command.createdAt|date("d/m/Y") }}</td>
 											<td>{{ (command.completed)?('Oui'):('Non') }}</td>
 											<td>

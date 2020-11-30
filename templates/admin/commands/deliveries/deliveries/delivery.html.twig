@@ -15,7 +15,11 @@
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("menu_delivey") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
+			    <!-- Vérifier le fonctionnement du not seul dans le if. -->
+			    {% if not is_admin %}
+			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
+			    {% endif %}
 			    <li class="breadcrumb-item"><a href="{{ path("deliveries") }}">Livraisons</a></li>
 			    <li class="breadcrumb-item active" aria-current="page">Livraison</li>
 			  </ol>
@@ -32,7 +36,7 @@
 						<tr>
 							<th>Date</th>
 							<th>Type</th>
-							<th>Voir</th>
+							{#<th>Voir</th>#}
 						</tr>
 					</thead>
 					<tbody>
@@ -43,7 +47,7 @@
 									((delivery.type.delete == false)?(delivery.type.name):('Supprimé')):
 									('Supprimé') }}
 							</td>
-							<td><a class="btn btn-info" href="">Commandes</a></td>
+							{#<td><a class="btn btn-info" href="">Commandes</a></td>#}
 						</tr>
 					</tbody>
 				</table>

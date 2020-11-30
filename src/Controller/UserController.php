@@ -155,8 +155,8 @@ class UserController extends AbstractController
     public function sendEmailVerify(/*MailerInterface $mailer*/)
     {
         if(!$this->getUser()->getValid()) {
-            var_dump(uniqid());
-            die();
+            //var_dump(uniqid());
+            //die();
             $access = new Access();
             $access->setCode(uniqid());
             $email = (new Email())->from('')->to($this->getUser()->getEmail())->subject("Vérification d'adresse mail.")

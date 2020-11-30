@@ -2,6 +2,7 @@
 
 namespace App\Entity\User;
 
+use App\Entity\Command\CompanyDelivery;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -101,6 +102,12 @@ class User implements UserInterface
      * @ORM\OneToMany(targetEntity="App\Entity\User\Access", mappedBy="user", orphanRemoval=true)
      */
     private $accesses;
+
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Command\CompanyDelivery", inversedBy="owner", cascade={"persist", "remove"})
+     */
+    private $companyDelivery;
+    
 
     public function __construct() {
         $this->createdAt = new DateTime();
@@ -251,8 +258,7 @@ class User implements UserInterface
     public function setSuperAdmin(bool $superAdmin): self
     {
         $this->superAdmin = $superAdmin;
-        if($this->getRoles() === "ROLE_USER") 
-            $this->setRoles(["ROLE_ADMIN"]);
+        $this->setRoles(["ROLE_ADMIN"]);
         return $this;
     }
 
@@ -347,6 +353,64 @@ class User implements UserInterface
         return $this;
     }
 
+    /**
+     * @return Collection|Access[]
+     */
+    public function getAccesses(): Collection
+    {
+        return $this->accesses;
+    }
+
+    public function addAccess(Access $access): self
+    {
+        if (!$this->accesses->contains($access)) {
+            $this->accesses[] = $access;
+            
+            if($access->getUser() != $this)
+                $access->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAccess(Access $access): self
+    {
+        if ($this->accesses->contains($access)) {
+            $this->accesses->removeElement($access);
+            // set the owning side to null (unless already changed)
+            if ($access->getUser() === $this) {
+                $access->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    public function getCompanyDelivery(): ?CompanyDelivery
+    {
+        return $this->companyDelivery;
+    }
+
+    public function setCompanyDelivery(?CompanyDelivery $companyDelivery): self
+    {
+        if(!is_null($companyDelivery)) {
+            if($companyDelivery->getOwner() != $this)
+                $companyDelivery->setOwner(null);
+        }
+        if($this->getRoles() === ["ROLE_COMPANY_ADMIN"]){
+            $this->companyDelivery = $companyDelivery;
+            if($this->companyDelivery != $this) {
+                $companyDelivery->setOwner($this);
+            }
+        } else if($this->companyDelivery === $companyDelivery && !is_null($companyDelivery)) {
+            $this->companyDelivery = null;
+        }
+
+        return $this;
+    }
+
+
+
 
 
     public function getBasket(): ?Command
@@ -379,39 +443,6 @@ class User implements UserInterface
                 $contain = true;
         }
         return $contain;
-    }
-
-    /**
-     * @return Collection|Access[]
-     */
-    public function getAccesses(): Collection
-    {
-        return $this->accesses;
-    }
-
-    public function addAccess(Access $access): self
-    {
-        if (!$this->accesses->contains($access)) {
-            $this->accesses[] = $access;
-            
-            if($access->getUser() != $this)
-                $access->setUser($this);
-        }
-
-        return $this;
-    }
-
-    public function removeAccess(Access $access): self
-    {
-        if ($this->accesses->contains($access)) {
-            $this->accesses->removeElement($access);
-            // set the owning side to null (unless already changed)
-            if ($access->getUser() === $this) {
-                $access->setUser(null);
-            }
-        }
-
-        return $this;
     }
 
 }
