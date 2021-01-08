@@ -34,6 +34,12 @@ class TypeDeliveryRepository extends ServiceEntityRepository
         return $request;
     }
 
+    public function findFormDelivery($id_company)
+    {
+        $request = $this->createQueryBuilder('t')->where('t.company = :id_company')->setParameter('id_company', $id_company);
+        return $request;
+    }
+
     // /**
     //  * @return TypeDelivery[] Returns an array of TypeDelivery objects
     //  */

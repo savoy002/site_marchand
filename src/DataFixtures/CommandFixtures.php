@@ -159,28 +159,34 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$typedelivery3->setTimeMax(4);
 		$typedelivery3->setActivate(true);
 
-		//Création des Deleveries.
+		//Création des Deliveries.
 
 		$delivery1 = new Delivery();
 		$delivery1->setDate(new DateTime('01-07-2020'));
+		$delivery1->setDepartments(['95']);
 
 		$delivery2 = new Delivery();
 		$delivery2->setDate(new DateTime('23-06-2020'));
+		$delivery2->setDepartments(['67']);
 
 		$delivery3 = new Delivery();
 		$delivery3->setDate(new DateTime('12-04-2020'));
+		$delivery3->setDepartments(['51']);
 
 		$delivery4 = new Delivery();
 		$delivery4->setDate(new DateTime('30-05-2020'));
+		$delivery4->setDepartments(['75']);
 
 		//$delivery5 = new Delivery();
 		//$delivery5->setDate(new DateTime('12-05-2020'));
 
 		$delivery6 = new Delivery();
 		$delivery6->setDate(new DateTime('16-07-2020'));
+		$delivery6->setDepartments(['67']);
 
 		$delivery7 = new Delivery();
 		$delivery7->setDate(new DateTime('2020-06-28'));
+		$delivery7->setDepartments(['86']);
 
 		//Création des liens entre les différents objets.
 
@@ -204,13 +210,13 @@ class CommandFixtures extends Fixture implements ContainerAwareInterface, Depend
 		$companydelivery1->addType($typedelivery2);
 		$companydelivery2->addType($typedelivery3);
 
-		$typedelivery1->addDelivery($delivery1);
-		$typedelivery1->addDelivery($delivery7);
-		$typedelivery2->addDelivery($delivery3);
-		$typedelivery2->addDelivery($delivery4);
-		//$typedelivery2->addDelivery($delivery5);
-		$typedelivery2->addDelivery($delivery6);
-		$typedelivery3->addDelivery($delivery2);
+		$companydelivery1->addDelivery($delivery1);
+		$companydelivery1->addDelivery($delivery7);
+		$companydelivery1->addDelivery($delivery3);
+		$companydelivery1->addDelivery($delivery4);
+		//$companydelivery1->addDelivery($delivery5);
+		$companydelivery1->addDelivery($delivery6);
+		$companydelivery2->addDelivery($delivery2);
 
 		//Création des TypeDeliverySelected.
 

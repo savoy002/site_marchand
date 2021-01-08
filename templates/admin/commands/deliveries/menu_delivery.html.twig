@@ -28,7 +28,7 @@
 				<a href="{{ path("companies_deliveries") }}" class="btn btn-primary">Entreprises</a>
 			{% else %}
 				<a href="{{ path("company_delivery", {id: admin.companyDelivery.id}) }}" class="btn btn-primary">
-					{# {{admin.companyDelivery.name}} #} Entreprise
+					{{admin.companyDelivery.name}}
 				</a>
 			{% endif %}
 		</div>

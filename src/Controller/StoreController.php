@@ -14,6 +14,7 @@ use App\Entity\Command\typeDeliverySelected;
 use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
+use App\Entity\User\Comment;
 use App\Entity\User\User;
 
 use App\Form\Type\User\CommentType;
@@ -167,9 +168,11 @@ class StoreController extends AbstractController
                 }
                 //Modifie le nombre de produits dans la commande si elle existe ou ajoute le produit dans la commande sinon. 
                 if(isset($former_piece_product)) {
+                    $former_piece_product->setPriceProduct($var_product->getPrice());
                     $former_piece_product->setNbProducts($piece_command->getNbProducts());
                     $this->getDoctrine()->getManager()->persist($former_piece_product);
                 } else {
+                    $piece_command->setPriceProduct($var_product->getPrice());
                     $piece_command->setProduct($var_product);
                     $piece_command->setCommand($basket);
                     $this->getDoctrine()->getManager()->persist($var_product);
@@ -288,6 +291,7 @@ class StoreController extends AbstractController
                     ['zip_code' => $this->getBasket()->getPlaceDel()->getZipCode()]);
                 $form->handleRequest($request);
                 if($form->isSubmitted() && $form->isValid()) {
+                    $typeDeliverySelected->setPriceDelivery($typeDeliverySelected->getTypeDelivery()->getPrice());
                     $this->getDoctrine()->getManager()->persist($typeDeliverySelected->getTypeDelivery());
                     $this->getDoctrine()->getManager()->persist($typeDeliverySelected);
                     $this->getDoctrine()->getManager()->persist($this->getBasket());

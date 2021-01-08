@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use DateTime;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 
@@ -11,8 +14,10 @@ use App\Entity\Command\CompanyDelivery;
 use App\Entity\Command\TypeDelivery;
 use App\Entity\Command\Delivery;
 use App\Entity\Departments;
+use App\Form\Type\Command\AddCommandToDeliveryType;
 use App\Form\Type\Command\ChoiceDepartmentType;
 use App\Form\Type\Command\CompanyDeliveryType;
+use App\Form\Type\Command\DeliveryType;
 use App\Form\Type\Command\TypeDeliveryType;
 
 
@@ -24,12 +29,16 @@ class AdminCommandController extends AbstractController
     //Attention si vous changez la valeur de cette constante pensez aussi à changer celle du test.
 	const NUMBER_BY_PAGE = 5;
 
+    public function __construct() {
+        $this->filesSystem = new Filesystem();
+    }
+
     //
     //Partie Command.
     //
 
 	/**
-	 * @Route("/admin/commands", name="commands")
+	 * @Route("/admin/command/commands", name="commands")
 	 */
 	public function commands(Request $request) 
 	{
@@ -168,19 +177,37 @@ class AdminCommandController extends AbstractController
 	}
 
 	/**
-	 * @Route("/admin/command/{id}", name="command")
+	 * @Route("/admin/command/command/{id}", name="command")
 	 */
 	public function command($id) 
 	{
         if($this->isAdmin())
-		  $command = $this->getDoctrine()->getRepository(Command::class)
+            $command = $this->getDoctrine()->getRepository(Command::class)
                 ->findOneBy(['id' => $id, 'delete' => false, 'isBasket' => false]);
+        else
+            $command = $this->getDoctrine()->getRepository(Command::class)
+                ->adminFindCommand($id, $this->getCompanyId());
 
 		if(is_null($command))
 			return $this->redirect('commands');
 
 		return $this->render('admin/commands/commands/command.html.twig', ['command' => $command]);
 	}
+
+    /**
+     * @Route("/admin/command/commands/not_send", name="commands_not_send")
+     */
+    public function commandsWithoutDelivery()
+    {
+        if($this->isAdmin())
+            $commands = $this->getDoctrine()->getRepository(Command::class)
+                ->findBy(['delete' => false, 'delivery' => null, 'isBasket' => false]);
+        else
+            $commands = $this->getDoctrine()->getRepository(Command::class)
+                ->adminFindCommandsWithoutDelivery($this->getCompanyId());
+
+        return $this->render('admin/commands/commands/commands_not_send.html.twig', ['commands' => $commands]);
+    }
 
     //
     //Ensemble Delivery.
@@ -238,7 +265,7 @@ class AdminCommandController extends AbstractController
     {
         if($this->isAdmin()) {
             $company = new CompanyDelivery();
-            $form = $this->createForm(CompanyDeliveryType::class, $company);
+            $form = $this->createForm(CompanyDeliveryType::class, $company, ['all_france_value' => 'yes', 'create' => true]);
             $form->handleRequest($request);
             $errors = array();
             if($form->isSubmitted() && $form->isValid()) {
@@ -277,20 +304,30 @@ class AdminCommandController extends AbstractController
             $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
-            $option = [];
+            $option = ['create' => false];
             if(!in_array("All", $company->getArea()))
                 $option['all_france_value'] = "no";
             else 
                 $option['all_france_value'] = "yes";
+            $former_image = $company->getLogoFileName() ;
             $form = $this->createForm(CompanyDeliveryType::class, $company, $option);
             $form->handleRequest($request);
             $errors = array();
             if($form->isSubmitted() && $form->isValid()) {
                 $image = $form->get('image')->getData();
                 if($image) {
-                    $res = $this->saveImage($image, 'company_delivery_image_directory');
-                    if(gettype($res) === "string")
-                        $company->setLogoFileName($res);
+                    $res_save = $this->saveImage($image, 'company_delivery_image_directory');
+                    if(gettype($res_save) === "string")
+                        if($company->getLogoFileName() != null) {
+                            $res_delete = $this->deleteImage($company->getLogoFileName(), 'company_delivery_image_directory');
+                            if(!$res_delete)
+                                $company->setLogoFileName($res_save);
+                            else 
+                                return $this->render('admin/commands/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
+                                    ['form' => $form->createView(), 'errors' => $e[$res_delete], 'create' => true]);
+                        } else {
+                            $company->setLogoFileName($res_save);
+                        }
                     else 
                         return $this->render('admin/commands/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
                             ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
@@ -299,7 +336,7 @@ class AdminCommandController extends AbstractController
                     $company->setArea(["All"]);
                     $this->getDoctrine()->getManager()->persist($company);
                     $this->getDoctrine()->getManager()->flush();
-                    return $this->redirectToRoute('companies_deliveries');
+                    return $this->redirectToRoute('company_delivery', ['id' => $this->getCompanyId()]);
                 } else {
                     if(in_array("All", $company->getArea()))
                         $company->setArea([]);
@@ -310,7 +347,7 @@ class AdminCommandController extends AbstractController
                 }
             }
             return $this->render('admin/commands/deliveries/companies_deliveries/form_company_delivery.html.twig', 
-                ['form' => $form->createView(), 'errors' => $errors, 'create' => false, 'id' => $company->getId(), 
+                ['form' => $form->createView(), 'errors' => $errors, 'create' => false, 'id_company' => $company->getId(), 
                 'name' => $company->getName()]);
         } else 
             return $this->redirectToRoute("menu_delivery");
@@ -394,9 +431,10 @@ class AdminCommandController extends AbstractController
      */
     public function typesDeliveries()
     {
-        if($this->isAdmin())
+        if($this->isAdmin()) {
             $types = $this->getDoctrine()->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
-        else {
+            $company = null;
+        } else {
             $types = $this->getDoctrine()->getRepository(TypeDelivery::class)
                 ->findBy(['company' => $this->getCompanyId(), 'delete' => false]);
             $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
@@ -412,9 +450,10 @@ class AdminCommandController extends AbstractController
      */
     public function typeDelivery($id)
     {
-        if($this->isAdmin())
+        if($this->isAdmin()) {
             $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
-        else {
+            $company = null;
+        } else {
             $type = $this->getDoctrine()->getRepository(TypeDelivery::class)
                 ->findOneBy(['id' => $id, 'company' => $this->getCompanyId(), 'delete' => false]);
             $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
@@ -437,6 +476,8 @@ class AdminCommandController extends AbstractController
             $form = $this->createForm(TypeDeliveryType::class, $type);
             $form->handleRequest($request);
             $errors = array();
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+                ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
             if($form->isSubmitted() && $form->isValid()) {
                 $valid = true;
                 if($type->getTimeMin() > $type->getTimeMax()) {
@@ -448,15 +489,15 @@ class AdminCommandController extends AbstractController
                     $valid = false;
                 }
                 if($valid) {
-                    $type->setCompany($this->getUser()->getCompanyDelivery());
-                    $this->getDoctrine()->getManager()->persist($this->getUser()->getCompanyDelivery());
+                    $type->setCompany($company);
+                    $this->getDoctrine()->getManager()->persist($company);
                     $this->getDoctrine()->getManager()->persist($type);
                     $this->getDoctrine()->getManager()->flush();
                     return $this->redirectToRoute('types_deliveries');
                 }
             }
             return $this->render('admin/commands/deliveries/types_deliveries/form_type_delivery.html.twig', 
-                [ 'form' => $form->createView(), 'errors' => $errors, 'create' => true]);
+                [ 'form' => $form->createView(), 'errors' => $errors, 'create' => true, 'company' => $company]);
         } else 
             return $this->redirectToRoute('types_deliveries');
     }
@@ -558,13 +599,15 @@ class AdminCommandController extends AbstractController
         //Recherche la demande de page de l'administrateur si elle existe.
         $page = $request->request->get('page');
 
-        //Ajout le critère d'entreprise is il n'est pas un administrateur
+        //Ajout le critère d'entreprise is il n'est pas un administrateur du site ou récupère les entreprises pour la recherche sinon.
+        $companies = array();
         if(!$this->isAdmin()){
             $criteria['company'] = $this->getCompanyId();
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
-        }
-
+        } else 
+            $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
+            
         //Gestion de la sélection si il y an a une.
         if($request->request->get('research') === "research") {
 
@@ -589,10 +632,10 @@ class AdminCommandController extends AbstractController
                 }
             }
 
-            if($request->request->get('type') != "" && $request->request->get('type') !== null) {
+            /*if($request->request->get('type') != "" && $request->request->get('type') !== null) {
                 $criteria['type'] = $request->request->get('type');
                 $former_request['type'] = $request->request->get('type');
-            }
+            }*/
 
             if($request->request->get('company') != "" && $request->request->get('company') !== null) {
                 $criteria['company'] = $request->request->get('company');
@@ -632,22 +675,19 @@ class AdminCommandController extends AbstractController
         $deliveries = $this->getDoctrine()->getRepository(Delivery::class)->companyResearchDeliveries($criteria);
 
         //Recherche les types de livraison pour les recherches.
-        if($this->isAdmin())
+        /*if($this->isAdmin())
             $types = $this->getDoctrine()->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
         else 
             $types = $this->getDoctrine()->getRepository(TypeDelivery::class)
-                ->findBy(['delete' => false, 'company' => $this->getCompanyId()]);
+                ->findBy(['delete' => false, 'company' => $this->getCompanyId()]);*/
 
-        //Recherche les entreprises de livraison pour les recherches si l'utilisateur est un administrateur.
-        $companies = array();
-        if($this->isAdmin())
-            $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
-
-        //$deliveries = $this->getDoctrine()->getRepository(Delivery::class)->findBy(['delete' => false]);
+        $departments = new Departments();
+        $list_departments = $departments->getListDepartment();
 
         return $this->render('admin/commands/deliveries/deliveries/deliveries.html.twig', 
             ['deliveries' => $deliveries, 'number_pages' => $number_pages, 'page' => $page, 'request' => $former_request, 
-             'errors' => $errors, 'types' => $types, 'company' => $company, 'companies' => $companies, 'is_admin' => $this->isAdmin()]);
+             'errors' => $errors, 'companies' => $companies, 'is_admin' => $this->isAdmin(), 
+             'departments' => $list_departments]);
     }
 
     /**
@@ -657,18 +697,105 @@ class AdminCommandController extends AbstractController
     {
         if($this->isAdmin()) {
             $delivery = $this->getDoctrine()->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $company = null;
         } else {
-            //Ajouter une méthode dans le repository pour chercher la livraison de l'entreprise.
-            $delivery = $this->getDoctrine()->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $delivery = $this->getDoctrine()->getRepository(Delivery::class)
+                ->findOneBy(['id' => $id, 'company' => $this->getCompanyId(), 'delete' => false]);
             $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
         }
+
         if(is_null($delivery))
             return $this->redirectToRoute('deliveries');
+
+        $departments = new Departments();
+        $list_departments = $departments->getListDepartment();
         
         return $this->render('admin/commands/deliveries/deliveries/delivery.html.twig', 
-            ['delivery' => $delivery, 'is_admin' => $this->isAdmin(), 'company' => $company]);
+            ['delivery' => $delivery, 'is_admin' => $this->isAdmin(), 'company' => $company, 'departments' => $list_departments]);
     }
+
+    /**
+     * @Route("admin/delivery/delivery/{id}/commands", name="commands_by_delivery")
+     */
+    public function commandsByDelivery($id)
+    {
+        if($this->isAdmin()) {
+            $delivery = $this->getDoctrine()->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $company = null;
+        } else {
+            $delivery = $this->getDoctrine()->getRepository(Delivery::class)
+                ->findOneBy(['id' => $id, 'delete' => false, 'company' => $this->getCompanyId()]);
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+                ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
+        }
+
+        if(is_null($delivery))
+            return $this->redirectToRoute('deliveries');
+
+        return $this->render('admin/commands/commands/commands_by_delivery.html.twig', 
+            ['delivery' => $delivery, 'company' => $company, 'is_admin' => $this->isAdmin()]);
+    }
+
+    /**
+     * @Route("admin/delivery/create_delivery", name="create_delivery")
+     */
+    public function createDelivery(Request $request)
+    {
+        if(!$this->isAdmin()) {
+            $delivery = new Delivery();
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+                ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
+            $errors = array();
+            $form = $this->createForm(DeliveryType::class, $delivery);
+            $form->handleRequest($request);
+            if($form->isSubmitted() && $form->isValid()) {
+                if($delivery->getDate() > new DateTime())
+                    $errors[] = "La date ne doit pas être postérieur à d'aujourd'hui.";
+                if(empty($errors)) {
+                    $delivery->setCompany($company);
+                    $this->getDoctrine()->getManager()->persist($company);
+                    $this->getDoctrine()->getManager()->persist($delivery);
+                    foreach ($delivery->getCommands() as $command) {
+                        $command->setDelivery($delivery);
+                        $this->getDoctrine()->getManager()->persist($command);
+                    }
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('deliveries');
+                }
+            }
+            return $this->render('admin/commands/deliveries/deliveries/create_delivery.html.twig', 
+                ['form' => $form->createView(), 'company' => $company, 'errors' => $errors]);
+        }
+        return $this->redirectToRoute('menu_delivery');
+    }
+
+    ///**
+    // * @Route("admin/delivery/add_command_to_delivery", name="add_command_to_delivery")
+    // */
+    /*public function choiceCommandToDelivery(Request $request)
+    {
+        if(!$this->isAdmin()) {
+            $delivery = $this->getDoctrine()->getRepository(Delivery::class)
+                ->findOneBy(['empty' => true, 'delete' => false, 'company' => $this->getCompanyId()]);;
+            if(is_null($delivery))
+                return $this->redirectToRoute('create_delivery');
+            $form = $this->createForm(AddCommandToDeliveryType::class, $delivery, ['id_company' => $this->getCompanyId()]);
+            $form->handleRequest($request);
+            if($form->isSubmitted() && $form->isValid()) {
+                foreach ($delivery->getCommands() as $command)
+                    $this->getDoctrine()->getManager()->persist($command);
+                $this->getDoctrine()->getManager()->persist($delivery);
+                $this->getDoctrine()->getManager()->flush();
+                return $this->redirectToRoute('delivery', ['id' => $delivery->getId()]);
+            }
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+                ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
+            return $this->render('admin/commands/deliveries/deliveries/add_command_to_delivery.html.twig', 
+                ['form' => $form->createView(), 'company' => $company]);
+        }
+        return $this->redirectToRoute('menu_delivery');
+    }*/
 
     ///**
     //* @Route("admin/delivery/type_delivery/{id}/deliveries", name="deliveries_by_type")
@@ -701,6 +828,9 @@ class AdminCommandController extends AbstractController
     }
 
     public function deleteImage($nameImage, $parameter_directory) {
+        /*var_dump($nameImage);
+        var_dump($parameter_directory);
+        die();*/
         try {
             $this->filesSystem->remove($this->getParameter($parameter_directory).'/'.$nameImage);
             return false;
@@ -710,7 +840,7 @@ class AdminCommandController extends AbstractController
     }
 
     //
-    //Le méthode indique l'administrateur est un administrateur du site et non d'une entreprise.
+    //La méthode indique l'administrateur est un administrateur du site et non d'une entreprise.
     //
     protected function isAdmin(){
         return $this->getUser()->getRoles() === ["ROLE_ADMIN"];

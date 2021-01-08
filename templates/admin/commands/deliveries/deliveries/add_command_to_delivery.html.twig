@@ -1,0 +1,58 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Commande de livraison {% endblock %}
+
+{% block body %} 
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Mettre les commandes de la livraisons.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Mettre les commandes de la livraisons</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row justify-content-center">
+		{{ form_start(form, {'attr' : {'class' : 'form-group'}}) }}
+
+			<div class="row">
+				<div class="offset-1">
+					{{ form_label(form.commands) }}
+				</div>
+			</div>
+			<div class="row">
+				{% for choice in form.commands.children %}
+					<div class="offset-1 col-5">
+						<div class="form-check inline-block ">
+							{{ form_widget(choice) }}
+				            {{ form_label(choice) }}
+				            {{ form_errors(choice) }}
+						</div>
+					</div>
+				{% endfor %}
+			</div>
+
+			<div class="row justify-content-start form-div-button">
+				<div class="offset-sm-1">
+					{{ form_row(form.submit) }}
+				</div>
+				<div class="col-1">
+					<a href="{{ path("company_delivery", {id:company.id}) }}" class="btn btn-danger">Annuler</a>
+				</div>
+			</div>
+
+		{{ form_end(form) }}
+	</div>
+
+{% endblock %}

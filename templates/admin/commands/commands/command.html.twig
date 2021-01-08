@@ -63,12 +63,7 @@
 										("Pas envoyé")
 									}}
 								</td>
-								<td>
-									{{ 
-										(command.delivery is not null)?
-										((command.delivery.type.company)?(command.delivery.type.company.name))
-									}}
-								</td>
+								<td>{{ command.typeDelSelected.typeDelivery.company.name }}</td>
 								<td>{{ (command.dateReceive is not null)?(command.dateReceive|date("d/m/Y")):("Pas reçue") }}</td>
 							</tr>
 						</tbody>
@@ -126,7 +121,7 @@
 							</thead>
 							<tbody>
 								<tr>
-									<td colspan="3">Livraison de {{ command.delivery.type.company.name }}</td>
+									<td colspan="3">Livraison de {{ command.typeDelSelected.typeDelivery.company.name }}</td>
 									<td>
 										{{ command.typeDelSelected.priceDelivery|slice(0, command.typeDelSelected.priceDelivery|length - 2)~','~command.typeDelSelected.priceDelivery|slice(command.typeDelSelected.priceDelivery|length - 2, command.typeDelSelected.priceDelivery|length) }}
 									</td>

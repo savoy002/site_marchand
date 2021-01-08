@@ -20,7 +20,7 @@ class ChoiceDepartmentType extends AbstractType
 	{
 		$choices = new Departments();
 		$builder
-			->add('area', ChoiceType::class, ['label' => "Type d'utilisateur", 
+			->add('area', ChoiceType::class, ['label' => "Choix des départements", 
 				'choices' => $choices->getListDepartmentForForm(), 'multiple' => true, 'expanded' => true  ])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 'attr' => ['class' => 'btn btn-primary']]);
 	}

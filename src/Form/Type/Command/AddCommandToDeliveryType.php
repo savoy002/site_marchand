@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Form\Type\Command;
 
 use Doctrine\ORM\EntityRepository;
@@ -10,26 +11,24 @@ use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 
 use App\Entity\Command\Command;
-use App\Entity\Command\TypeDelivery;
-use App\Entity\Command\TypeDeliverySelected;
+use App\Entity\Command\Delivery;
 
 
-class SelectTypeDeliveryType extends AbstractType
+class AddCommandToDeliveryType extends AbstractType
 {
 
 	public function buildForm(FormBuilderInterface $builder, array $option)
 	{
-		$zip_code = $option['zip_code'];
+		$id_company = $option['id_company'];
 		$builder
-			->add('typeDelivery', EntityType::class, 
-				['label' => 'Moyen de livraison', 'class' => TypeDelivery::class, 'required' => true, 
-				 'attr' => ['class' => 'form-control'], 'expanded' => true,
-				 'query_builder' => function(EntityRepository $er) use ($zip_code) {
-						return $er->findFormSelectTypeDelivery($zip_code);
+			->add('commands', EntityType::class, 
+				['label' => 'Choix des commandes', 'class' => Command::class, 'attr' => ['class' => ''],
+				'query_builder' => function(EntityRepository $er) use ($id_company) {
+						return $er->adminFindCommandsWithoutDelivery($id_company);
 					},
-				'choice_label' => function($typeDelivery) {
-			 			return $typeDelivery->showTypeDelivery();
-			 		},
+				'choice_label' => function($command) {
+			 			return $command->showCommand();
+			 		}
 				])
 			->add('submit', SubmitType::class, ['label' => 'Valider', 'attr' => ['class' => 'btn btn-primary']]);
 	}
@@ -37,8 +36,8 @@ class SelectTypeDeliveryType extends AbstractType
 	public function configureOptions(OptionsResolver $resolver)
 	{
 		$resolver->setDefaults([
-			'data_class' => TypeDeliverySelected::class,
-			'zip_code' => null
+			'data_class' => Delivery::class,
+			'id_company' => null,
 		]);
 	}
 

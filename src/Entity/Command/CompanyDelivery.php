@@ -51,6 +51,11 @@ class CompanyDelivery
     private $types;
 
     /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Command\Delivery", mappedBy="company")
+     */
+    private $deliveries;
+
+    /**
      * @ORM\OneToOne(targetEntity="App\Entity\User\User", mappedBy="companyDelivery", cascade={"persist", "remove"})
      */
     private $owner;
@@ -59,6 +64,7 @@ class CompanyDelivery
     {
         $this->activate = false;
         $this->delete = false;
+        $this->deliveries = new ArrayCollection();
         $this->types = new ArrayCollection();
     }
 
@@ -154,8 +160,44 @@ class CompanyDelivery
         if ($this->hasType($type)) {
             $this->types->removeElement($type);
             // set the owning side to null (unless already changed)
-            if ($types->getCompany() === $this)
+            if ($type->getCompany() === $this)
+                $type->setCompany(null);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Delivery[]
+     */
+    public function getDeliveries(): Collection
+    {
+        return $this->deliveries;
+    }
+
+    public function hasDelivery(Delivery $delivery): bool
+    {
+        return $this->deliveries->contains($delivery);
+    }
+
+    public function addDelivery(Delivery $delivery): self
+    {
+        if (!$this->deliveries->contains($delivery)) {
+            $this->deliveries[] = $delivery;
+            $delivery->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeDelivery(Delivery $delivery): self
+    {
+        if ($this->deliveries->contains($delivery)) {
+            $this->deliveries->removeElement($delivery);
+            // set the owning side to null (unless already changed)
+            if ($delivery->getCompany() === $this) {
                 $delivery->setCompany(null);
+            }
         }
 
         return $this;

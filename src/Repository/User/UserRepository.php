@@ -105,6 +105,15 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         return $request->getQuery()->getResult();
     }
 
+    public function findFormCompanyDelivery() {
+        $request = $this->createQueryBuilder('u')
+            ->where("u.roles = '[\"ROLE_COMPANY_ADMIN\"]'")
+            ->andWhere('u.delete = FALSE')
+            ->andWhere('u.companyDelivery IS NULL');
+
+        return $request;
+    }
+
     // /**
     //  * @return User[] Returns an array of User objects
     //  */

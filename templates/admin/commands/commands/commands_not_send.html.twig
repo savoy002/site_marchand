@@ -1,0 +1,80 @@
+{% extends 'base_admin.html.twig' %}
+
+
+{% block title %} Commandes {% endblock %}
+
+
+{% block body %}
+
+		<div class="row">
+			<div class="offset-sm-1">
+				<h1>Commandes.</h1>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="offset-sm-1"
+				<nav aria-label="breadcrumb">
+				  <ol class="breadcrumb">
+				    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+				    <li class="breadcrumb-item"><a href="{{ path("commands") }}">Commandes</a></li>
+				    <li class="breadcrumb-item active" aria-current="page">Commandes pas envoyées</li>
+				  </ol>
+				</nav>
+			</div>
+		</div>
+
+		<div class="row justify-content-center">
+
+			{% if commands|length > 0 %}
+				<div class="row">
+					<div class="col-10 offset-1 table-responsive">
+						<table class="table table-bordered">
+							<thead class="thead-dark">
+								<tr>
+									<th>Numéro</th>
+									<th>Date de création</th>
+									<th>Complète</th>
+									<th>Adresse de livraison</th>
+									<th>Type de livraison</th>
+									<th>Prix total</th>
+									<th>Voir</th>
+								</tr>
+							</thead>
+							<tbody>
+								{% for command in commands %}
+									<tr>
+										<td>{{ command.num }}</td>
+										<td>{{ command.createdAt|date("d/m/Y") }}</td>
+										<td>{{ (command.completed)?('Oui'):('Non') }}</td>
+										<td>
+											{{ 
+												(command.placeDel is not null)?
+												(command.placeDel.street~' '~command.placeDel.zipCode~' '~command.placeDel.city):
+												("Non définie") 
+											}}
+										</td>
+										<td>{{ command.typeDelSelected.typeDelivery.name }}</td>
+										<td>
+											{{ 
+												(command.priceTotal is not null)?
+												( command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) )
+											}}
+										</td>
+										<td><a href="{{ path('command', {id:command.id}) }}" class="btn btn-info">Voir</a></td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
+				</div>
+			{% else %}
+				<div class="col-12 justify-content-center">
+					<p>Aucune commande trouvée.</p>
+				</div>
+			{% endif %}
+
+
+		</div>
+
+{% endblock %}

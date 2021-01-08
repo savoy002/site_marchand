@@ -16,7 +16,6 @@
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
-			    <!-- Vérifier le fonctionnement du not seul dans le if. -->
 			    {% if not is_admin %}
 			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
 			    {% endif %}

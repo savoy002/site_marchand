@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20201123073852 extends AbstractMigration
+final class Version20201207090857 extends AbstractMigration
 {
     public function getDescription() : string
     {
@@ -31,7 +31,7 @@ final class Version20201123073852 extends AbstractMigration
         $this->addSql('CREATE TABLE PieceCommand (id INT AUTO_INCREMENT NOT NULL, com_id_piece_com INT DEFAULT NULL, prod_id_piece_com INT DEFAULT NULL, nb_prod INT NOT NULL, mem_price_prod INT NOT NULL, INDEX IDX_7A07E462D3121940 (com_id_piece_com), INDEX IDX_7A07E46274EB3D94 (prod_id_piece_com), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE Address (id INT AUTO_INCREMENT NOT NULL, street VARCHAR(255) NOT NULL, zip_code VARCHAR(255) NOT NULL, city VARCHAR(255) NOT NULL, deleted_adr TINYINT(1) DEFAULT \'0\' NOT NULL, PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE CompanyDelivery (id INT AUTO_INCREMENT NOT NULL, name_comp_del VARCHAR(255) NOT NULL, area TEXT NOT NULL COMMENT \'(DC2Type:json_array)\', logo VARCHAR(255) DEFAULT NULL, activate_comp_del TINYINT(1) DEFAULT \'0\' NOT NULL, deleted_comp_del TINYINT(1) DEFAULT \'0\' NOT NULL, UNIQUE INDEX UNIQ_12284B72E48E9A13 (logo), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('CREATE TABLE Delivery (id INT AUTO_INCREMENT NOT NULL, type_del_id_del INT NOT NULL, date_del DATE DEFAULT NULL, deleted_del TINYINT(1) DEFAULT \'0\' NOT NULL, INDEX IDX_CEF78E46A1DFB39E (type_del_id_del), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        $this->addSql('CREATE TABLE Delivery (id INT AUTO_INCREMENT NOT NULL, comp_del_id_del INT NOT NULL, num_del VARCHAR(255) NOT NULL, date_del DATE DEFAULT NULL, departments JSON DEFAULT NULL, empty_del TINYINT(1) NOT NULL, deleted_del TINYINT(1) DEFAULT \'0\' NOT NULL, UNIQUE INDEX UNIQ_CEF78E46FC9609D1 (num_del), INDEX IDX_CEF78E46875C0859 (comp_del_id_del), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE Product (id INT AUTO_INCREMENT NOT NULL, name_prod VARCHAR(255) NOT NULL, img_prod VARCHAR(255) DEFAULT NULL, desc_prod LONGTEXT DEFAULT NULL, stock_prod INT NOT NULL, code_prod VARCHAR(255) NOT NULL, activate_prod TINYINT(1) DEFAULT \'0\' NOT NULL, deleted_prod TINYINT(1) DEFAULT \'0\' NOT NULL, UNIQUE INDEX UNIQ_1CF73D31835F7B56 (code_prod), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE Category (id INT AUTO_INCREMENT NOT NULL, name_cat VARCHAR(255) NOT NULL, img_cat VARCHAR(255) DEFAULT NULL, code_cat VARCHAR(255) NOT NULL, activate_cat TINYINT(1) DEFAULT \'0\' NOT NULL, deleted_cat TINYINT(1) DEFAULT \'0\' NOT NULL, UNIQUE INDEX UNIQ_FF3A7B97767E7402 (code_cat), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
         $this->addSql('CREATE TABLE CategoriesProducts (prod_id_cat INT NOT NULL, cat_id_prod INT NOT NULL, INDEX IDX_4BC8B0E1D4C7C581 (prod_id_cat), INDEX IDX_4BC8B0E11E258FC3 (cat_id_prod), PRIMARY KEY(prod_id_cat, cat_id_prod)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
@@ -50,7 +50,7 @@ final class Version20201123073852 extends AbstractMigration
         $this->addSql('ALTER TABLE TypeDelivery ADD CONSTRAINT FK_8AAFDB36875C0859 FOREIGN KEY (comp_del_id_del) REFERENCES CompanyDelivery (id)');
         $this->addSql('ALTER TABLE PieceCommand ADD CONSTRAINT FK_7A07E462D3121940 FOREIGN KEY (com_id_piece_com) REFERENCES Command (id)');
         $this->addSql('ALTER TABLE PieceCommand ADD CONSTRAINT FK_7A07E46274EB3D94 FOREIGN KEY (prod_id_piece_com) REFERENCES VariantProduct (id)');
-        $this->addSql('ALTER TABLE Delivery ADD CONSTRAINT FK_CEF78E46A1DFB39E FOREIGN KEY (type_del_id_del) REFERENCES TypeDelivery (id)');
+        $this->addSql('ALTER TABLE Delivery ADD CONSTRAINT FK_CEF78E46875C0859 FOREIGN KEY (comp_del_id_del) REFERENCES CompanyDelivery (id)');
         $this->addSql('ALTER TABLE CategoriesProducts ADD CONSTRAINT FK_4BC8B0E1D4C7C581 FOREIGN KEY (prod_id_cat) REFERENCES Category (id)');
         $this->addSql('ALTER TABLE CategoriesProducts ADD CONSTRAINT FK_4BC8B0E11E258FC3 FOREIGN KEY (cat_id_prod) REFERENCES Product (id)');
         $this->addSql('ALTER TABLE CategoriesVariantsProducts ADD CONSTRAINT FK_A33B8CCD980BA87 FOREIGN KEY (prod_var_id_cat) REFERENCES Category (id)');
@@ -69,11 +69,11 @@ final class Version20201123073852 extends AbstractMigration
         $this->addSql('ALTER TABLE TypeDeliverySelected DROP FOREIGN KEY FK_98A5DB9D33E1689A');
         $this->addSql('ALTER TABLE PieceCommand DROP FOREIGN KEY FK_7A07E462D3121940');
         $this->addSql('ALTER TABLE TypeDeliverySelected DROP FOREIGN KEY FK_98A5DB9D590ABEB0');
-        $this->addSql('ALTER TABLE Delivery DROP FOREIGN KEY FK_CEF78E46A1DFB39E');
         $this->addSql('ALTER TABLE User DROP FOREIGN KEY FK_2DA17977EB5D4312');
         $this->addSql('ALTER TABLE Command DROP FOREIGN KEY FK_4177D348AC18573C');
         $this->addSql('ALTER TABLE User DROP FOREIGN KEY FK_2DA17977BC2D1B9');
         $this->addSql('ALTER TABLE TypeDelivery DROP FOREIGN KEY FK_8AAFDB36875C0859');
+        $this->addSql('ALTER TABLE Delivery DROP FOREIGN KEY FK_CEF78E46875C0859');
         $this->addSql('ALTER TABLE Command DROP FOREIGN KEY FK_4177D348347BAB22');
         $this->addSql('ALTER TABLE CategoriesProducts DROP FOREIGN KEY FK_4BC8B0E11E258FC3');
         $this->addSql('ALTER TABLE VariantProduct DROP FOREIGN KEY FK_3DFA05BCB632BA16');

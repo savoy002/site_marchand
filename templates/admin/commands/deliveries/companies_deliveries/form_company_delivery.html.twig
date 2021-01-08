@@ -1,6 +1,6 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block title %} {{ (create)?("Ajout"):("Modification") }} {% endblock %}
+{% block title %} {{ (create)?("Création"):("Modification") }} {% endblock %}
 
 {% block body %}
 
@@ -14,7 +14,7 @@
 
 	<div class="row">
 		<div class="offset-sm-1">
-			<h1>{{(create)?("Ajout de l'enterprise"):("Modification de l'entreprise " ~ name)}}</h1>
+			<h1>{{(create)?("Création d'une entreprise de livraison."):("Modification de l'entreprise de livraison " ~ name ~ ".")}}</h1>
 		</div>
 	</div>
 
@@ -24,9 +24,13 @@
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("companies_deliveries") }}">Entreprise de livraison</a></li>
+			    {% if create %}
+				    <li class="breadcrumb-item"><a href="{{ path("companies_deliveries") }}">Entreprises de livraison</a></li>
+				{% else %}
+					<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:id_company}) }}">{{ name }}</a></li>
+				{% endif %}
 			    <li class="breadcrumb-item active" aria-current="page">
-			    	{{ (create)?("Ajout de l'entreprise de livraison"):("Modification de l'entreprise de livraison" ~ name) }}
+			    	{{ (create)?("Création d'une entreprise de livraison"):("Modification de l'entreprise de livraison" ~ name) }}
 			    </li>
 			  </ol>
 			</nav>
@@ -54,7 +58,13 @@
 				{{ form_errors(form.all_france) }}
 				{{ form_widget(form.all_france) }}
 			</div>
-			<div class="col-5"></div>
+			<div class="col-5">
+				{% if create %}
+					{{ form_label(form.owner) }}
+					{{ form_errors(form.owner) }}
+					{{ form_widget(form.owner) }}
+				{% endif %}
+			</div>
 		</div>
 
 		<div class="row justify-content-start form-div-button">
@@ -65,7 +75,7 @@
 				{% if create %}
 					<a href="{{ path("companies_deliveries") }}" class="btn btn-danger">Annuler</a>
 				{% else %}
-					<a href="{{ path("company_delivery", {id:id}) }}" class="btn btn-danger">Annuler</a>
+					<a href="{{ path("company_delivery", {id:id_company}) }}" class="btn btn-danger">Annuler</a>
 				{% endif %}
 			</div>
 		</div>
@@ -73,6 +83,3 @@
 	{{ form_end(form) }}
 
 {% endblock %}
-
-
-

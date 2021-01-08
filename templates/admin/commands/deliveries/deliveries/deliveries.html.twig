@@ -16,9 +16,8 @@
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
-			    <!-- Vérifier le fonctionnement du not seul dans le if. -->
 			    {% if not is_admin %}
-			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
+			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:companies.id}) }}">{{ companies.name }}</a></li>
 			    {% endif %}
 			    <li class="breadcrumb-item active" aria-current="page">Livraisons</li>
 			  </ol>
@@ -28,7 +27,7 @@
 
 	<div class="row justify-content-center">
 
-		<form class="form" action="{{ path("deliveries") }}" method="post">
+		<form class="form " action="{{ path("deliveries") }}" method="post">
 
 			{% if errors is not empty %}
 				<ul>
@@ -56,20 +55,6 @@
 			
 			<div class="row form-div justify-content-around">
 				<div class="col-5 col-xs-12">
-					{% if types|length > 1 %}
-						<label for="type">Type de livraison</label>
-						<select class="custom-select custom-select-sm" name="type">
-							<option value="">Tous</option>
-							{% for type in types %}
-								<option value="{{ type.id }}" 
-									{{ (request.type is defined)?((request.type ==type.id)?('selected')) }} >
-									{{ type.name }}
-								</option>
-							{% endfor %}
-						</select>
-					{% endif %}
-				</div>
-				<div class="col-5 col-xs-12">
 					{% if is_admin and companies|length > 1 %}
 						<label for="type">Entreprise</label>
 						<select class="custom-select custom-select-sm" name="company">
@@ -83,7 +68,9 @@
 						</select>
 					{% endif %}
 				</div>
+				<div class="col-5 col-xs-12"></div>
 			</div>
+			
 			<div class="row justify-content-around form-div-button">
 				<div class="col-5"><button class="btn btn-primary" type="submit">Rechercher</button></div>
 				<div class="col-5"><a href="{{ path("deliveries") }}" class="btn btn-danger">Annuler</a></div>
@@ -96,29 +83,31 @@
 			{% if deliveries|length > 0 %}
 
 				<div class="row">
-					<div class="col-10 offset-1 table-responsive">
+					<div class="col-10 offset-1">
 						<table class="table table-bordered">
 							<thead class="thead-dark">
 								<tr>
+									<th>Numéro</th>
 									<th>Date</th>
 									{% if is_admin %}
 										<th>Entreprise</th>
 									{% endif %}
-									<th>Type</th>
+									<th>Département</th>
 									<th>Voir</th>
 								</tr>
 							</thead>
 							<tbody>
 								{% for delivery in deliveries %}
 									<tr>
+										<td>{{ delivery.num }}</td>
 										<td>{{ delivery.date|date("d/m/Y") }}</td>
 										{% if is_admin %}
 											<td>{{ delivery.type.company.name }}</td>
 										{% endif %}
 										<td>
-											{{ (delivery.type is not null)?
-												((delivery.type.delete == false)?(delivery.type.name):('Supprimé')):
-												('Supprimé') }}
+											{% for department in delivery.departments %}
+										 		{{ departments[department] }} 
+											{% endfor %}
 										</td>
 										<td><a class="btn btn-info" href="{{ path("delivery", {id:delivery.id}) }}">Voir</a></td>
 									</tr>
@@ -129,11 +118,20 @@
 				</div>
 
 			{% else %}
-
-				<div class="col-12 justify-content-center">
-					<p>Aucune livraison trouvée.</p>
+				<div class="row">
+					<div class="col-12 justify-content-center">
+						<p>Aucune livraison trouvée.</p>
+					</div>
 				</div>
 
+			{% endif %}
+
+			{% if not is_admin %}
+				<div class="row">
+					<div class="col-10 offset-1">
+						<a class="btn btn-primary" href="{{ path('create_delivery') }}">Ajouter une livraison</a>
+					</div>
+				</div>
 			{% endif %}
 
 			{# Fin des résultats de recherche. #}

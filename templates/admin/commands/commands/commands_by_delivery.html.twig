@@ -1,0 +1,92 @@
+{% extends 'base_admin.html.twig' %}
+
+{% block title %} Commandes {% endblock %}
+
+{% block body %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Les commandes de la livraison numéro {{ delivery.num }}.</h1>
+		</div>
+	</div>
+
+	<div class="row">
+		<div class="offset-sm-1"
+			<nav aria-label="breadcrumb">
+			  <ol class="breadcrumb">
+			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
+			    {% if not is_admin %}
+			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
+			    {% endif %}
+			    <li class="breadcrumb-item"><a href="{{ path("deliveries") }}">Livraisons</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("delivery", {id:delivery.id}) }}">Livraison</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Commandes</li>
+			  </ol>
+			</nav>
+		</div>
+	</div>
+
+	<div class="row justify-content-center">
+
+		{% if delivery.commands|length > 0 %}
+			<div class="row">
+				<div class="col-10 offset-1 table-responsive">
+					<table class="table table-bordered">
+						<thead class="thead-dark">
+							<tr>
+								<th>Numéro</th>
+								<th>Date de création</th>
+								<th>Complète</th>
+								<th>Adresse de livraison</th>
+								<th>Date de livraison</th>
+								<th>Date de réception</th>
+								<th>Prix total</th>
+								<th>Voir</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for command in delivery.commands %}
+								<tr>
+									<td>{{ command.num }}</td>
+									<td>{{ command.createdAt|date("d/m/Y") }}</td>
+									<td>{{ (command.completed)?('Oui'):('Non') }}</td>
+									<td>
+										{{ 
+											(command.placeDel is not null)?
+											(command.placeDel.street~' '~command.placeDel.zipCode~' '~command.placeDel.city):
+											("Non définie") 
+										}}
+									</td>
+									<td>
+										{{ 
+											(command.delivery is not null)?
+											( (command.delivery.date is not null)?(command.delivery.date|date("d/m/Y")):
+											("Pas envoyé") ):
+											("Pas envoyé")
+										}}
+									</td>
+									<td>{{ (command.dateReceive is not null)?(command.dateReceive|date("d/m/Y")):("Pas reçue") }}</td>
+									<td>
+										{{ 
+											(command.priceTotal is not null)?
+											( command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) )
+										}}
+									</td>
+									<td><a href="{{ path('command', {id:command.id}) }}" class="btn btn-info">Voir</a></td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+			</div>
+		{% else %}
+			<div class="col-12 justify-content-center">
+				<p>Aucune commande trouvée.</p>
+			</div>
+		{% endif %}
+
+	</div>
+
+
+{% endblock %}

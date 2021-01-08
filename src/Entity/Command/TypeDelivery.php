@@ -49,10 +49,10 @@ class TypeDelivery
      */
     private $delete;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Command\Delivery", mappedBy="type")
-     */
-    private $deliveries;
+    ///**
+    // * @ORM\OneToMany(targetEntity="App\Entity\Command\Delivery", mappedBy="type")
+    // */
+    //private $deliveries;
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Command\CompanyDelivery", inversedBy="types")
@@ -74,7 +74,7 @@ class TypeDelivery
     {
         $this->activate = false;
         $this->delete = false;
-        $this->deliveries = new ArrayCollection();
+        //$this->deliveries = new ArrayCollection();
         $this->commands = new ArrayCollection();
     }
 
@@ -154,7 +154,7 @@ class TypeDelivery
         return $this;
     }
 
-    public function getDeliveries(): Collection
+    /*public function getDeliveries(): Collection
     {
         return $this->deliveries;
     }
@@ -186,7 +186,7 @@ class TypeDelivery
         }
 
         return $this;
-    }
+    }*/
 
     public function getCompany(): ?CompanyDelivery
     {
@@ -195,17 +195,15 @@ class TypeDelivery
 
     public function setCompany(?CompanyDelivery $company): self
     {
-
-        if($this->company !== null){
-            if($company->hasType($this))
-                $company->removeType($this);
-        }
-
-        $this->company = $company;
-
-        if($company !== null){
-            if(!$company->hasType($this))
+        if(!is_null($company)) 
+            $this->company = $company;
+        else {
+            if($this->company != $company) {
+                if(!is_null($this->company))
+                    $this->company->removeType($this);
+                $this->company = $company;
                 $company->addType($this);
+            }
         }
 
         return $this;

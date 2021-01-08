@@ -48,32 +48,55 @@ class DeliveryRepository extends ServiceEntityRepository
 
     private function optionsResearchDeliveries(QueryBuilderOption $request, array $criteria) 
     {
-        if(array_key_exists('company', $criteria))
-            $request->innerJoin('d.type', 't');
+        /*if(array_key_exists('company', $criteria))
+            $request->innerJoin('d.type', 't');*/
 
         if(array_key_exists('sentBefore', $criteria))
             $request->andWhere('DATE_DIFF(d.date, :sentBefore) <= 0')->setParameter('sentBefore', $criteria['sentBefore']);
         if(array_key_exists('sentAfter', $criteria))
             $request->andWhere('DATE_DIFF(d.date, :sentAfter) >= 0')->setParameter('sentAfter', $criteria['sentAfter']);
 
-        if(array_key_exists('type', $criteria))
-            $request->andWhere('d.type = :id_type')->setParameter('id_type', $criteria['type']);
+        /*if(array_key_exists('type', $criteria))
+            $request->andWhere('d.type = :id_type')->setParameter('id_type', $criteria['type']);*/
 
         if(array_key_exists('company', $criteria))
-            $request->andWhere('t.company = :id_company')->setParameter('id_company', $criteria['company']);
+            $request->andWhere('d.company = :id_company')->setParameter('id_company', $criteria['company']);
 
         return $request;
     }
 
-    public function findDeliveriesByCompany($id) 
+    /*public function findDeliveriesByCompany($id) 
     {
         $request = $this->createQueryBuilder('d')
             ->innerJoin('d.type', 't')
-            ->where('id IN t.company.id')
+            ->where('t.company = :id')
             ->setParameter('id', $id);
 
         return $request->getQuery()->getResult();
-    }
+    }*/
+
+    /*public function findEmptyDeliveryByCompany($id)
+    {
+        $request = $this->createQueryBuilder('d')
+            ->innerJoin('d.type', 't')
+            ->where('d.empty = TRUE')
+            ->andWhere('t.company = :id')
+            ->setParameter('id', $id);
+
+        return $request->getQuery()->getOneOrNullResult();
+    }*/
+
+    /*public function findOneDeliveryByCompany($id_company, $id_delivery)
+    {
+        $request = $this->createQueryBuilder('d')
+            ->innerJoin('d.type', 't')
+            ->where('d.id = :id_delivery')
+            ->andWhere('t.company = :id_company')
+            ->setParameter('id_delivery', $id_delivery)
+            ->setParameter('id_company', $id_company);
+
+        return $request->getQuery()->getOneOrNullResult();
+    }*/
 
 
     // /**

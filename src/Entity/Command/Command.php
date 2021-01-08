@@ -239,13 +239,17 @@ class Command
 
     public function setDelivery(?Delivery $delivery): self
     {
-        if($this->delivery != null) {
-            if($this->delivery->hasCommand($this))
-                $this->delivery->removeCommand($this);
+        if($delivery === null)
+            $this->delivery = $delivery;
+        else {
+            if($this->delivery != $delivery) {
+                if($this->delivery != null)
+                    $this->delivery->removeCommand($this);
+
+                $this->delivery = $delivery;
+                $delivery->addCommand($this);
+            }
         }
-        $this->delivery = $delivery;
-        if($delivery->getCommand() != $this)
-            $delivery->addCommand($this);
 
         return $this;
     }
@@ -353,6 +357,11 @@ class Command
                 $contain = true;
         }
         return $contain;
+    }
+
+    public function showCommand(): string
+    {
+        return $this->getUser()->getUsername().' '.$this->getNum();
     }
 
 

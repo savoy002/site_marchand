@@ -57,6 +57,8 @@ class CommandRepository extends ServiceEntityRepository
                 $request->innerJoin('c.delivery', 'd');
         }
 
+
+
         if(array_key_exists('address', $criteria))
             $request->innerJoin('c.placeDel', 'a');
 
@@ -135,6 +137,46 @@ class CommandRepository extends ServiceEntityRepository
             $request->andWhere(":zip_code MEMBRE OF c.area OR 'All' MEMBER OF c.area")
                 ->setParameter('zip_code', substr($zip_code, 0, 2));
         }
+        return $request;
+    }
+
+    public function adminFindCommand($id_command, $id_company)
+    {
+        $request = $this->createQueryBuilder('c');
+
+        if(!is_null($id_company))
+            $request->innerJoin('c.typeDelSelected', 's')->innerJoin('s.typeDelivery', 't');
+
+        $request->where('c.delete = FALSE')->andWhere('c.isBasket = FALSE')->andWhere('c.id = :id_command')
+            ->setParameter('id_command', $id_command);
+
+        if(!is_null($id_company))
+            $request->andWhere('t.company = :id_company')->setParameter( 'id_company', $id_company);
+
+        return $request->getQuery()->getOneOrNullResult();
+
+    }
+
+    public function adminFindCommandsWithoutDelivery($id_company)
+    {
+        $request = $this->createQueryBuilder('c')
+            ->where('c.delete = FALSE')
+            ->andWhere('c.isBasket = FALSE')
+            ->andWhere('c.delivery IS NULL');
+
+        if(!is_null($id_company))
+            $request->innerJoin('c.typeDelSelected', 's')->innerJoin('s.typeDelivery', 't')->andWhere('t.company = :id_company')
+                ->setParameter('id_company', $id_company);
+
+        return $request;
+    }
+
+    public function findFormAddCommandToDelivery($id_company)
+    {
+        $request = $this->createQueryBuilder('c')->innerJoin('c.typeDelSelected', 's')->innerJoin('s.typeDelivery', 't')
+            ->where('t.company = :id_company')->andWhere('c.isBasket = FALSE')->andWhere('c.delivery IS NULL')
+            ->setParameter('id_company', $id_company);
+
         return $request;
     }
 
