@@ -61,7 +61,7 @@
 							<option value="">Tous</option>
 							{% for company in companies %}
 								<option value="{{ company.id }}"
-									{{ (request.company is defined)?((request.company ==company.id)?('selected')) }}>
+									{{ (request.company is defined)?((request.company == company.id)?('selected')) }}>
 									{{ company.name }}
 								</option>
 							{% endfor %}
@@ -81,7 +81,6 @@
 			{# Début des résultats de recherche. #}
 
 			{% if deliveries|length > 0 %}
-
 				<div class="row">
 					<div class="col-10 offset-1">
 						<table class="table table-bordered">
@@ -102,11 +101,11 @@
 										<td>{{ delivery.num }}</td>
 										<td>{{ delivery.date|date("d/m/Y") }}</td>
 										{% if is_admin %}
-											<td>{{ delivery.type.company.name }}</td>
+											<td>{{ delivery.company.name }}</td>
 										{% endif %}
 										<td>
 											{% for department in delivery.departments %}
-										 		{{ departments[department] }} 
+										 		{{ department }}&nbsp; {#: {{ departments[department]  }} #}
 											{% endfor %}
 										</td>
 										<td><a class="btn btn-info" href="{{ path("delivery", {id:delivery.id}) }}">Voir</a></td>
@@ -116,14 +115,12 @@
 						</table>
 					</div>
 				</div>
-
 			{% else %}
 				<div class="row">
 					<div class="col-12 justify-content-center">
 						<p>Aucune livraison trouvée.</p>
 					</div>
 				</div>
-
 			{% endif %}
 
 			{% if not is_admin %}

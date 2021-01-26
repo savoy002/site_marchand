@@ -2,7 +2,18 @@
 
 {% block title %} Gestion des départements. {% endblock %}
 
+{% block javascripts %}
+	{{ parent() }}
+    {{ encore_entry_script_tags('departments_selected') }}
+{% endblock %}
+
 {% block body %}
+
+	<div class="row">
+		<div class="offset-sm-1">
+			<h1>Gestion des départements de {{ company.name }}</h1>
+		</div>
+	</div>
 
 	{% if errors is not empty %}
 		<ul>
@@ -13,19 +24,13 @@
 	{% endif %}
 
 	<div class="row">
-		<div class="offset-sm-1">
-			<h1>Gestion des départements de {{ name }}</h1>
-		</div>
-	</div>
-
-	<div class="row">
 		<div class="offset-sm-1"
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
 			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
 			    <li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
-			    <li class="breadcrumb-item active" aria-current="page">Gestion des départements de {{ name }}</li>
+			    <li class="breadcrumb-item active" aria-current="page">Gestion des départements de {{ company.name }}</li>
 			  </ol>
 			</nav>
 		</div>
@@ -34,7 +39,15 @@
 	{{ form_start(form, {'attr' : {'class' : 'form-group'}}) }}
 
 		<div class="row">
-			<div class="offset-1">
+			<div class="col offset-1">
+				{{ form_widget(form.select_all) }}
+				{{ form_label(form.select_all) }}
+				{{ form_errors(form.select_all) }}
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="offset-1 col">
 				{{ form_label(form.area) }}
 			</div>
 		</div>
@@ -49,10 +62,14 @@
 				</div>
 			{% endfor %}
 		</div>
-		<div class="offset-1">
-			{{ form_row(form.submit) }}
+		<div class="row">
+			<div class="offset-1 col-4">
+				{{ form_row(form.submit) }}
+			</div>
+			<div class="col-4">
+				<a href="{{ path('company_delivery', {id:company.id}) }}" class="btn btn-danger">Annuler</a>
+			</div>
 		</div>
-
 
 	{{ form_end(form) }}
 

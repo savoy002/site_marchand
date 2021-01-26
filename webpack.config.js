@@ -26,6 +26,7 @@ Encore
     .addEntry('app', './assets/js/app.js')
     .addEntry('star_mark_manage', './assets/js/mark_star.js')
     .addEntry('star_mark_manage_research', './assets/js/mark_star_research.js')
+    .addEntry('departments_selected', './assets/js/departments_selected.js')
 
     //.addEntry('write_adress_form', './assets/js/write_adress_form.js')
 

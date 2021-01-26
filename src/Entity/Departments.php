@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+//Utilisé dans company_delivery.
 
 class Departments 
 {
@@ -27,7 +28,7 @@ class Departments
 		'17' => 'Charente-Maritime',
 		'18' => 'Cher',
 		'19' => 'Corrèze',
-		'20' => ['1' => 'Corse-du-Sud','2' => 'Haute-Corse'],
+		'20' => ['A' => 'Corse-du-Sud','B' => 'Haute-Corse'],
 		'21' => "Côte-d'or",
 		'22' => "Côte-d'Armor",
 		'23' => 'Creuse',
@@ -119,7 +120,7 @@ class Departments
 					return $val[$key];
 			}
 		}
-		return "Le code postale ne correspond pas à un département. de correspond pas.";
+		return "Le code postale ne correspond pas à un département.";
 	}
 
 	public function getListDepartment() 
@@ -127,7 +128,21 @@ class Departments
 		$tab = array();
 		foreach(self::TAB_DEPARTENT as $key => $value) {
 			if(gettype($value) === "string")
-				$tab[$key] = $value;
+				$tab[strval($key)] = $value;
+			else {
+				foreach($value as $second_key => $second_value)
+					$tab[$key.$second_key] = $second_value;
+			}
+		}
+		return $tab;
+	}
+
+	public function getListDepartmentCompanyDelivery() 
+	{
+		$tab = array();
+		foreach(self::TAB_DEPARTENT as $key => $value) {
+			if(gettype($value) === "string")
+				$tab[strval($key)] = $value;
 			else {
 				foreach($value as $second_key => $second_value)
 					$tab[$key.$second_key] = $second_value;

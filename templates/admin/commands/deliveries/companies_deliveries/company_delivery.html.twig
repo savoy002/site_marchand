@@ -63,7 +63,7 @@
 				<h2>Liste des départements.</h2>
 				<ul>
 					{% for department in company.area %}
-						<li>{{ departments[department] }}</li>
+						<li>{{ department }} : {{ departments[department] }}</li>
 					{% endfor %}
 				</ul>
 			{% else %}

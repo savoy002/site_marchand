@@ -51,16 +51,18 @@ class CommandRepository extends ServiceEntityRepository
         if( ( array_key_exists('sentBefore', $criteria) || array_key_exists('sentAfter', $criteria) || 
             array_key_exists('sentBefore', $criteria) ) ) {
             if(array_key_exists('status', $criteria)) {
-                if($criteria['status'] != 'notSend') 
+                if($criteria['status'] != 'notSend' && !array_key_exists('company', $criteria)) 
                     $request->innerJoin('c.delivery', 'd');
             } else
                 $request->innerJoin('c.delivery', 'd');
         }
 
-
-
         if(array_key_exists('address', $criteria))
             $request->innerJoin('c.placeDel', 'a');
+
+        if(array_key_exists('company', $criteria))
+            $request->innerJoin('c.delivery', 'd')
+                ->andWhere('d.company = :id_company')->setParameter('id_company', $criteria['company']);
 
         if(array_key_exists('createdBefore', $criteria))
             $request->andWhere('DATE_DIFF(c.createdAt, :createdBefore) <= 0')

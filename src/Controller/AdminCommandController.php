@@ -162,11 +162,16 @@ class AdminCommandController extends AbstractController
             
         } else {
             $page = 1;
-            //Calcul le nombre de commandes et de pages.
-            $number_commands = intval($this->getDoctrine()->getRepository(Command::class)->countNumberCommands()[0][1]);
-            $number_pages = 
-                    intval( $number_commands / self::NUMBER_BY_PAGE ) + 
-                    ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
+            if(!$this->isAdmin()){
+                $criteria['company'] = $this->getCompanyId();
+                $number_commands = intval($this->getDoctrine()->getRepository(Command::class)
+                    ->adminResearchNumberCommands($criteria)[0][1]);
+            } else {
+                //Calcul le nombre de commandes et de pages.
+                $number_commands = intval($this->getDoctrine()->getRepository(Command::class)->countNumberCommands()[0][1]);
+            }
+            $number_pages = intval( $number_commands / self::NUMBER_BY_PAGE ) + 
+                            ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
         //Recherche les commandes à retourner.
         $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommands($criteria);
@@ -247,13 +252,13 @@ class AdminCommandController extends AbstractController
     public function companyDelivery($id)
     {
         if($this->isAdmin() || $this->getCompanyId() == $id) {
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false, 'id' => $id]);
-            if(empty($company))
+            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['delete' => false, 'id' => $id]);
+            if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
             $departments = new Departments();
             $listDepartments = $departments->getListDepartment();
             return $this->render('admin/commands/deliveries/companies_deliveries/company_delivery.html.twig', 
-                ['company' => $company[0], 'departments' => $listDepartments, 'is_admin' => $this->isAdmin()]);
+                ['company' => $company, 'departments' => $listDepartments, 'is_admin' => $this->isAdmin()]);
         } else 
             return $this->redirectToRoute("menu_delivery");
     }
@@ -362,16 +367,20 @@ class AdminCommandController extends AbstractController
             $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
-            $form = $this->createForm(ChoiceDepartmentType::class, $company);
+            $form = $this->createForm(ChoiceDepartmentType::class, $company, ['All' => (in_array("All", $company->getArea()))]);
             $form->handleRequest($request);
             $errors = array();
             if($form->isSubmitted() && $form->isValid()) {
+                //var_dump($form->get('select_all')->getData());
+                //die();
+                if($form->get('select_all')->getData())
+                    $company->setArea(["All"]);
                 $this->getDoctrine()->getManager()->persist($company);
                 $this->getDoctrine()->getManager()->flush();
                 return $this->redirectToRoute('company_delivery', ['id' => $id]);
             }
             return $this->render('admin/commands/deliveries/companies_deliveries/manage_departements.html.twig', 
-                ['form' => $form->createView(), 'errors' => $errors, 'name' => $company->getName()]);
+                ['form' => $form->createView(), 'errors' => $errors, 'company' => $company]);
         } else 
             return $this->redirectToRoute("menu_delivery");
     }
@@ -798,7 +807,7 @@ class AdminCommandController extends AbstractController
     }*/
 
     ///**
-    //* @Route("admin/delivery/type_delivery/{id}/deliveries", name="deliveries_by_type")
+    // * @Route("admin/delivery/type_delivery/{id}/deliveries", name="deliveries_by_type")
     // */
     /*public function deliveriesByType($id) 
     {

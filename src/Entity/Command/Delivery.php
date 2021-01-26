@@ -34,10 +34,10 @@ class Delivery
      */
     private $departments = [];
 
-    /**
-     * @ORM\Column(type="boolean", name="empty_del")
-     */
-    private $empty;
+    ///**
+    // * @ORM\Column(type="boolean", name="empty_del")
+    // */
+    //private $empty;
 
     /**
      * @ORM\Column(type="boolean", name="deleted_del", options={"default":false})
@@ -111,7 +111,7 @@ class Delivery
         return $this;
     }
 
-    public function getEmpty(): ?bool
+    /*public function getEmpty(): ?bool
     {
         return $this->empty;
     }
@@ -121,7 +121,7 @@ class Delivery
         $this->empty = $empty;
 
         return $this;
-    }
+    }*/
 
     public function getDelete(): bool 
     {
@@ -149,9 +149,8 @@ class Delivery
         if(!$this->hasCommand($command)) {
             $this->commands[] = $command;
 
-            if($command->getDelivery() != $this){
+            if($command->getDelivery() != $this)
                 $command->setDelivery($this);
-            }
         }
         return $this;
     }

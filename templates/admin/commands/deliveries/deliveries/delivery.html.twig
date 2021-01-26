@@ -6,7 +6,7 @@
 
 	<div class="row">
 		<div class="offset-sm-1">
-			<h1>Livraison numéro {{ delivery.num }}.</h1>
+			<h1>Livraison.</h1>
 		</div>
 	</div>
 
@@ -33,6 +33,7 @@
 				<table class="table table-bordered">
 					<thead class="thead-dark">
 						<tr>
+							<th>Numéro</th>
 							<th>Date</th>
 							{% if is_admin %}
 								<th>Entreprise</th>
@@ -42,9 +43,10 @@
 					</thead>
 					<tbody>
 						<tr>
+							<td>{{ delivery.num }}</td>
 							<td>{{ delivery.date|date("d/m/Y") }}</td>
 							{% if is_admin %}
-								<td>{{ delivery.type.company.name }}</td>
+								<td>{{ delivery.company.name }}</td>
 							{% endif %}
 							<td>
 								{% for department in delivery.departments %}
@@ -57,9 +59,35 @@
 			</div>
 		</div>
 
+		<div class="w-100"></div>
+
 		<div class="row">
 			<div class="col-10 offset-1">
-				<a class="btn btn-info" href="{{ path('commands_by_delivery', {id:delivery.id}) }}">Commandes</a>
+				<h3>Commandes livrées.</h3>
+				{#<ul>
+					{% for command in delivery.commands %}
+						<li>
+							{{ command.user.username }} {{ command.num }} 
+							<a class="btn btn-info" href="{{ path('command', {id:command.id}) }}">Voir</a> 
+						</li>
+					{% endfor %}
+				</ul>#}
+				<table class="table table-bordered">
+					<thead>
+						<tr class="table-primary">
+							<th>Numéro</th>
+							<th>Nom d'utilisateur</th>
+							<th>Voir</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for command in delivery.commands %}
+							<td>{{ command.num }}</td>
+							<td>{{ command.user.username }}</td>
+							<td><a class="btn btn-primary" href="{{ path('command', {id:command.id}) }}">Voir</a></td>
+						{% endfor %}
+					</tbody>
+				</table>
 			</div>
 		</div>
 
