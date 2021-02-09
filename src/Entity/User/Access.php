@@ -30,6 +30,11 @@ class Access
     private $createdAt;
 
     /**
+     * @ORM\Column(type="string", name="type_acc")
+     */
+    private $type;
+
+    /**
      * @ORM\Column(type="boolean", name="used_acc")
      */
     private $used;
@@ -70,6 +75,18 @@ class Access
     public function setCreatedAt(\DateTimeInterface $createdAt): self
     {
         $this->createdAt = $createdAt;
+
+        return $this;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
 
         return $this;
     }

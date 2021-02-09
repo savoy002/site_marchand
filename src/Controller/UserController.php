@@ -16,15 +16,19 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 use App\Entity\Command\Address;
 use App\Entity\Command\Command;
+use App\Entity\TypeAccess;
 use App\Entity\User\Access;
 use App\Entity\User\User;
 use App\Entity\User\Comment;
 
-use App\Form\Type\User\UserType;
-use App\Form\Type\User\ChangePasswordType;
-use App\Form\Type\User\UploadImageType;
-use App\Form\Type\User\ChangeMailType;
 use App\Form\Type\Command\ChangeAddressType;
+use App\Form\Type\User\SendEmailForgotPassword;
+use App\Form\Type\User\ChangeForgotPasswordType;
+use App\Form\Type\User\ChangeMailType;
+use App\Form\Type\User\ChangePasswordType;
+use App\Form\Type\User\UserType;
+use App\Form\Type\User\UploadImageType;
+
 
 class UserController extends AbstractController
 {
@@ -113,7 +117,7 @@ class UserController extends AbstractController
                     return $this->redirectToRoute("store_user");
                 }
             }
-            return $this->render('store/user/info_user/change_password.html.twig', 
+            return $this->render('store/user/change/change_password.html.twig', 
                 ['form' => $form->createView(), 'errors' => $errors, 'basket' => $this->getBasket()]);
         }
         return $this->redirectToRoute('store');
@@ -142,7 +146,7 @@ class UserController extends AbstractController
                     return $this->redirectToRoute('store_user');
                 }
             }
-            return $this->render('store/user/info_user/change_mail.html.twig', 
+            return $this->render('store/user/change/change_mail.html.twig', 
                 ['form' => $form->createView(), 'errors' => $errors, 'basket' => $this->getBasket()]);
         }
         return $this->redirectToRoute('store');
@@ -155,12 +159,13 @@ class UserController extends AbstractController
     public function sendEmailVerify(/*MailerInterface $mailer*/)
     {
         if(!$this->getUser()->getValid()) {
-            //var_dump(uniqid());
-            //die();
+            $type_access = new TypeAccess();
+            $list_type_access = $type_access->getListTypeAccess();
             $access = new Access();
             $access->setCode(uniqid());
-            $email = (new Email())->from('')->to($this->getUser()->getEmail())->subject("Vérification d'adresse mail.")
-                ->htmlTemplate('store/email/email_verify_email_address.html.twig')
+            $access->setType($list_type_access['verifiy_user']);
+            $email = (new Email())->from(  ''  )->to($this->getUser()->getEmail())->subject("Vérification d'adresse mail.")
+                ->htmlTemplate('email/email_verify_email_address.html.twig')
                 ->context(['username' => $this->getUser()->getUsername(), 'code' => $access->getCode()]);
             try {
                 $mailer->send($email);
@@ -171,7 +176,7 @@ class UserController extends AbstractController
             $this->getDoctrine()->getManager()->persit($access);
             $this->getDoctrine()->getManager()->persit($this->getUser());
             $this->getDoctrine()->getManager()->flush();
-            return $this->render('store/email/send_mail.html.twig', 
+            return $this->render('store/user/info_user/verification_email_sent.html.twig', 
                 ['email_address' => $$this->getUser()->getEmail(), 'username' => $this->getUser()->getUsername()]);    
         }
         return $this->redirectToRoute('store_user');
@@ -183,16 +188,90 @@ class UserController extends AbstractController
      */
     public function verifyUser($code)
     {
+        $type_access = new TypeAccess();
+        $list_type_access = $type_access->getListTypeAccess();    
         $access = $this->getDoctrine()->getRepository(Access::class)
-            ->findOneBy(['code' => $code, 'user' => $this->getUser()->getId(), 'used' => false]);
+            ->findOneBy(['code' => $code, 'user' => $this->getUser()->getId(), 'used' => false, 
+                'type' => $list_type_access['verifiy_user']]);
         if(!is_null($access)) {
             $access->setUsed(true);
             $this->getUser()->setValid(true);
             $this->getDoctrine()->getManager()->persist($access);
             $this->getDoctrine()->getManager()->persist($this->getUser());
             $this->getDoctrine()->getManager()->flush();
-            $this->render('store/store/user/info_user/message_verified_email_address.html.twig', 
+            $this->render('store/user/info_user/message_verified_email_address.html.twig',
                 ['username' => $this->getUser()->getUsername(), 'email_address' => $this->getUser()->getEmail()]);
+        }
+        return $this->redirectToRoute('store_user');
+    }
+
+    //--- Méthode à vérifier avec un serveur fonctionnel et  configurer. ---
+    /**
+     * @Route("store/forgot_password/send_email", name="forgot_password_send_email")
+     */
+    public function forgotPassword()
+    {
+        $form = $this->createForm(SendEmailForgotPassword::class);
+        $errors = array();
+        if($form->isSubmitted() && $form->isValid()) {
+            $user = $this->getDoctrine()->getRepository(User::class)
+                ->findOneBy(['email' => $form->get('email')->getData(), 'delete' => false]);
+            if(!is_null($user)) {
+                $type_access = new TypeAccess();
+                $list_type_access = $type_access->getListTypeAccess();
+                $access = new Access();
+                $access->setCode(uniqid());
+                $access->setType($list_type_access['forgot_password']);
+                $email = (new Email())->from(   ''   )->to($this->getUser()->getEmail())->subject("Oublie de mot de passe.")
+                    ->htmlTemplate('store/email/email_forgot_password.html.twig')
+                    ->context(['username' => $this->getUser()->getUsername(), 'code' => $access->getCode()]);
+                try {
+                    $mailer->send($email);
+                } catch(TransportExceptionInterface $e) {
+                    $errors['email_not_send'] = "Le mail n'a pas put être envoyé veillez réessayer plus tard";
+                }
+                if(empty($errors))
+                    return $this->render('store/user/info_user/forgot_password_email_sent.html.twig');    
+            } else
+                $errors['not_found'] = "L'adresse mail envoyée ne correspond à aucun utilisateur.";
+        }
+        return $this->render('store/user/info_user/send_email_forgot_password.html.twig', 
+            ['form' => $form->createView() 'errors' => $errors]);
+    }
+
+    //--- Méthode à vérifier après la méthode forgotPassword. ---
+    /**
+     * @Route("store/forgot_password/change_password/{code}", name="forgot_password_change")
+     */
+    public function changeForgotPassword($code)
+    {
+        $type_access = new TypeAccess();
+        $list_type_access = $type_access->getListTypeAccess();    
+        $access = $this->getDoctrine()->getRepository(Access::class)
+            ->findOneBy(['code' => $code, 'used' => false, 
+                'type' => $list_type_access['forgot_password']]);
+        if(!is_null($access)) {
+            $errors = array();
+            $form = $this->createForm(ChangeForgotPasswordType::class);
+            if($form->isSubmitted() && $form->isValid()) {
+                $valid = true;
+                if($form->get('password')->getData() !== $form->get('verifyPassword')->getData()){
+                    $errors[] = "La vérification du nouveau mot de passe et le nouveau mot de passe sont différents.";
+                    $valid = false;
+                }
+                if($valid){
+                    $user = $access->getUser();
+                    $user->setPassword($this->passwordEncoder->encodePassword($user, $form->get('password')->getData()));
+                    $access->setUsed(true);
+                    $this->getDoctrine()->getManager()->persist($user);
+                    $this->getDoctrine()->getManager()->persist($access);
+                    $this->getDoctrine()->getManager()->flush();
+                    return $this->redirectToRoute('store_user');
+                    //return $this->render('store/user/info_user/password_changed.html.twig');
+                }
+            }
+            return $this->render('store/user/change/change_forgot_password.html.twig', 
+                ['form' => $form->createView(), 'errors' => $errors]);
         }
         return $this->redirectToRoute('store_user');
     }
