@@ -236,7 +236,7 @@ class UserController extends AbstractController
                 $errors['not_found'] = "L'adresse mail envoyée ne correspond à aucun utilisateur.";
         }
         return $this->render('store/user/info_user/send_email_forgot_password.html.twig', 
-            ['form' => $form->createView() 'errors' => $errors]);
+            ['form' => $form->createView(), 'errors' => $errors]);
     }
 
     //--- Méthode à vérifier après la méthode forgotPassword. ---

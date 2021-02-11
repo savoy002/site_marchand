@@ -1,5 +1,5 @@
 
-Le projet nécessite l'installation des packages de apache, mysql, phpyadmin, composer ainsi que yarn dans le projet en question.
+Le projet nécessite l'installation des packages de apache, mysql, phpyadmin, composer ainsi que yarn ou npm dans le projet en question.
 Avoir préparé un utilisateur avec des droits de vue, création, modification et suppression sur une base de données.
 
 Ajouter un fichier .env.local avec la ligne suivante "DATABASE_URL=mysql://[nom_utilisateur]:[mot_de_passe]@[adesse]:[port]/[nom_de_la_base_de_données]" pour indiqué au projet quelle base de données utiliser avec quelle utilisateur.
@@ -12,7 +12,11 @@ Si il n'y a pas de fichier "src/Migrations/Version* .php" utiliser la commande "
 "php bin/console doctrine:migrations:migrate"
 "php bin/console doctrine:fixtures:load"
 
-Pour activer le code js et css utiliser la commande : "yarn encore dev" pour modifier le fichier app.css et app.js dans le dossier public/build.
+Pour activer le code js et css utiliser la commande "yarn encore dev" ou "npm run dev" en fonction du gestionnaire de paquets que vous avez installé pour créer ou modifier le fichier app.css et app.js dans le dossier public/build.
 
 Pour récupérer les images : 
 Copier ou déplacer le dossier uploads contenu dans le chemin suivant memo/memo_img/ à public/img/ .
+
+Les fonctionnalité demandant d'envoyer des mails ne fonctionnent pas car les configurations et l'adresse mail du serveur ne sont pas fait.
+
+
