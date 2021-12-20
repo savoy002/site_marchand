@@ -10,7 +10,7 @@ class TypeAccess
 	[
 		'verifiy_user' => 'VERIFY_USER',
 		'forgot_password' => 'FORGOT_PASSWORD'
-	]
+	];
 
 	public function getListTypeAccess()
 	{

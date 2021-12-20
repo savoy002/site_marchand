@@ -12,11 +12,11 @@ Si il n'y a pas de fichier "src/Migrations/Version* .php" utiliser la commande "
 "php bin/console doctrine:migrations:migrate"
 "php bin/console doctrine:fixtures:load"
 
-Pour activer le code js et css utiliser la commande "yarn encore dev" ou "npm run dev" en fonction du gestionnaire de paquets que vous avez installé pour créer ou modifier le fichier app.css et app.js dans le dossier public/build.
+Pour activer le code js et css utiliser la commande "yarn install" puis "yarn encore dev" ou "npm install" puis "npm run dev" en fonction du gestionnaire de paquets que vous avez installé pour créer ou modifier le fichier app.css et app.js dans le dossier public/build.
 
 Pour récupérer les images : 
 Copier ou déplacer le dossier uploads contenu dans le chemin suivant memo/memo_img/ à public/img/ .
 
 Les fonctionnalité demandant d'envoyer des mails ne fonctionnent pas car les configurations et l'adresse mail du serveur ne sont pas fait.
 
-
+Les noms de comptes et les mots de passes sont écrits dans le fichier UserFixtures.php dans le dossier src/DataFixtures.
