@@ -23,7 +23,7 @@ class TypeDeliverySelected
     private $priceDelivery;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Command\TypeDelivery", inversedBy="command")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Command\TypeDelivery", inversedBy="commands")
      * @ORM\JoinColumn(nullable=false, referencedColumnName="id")
      */
     private $typeDelivery;
