@@ -3,9 +3,10 @@
 namespace App\DataFixtures;
 
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Doctrine\Common\Persistence\ObjectManager;
+use Doctrine\Persistence\ObjectManager;
 
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+//use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 use App\Entity\User\User;
 use App\Entity\Command\Address;
@@ -13,10 +14,10 @@ use App\Entity\Command\Address;
 class UserFixtures extends Fixture
 {
 
-	private $passwordEncoder;
+	private $passwordHasher;
 
-	public function __construct(UserPasswordEncoderInterface $passwordEncoder) {
-		$this->passwordEncoder = $passwordEncoder;
+	public function __construct(UserPasswordHasherInterface $passwordHasher) {
+		$this->passwordHasher = $passwordHasher;
 	}
 
     public function load(ObjectManager $manager)
@@ -28,7 +29,7 @@ class UserFixtures extends Fixture
     	$user->setEmail('invite@site_marchand.fr');
     	$user->setRoles(array("ROLE_USER"));
         $user->setAdmin(true);
-    	$user->setPassword($this->passwordEncoder->encodePassword($user, 'invite'));
+    	$user->setPassword($this->passwordHasher->hashPassword($user, 'invite'));
     	$user->setValid(true);
 
     	$userTest = new User();
@@ -36,7 +37,7 @@ class UserFixtures extends Fixture
     	$userTest->setEmail('bidon@gmail.com');
     	$userTest->setRoles(['ROLE_USER']);
         $userTest->setAdmin(true);
-    	$userTest->setPassword($this->passwordEncoder->encodePassword($userTest, 'machin'));
+    	$userTest->setPassword($this->passwordHasher->hashPassword($userTest, 'machin'));
         $userTest->setValid(true);
     	
     	$admin = new User();
@@ -45,7 +46,7 @@ class UserFixtures extends Fixture
     	$admin->setRoles(['ROLE_ADMIN']);
         $admin->setSuperAdmin(true);
         $admin->setAdmin(true);
-    	$admin->setPassword($this->passwordEncoder->encodePassword($admin, 'bidule'));
+    	$admin->setPassword($this->passwordHasher->hashPassword($admin, 'bidule'));
     	$admin->setValid(true);
 
         $test1 = new User();
@@ -53,7 +54,7 @@ class UserFixtures extends Fixture
         $test1->setEmail('test1@test.com');
         $test1->setRoles(['ROLE_USER']);
         $test1->setAdmin(true);
-        $test1->setPassword($this->passwordEncoder->encodePassword($test1, 'test1'));
+        $test1->setPassword($this->passwordHasher->hashPassword($test1, 'test1'));
         $test1->setValid(true);
 
         $test2 = new User();
@@ -61,7 +62,7 @@ class UserFixtures extends Fixture
         $test2->setEmail('test2@test.com');
         $test2->setRoles(['ROLE_USER']);
         $test2->setAdmin(true);
-        $test2->setPassword($this->passwordEncoder->encodePassword($test2, 'test2'));
+        $test2->setPassword($this->passwordHasher->hashPassword($test2, 'test2'));
         $test2->setValid(true);
 
         $test3 = new User();
@@ -69,7 +70,7 @@ class UserFixtures extends Fixture
         $test3->setEmail('test3@test.com');
         $test3->setRoles(['ROLE_USER']);
         $test3->setAdmin(true);
-        $test3->setPassword($this->passwordEncoder->encodePassword($test3, 'test3'));
+        $test3->setPassword($this->passwordHasher->hashPassword($test3, 'test3'));
         $test3->setValid(true);
 
         $test4 = new User();
@@ -77,7 +78,7 @@ class UserFixtures extends Fixture
         $test4->setEmail('test4@test.com');
         $test4->setRoles(['ROLE_USER']);
         $test4->setAdmin(true);
-        $test4->setPassword($this->passwordEncoder->encodePassword($test4, 'test4'));
+        $test4->setPassword($this->passwordHasher->hashPassword($test4, 'test4'));
         $test4->setValid(true);
 
         $test5 = new User();
@@ -85,14 +86,14 @@ class UserFixtures extends Fixture
         $test5->setEmail('test5@test.com');
         $test5->setRoles(['ROLE_USER']);
         $test5->setAdmin(true);
-        $test5->setPassword($this->passwordEncoder->encodePassword($test5, 'test5'));
+        $test5->setPassword($this->passwordHasher->hashPassword($test5, 'test5'));
         $test5->setValid(false);
 
         $ups = new User();
         $ups->setUsername('UPS');
         $ups->setEmail('fausseadressemail@ups.com');
         $ups->setRoles(['ROLE_COMPANY_ADMIN']);
-        $ups->setPassword($this->passwordEncoder->encodePassword($ups, 'trucups'));
+        $ups->setPassword($this->passwordHasher->hashPassword($ups, 'trucups'));
         $ups->setValid(true);
 
         //Création des Address.

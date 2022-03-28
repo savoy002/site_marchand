@@ -12,7 +12,8 @@ use Symfony\Component\Mailer\Exception\TransportExceptionInterface;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\Email;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+//use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 use App\Entity\Command\Address;
 use App\Entity\Command\Command;
@@ -37,7 +38,7 @@ class UserController extends AbstractController
 
     private $filesSystem;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder) {
+    public function __construct(UserPasswordHasherInterface $passwordEncoder) {
         $this->passwordEncoder = $passwordEncoder;
         $this->filesSystem = new Filesystem();
     }
@@ -77,7 +78,7 @@ class UserController extends AbstractController
                 if($valid) {
                     $user->setRoles(['ROLE_USER']);
                     $user->setAdmin(false);
-                    $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPassword()));
+                    $user->setPassword($this->passwordEncoder->hashPassword($user, $user->getPassword()));
                     $this->getDoctrine()->getManager()->persist($user);
                     $this->getDoctrine()->getManager()->flush();
                     return $this->redirectToRoute("app_login");
@@ -111,7 +112,7 @@ class UserController extends AbstractController
                     $valid = false;
                 }
                 if($valid) {
-                    $user->setPassword($this->passwordEncoder->encodePassword($user, $form->get('password')->getData()));
+                    $user->setPassword($this->passwordEncoder->hashPassword($user, $form->get('password')->getData()));
                     $this->getDoctrine()->getManager()->persist($user);
                     $this->getDoctrine()->getManager()->flush();
                     return $this->redirectToRoute("store_user");
@@ -261,7 +262,7 @@ class UserController extends AbstractController
                 }
                 if($valid){
                     $user = $access->getUser();
-                    $user->setPassword($this->passwordEncoder->encodePassword($user, $form->get('password')->getData()));
+                    $user->setPassword($this->passwordEncoder->hashPassword($user, $form->get('password')->getData()));
                     $access->setUsed(true);
                     $this->getDoctrine()->getManager()->persist($user);
                     $this->getDoctrine()->getManager()->persist($access);

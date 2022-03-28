@@ -5,7 +5,8 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+//use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 
 use App\Entity\User\User;
 use App\Entity\User\Comment;
@@ -21,10 +22,10 @@ class AdminController extends AbstractController
     //Le nombre de caractères par commentaire affiché dans la gestion des commentaires.
     const NUMBER_CHARACTERS = 30;
 
-    private $passwordEncoder;
+    private $passwordHasher;
 
-    public function __construct(UserPasswordEncoderInterface $passwordEncoder) {
-        $this->passwordEncoder = $passwordEncoder;
+    public function __construct(UserPasswordHasherInterface $passwordHasher) {
+        $this->passwordHasher = $passwordHasher;
     }
 
 
@@ -180,7 +181,7 @@ class AdminController extends AbstractController
                     $user->setAdmin(true);
                     $user->setValid(true);
                     //Cryte le mot de passe.
-                    $user->setPassword($this->passwordEncoder->encodePassword($user, $user->getPassword()));
+                    $user->setPassword($this->passwordHasher->hashPassword($user, $user->getPassword()));
                     $this->getDoctrine()->getManager()->persist($user);
                     $this->getDoctrine()->getManager()->flush();
                     return $this->redirectToRoute("users");
