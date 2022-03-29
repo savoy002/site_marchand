@@ -20,6 +20,8 @@ use App\Form\Type\Product\Manager\ManageProductsCategoryType;
 use App\Form\Type\Product\Manager\ManageVariantsProductsProductType;
 use App\Form\Type\Product\Manager\ManageVariantsProductsCategoryType;
 
+#version 6
+use Doctrine\Persistence\ManagerRegistry;
 
 class AdminProductController extends AbstractController
 {
@@ -48,9 +50,9 @@ class AdminProductController extends AbstractController
 	/**
      * @Route("/admin/categories", name="categories")
      */
-    public function categories() 
+    public function categories(ManagerRegistry $doctrine) 
     {
-        $categories = $this->getDoctrine()->getRepository(Category::class)->findBy(['delete' => false]);
+        $categories = $doctrine->getRepository(Category::class)->findBy(['delete' => false]);
 
         return $this->render('admin/products/categories/categories.html.twig', ['categories' => $categories]);
     }
@@ -58,9 +60,9 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/category/{id}", name="category")
      */
-    public function caterory($id) 
+    public function caterory($id, ManagerRegistry $doctrine) 
     {
-        $category = $this->getDoctrine()->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id]);
+        $category = $doctrine->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id]);
         if(empty($category))
         	return $this->redirectToRoute('categories');
         return $this->render('admin/products/categories/category.html.twig', ['category' => $category[0]]);
@@ -69,7 +71,7 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/categories/create", name="create_category")
      */
-    public function createCategory(Request $request) 
+    public function createCategory(Request $request, ManagerRegistry $doctrine) 
     {
         $category = new Category();
         $form = $this->createForm(CategoryType::class, $category);
@@ -83,7 +85,7 @@ class AdminProductController extends AbstractController
                 $category->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
             }
             //Vérification qu'aucune autre Category n'a le même code.
-            $exist = $this->getDoctrine()->getRepository(Category::class)->findBy(['code' => $category->getCode()]);
+            $exist = $doctrine->getRepository(Category::class)->findBy(['code' => $category->getCode()]);
             if(!empty($exist)) {
                 $errors[] = "Le code de la catégorie est déjà utilisé par une autre catégorie.";
                 $valid = false;
@@ -99,8 +101,8 @@ class AdminProductController extends AbstractController
                     	return $this->render('admin/produts/categories/form_category.html.twig', 
                             ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
                 }
-                $this->getDoctrine()->getManager()->persist($category);
-                $this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->persist($category);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute("categories");
             }
         }
@@ -111,9 +113,9 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/category/{id}/modify", name="modify_category")
      */
-    public function modifyCategory(Request $request, $id) 
+    public function modifyCategory(Request $request, $id, ManagerRegistry $doctrine) 
     {
-        $category = $this->getDoctrine()->getRepository(Category::class)->find($id);
+        $category = $doctrine->getRepository(Category::class)->find($id);
         $form = $this->createForm(CategoryType::class, $category);
         $form->handleRequest($request);
         $errors = array();
@@ -125,7 +127,7 @@ class AdminProductController extends AbstractController
                 $category->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
             }
             //Vérification qu'aucune autre catégorie n'a le même code.
-            $exists = $this->getDoctrine()->getRepository(Category::class)->findBy(['code' => $category->getCode()]);
+            $exists = $doctrine->getRepository(Category::class)->findBy(['code' => $category->getCode()]);
             if(!empty($exists)) {
             	$exit = false;
             	foreach($exists as $category_exist) {
@@ -157,8 +159,8 @@ class AdminProductController extends AbstractController
                     	return $this->render('admin/produts/categories/form_category.html.twig', 
                         	['form' => $form->createView(), 'errors' => $e[$res_save], 'create' => false]);
                 }
-                $this->getDoctrine()->getManager()->persist($category);
-                $this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->persist($category);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute("categories");
             }
         }
@@ -170,14 +172,14 @@ class AdminProductController extends AbstractController
 	/**
 	 * @Route("/admin/category/{id}/manageProducts", name="manage_products_category")
 	 */
-	public function manageProductsCategory(Request $request, $id) 
+	public function manageProductsCategory(Request $request, $id, ManagerRegistry $doctrine) 
 	{
-		$category = $this->getDoctrine()->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id])[0];
-		//$former_products = $this->getDoctrine()->getRepository(Product::class)->findProductsByCategory($category);
+		$category = $doctrine->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id])[0];
+		//$former_products = $doctrine->getRepository(Product::class)->findProductsByCategory($category);
 		$form = $this->createForm(ManageProductsCategoryType::class, $category);
 		$form->handleRequest($request);
 		if($form->isSubmitted() && $form->isValid()) {
-			$manager = $this->getDoctrine()->getManager();
+			$manager = $doctrine->getManager();
 			//Décommenter les ligne suivantes si la Category et les Products ne se modifient pas.
 			/*foreach($former_products as $product) {
 				if(!$category->hasProduct($product)) {
@@ -206,14 +208,14 @@ class AdminProductController extends AbstractController
 	/**
 	 * @Route("/admin/category/{id}/manageVariantsProducts", name="manage_variants_products_category")
 	 */
-	public function manageVarianstProductsCategory(Request $request, $id)
+	public function manageVarianstProductsCategory(Request $request, $id, ManagerRegistry $doctrine)
 	{
-		$category = $this->getDoctrine()->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id])[0];
-		//$former_variants = $this->getDoctrine()->getRepository(VariantProduct::class)->findVariantsProductsByCategory($category);
+		$category = $doctrine->getRepository(Category::class)->findBy(['delete' => false, 'id' => $id])[0];
+		//$former_variants = $doctrine->getRepository(VariantProduct::class)->findVariantsProductsByCategory($category);
 		$form = $this->createForm(ManageVariantsProductsCategoryType::class, $category);
 		$form->handleRequest($request);
 		if($form->isSubmitted() && $form->isValid()) {
-			$manager = $this->getDoctrine()->getManager();
+			$manager = $doctrine->getManager();
 			//Décommenter les ligne suivantes si la Category et les VariantsProducts ne se modifient pas.
 			/*foreach($former_variants as $variant_product) {
 				if(!$category->hasVariantProduct($variant_product)) {
@@ -243,9 +245,9 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/category/{id}/activate", name="activate_disactivate_category")
      */
-    public function activateDisactivateCategory($id)
+    public function activateDisactivateCategory($id, ManagerRegistry $doctrine)
     {
-        $category = $this->getDoctrine()->getRepository(Category::class)->find($id);
+        $category = $doctrine->getRepository(Category::class)->find($id);
         $category->setValid(!$category->getValid());
         $this->getDoctrine->getManager()->persist($category);
         $this->getDoctrine->getManager()->flush();
@@ -255,19 +257,19 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/category/{id}/delete", name="delete_category")
      */
-    public function deleteCategory($id) 
+    public function deleteCategory($id, ManagerRegistry $doctrine) 
     {
-        $category = $this->getDoctrine()->getRepository(Category::class)->find($id);
+        $category = $doctrine->getRepository(Category::class)->find($id);
         $category->setDelete(true);
         //Enlève les lien entre la Category et les Products.
         foreach($category->getProducts() as $product) {
         	$category->removeProduct($product);
-        	$this->getDoctrine()->getManager()->persist($product);
+        	$doctrine->getManager()->persist($product);
         }
         //Enlève les lien entre la Category et les VariantsProducts.
         foreach ($category->getVariantsProducts as $variant_product) {
         	$category->removeVariantProduct($variant_product);
-        	$this->getDoctrine()->getManager()->persist($variant_product);
+        	$doctrine->getManager()->persist($variant_product);
         }
         $this->getDoctrine->getManager()->persist($category);
         $this->getDoctrine->getManager()->flush();
@@ -281,7 +283,7 @@ class AdminProductController extends AbstractController
  	/**
  	 * @Route("/admin/products", name="products")
  	 */
-    public function products(Request $request) 
+    public function products(Request $request, ManagerRegistry $doctrine) 
     {
     	$errors = array();
     	$former_request = array();
@@ -327,7 +329,7 @@ class AdminProductController extends AbstractController
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
             //Calcul le nombre de produits et de pages.
-            $number_products = $this->getDoctrine()->getRepository(Product::class)
+            $number_products = $doctrine->getRepository(Product::class)
                 ->adminResearchNumberProducts($criteria)[0][1];
             $number_pages = 
                 intval( $number_products / self::NUMBER_BY_PAGE ) + 
@@ -351,13 +353,13 @@ class AdminProductController extends AbstractController
     		$criteria['page'] = 0;
             $page = 1;
             //Calcul le nombre de produits et de pages.
-	    	$number_products = intval($this->getDoctrine()->getRepository(Product::class)->countNumberProducts()[0][1]);
+	    	$number_products = intval($doctrine->getRepository(Product::class)->countNumberProducts()[0][1]);
             $number_pages = 
                 intval( $number_products / self::NUMBER_BY_PAGE ) + 
                 ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
     	}
     	//Recherche les produits à retourner.
-		$products = $this->getDoctrine()->getRepository(Product::class)->adminResearchProduct($criteria);
+		$products = $doctrine->getRepository(Product::class)->adminResearchProduct($criteria);
 
         return $this->render('admin/products/products/products.html.twig', 
         	['products' => $products, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 
@@ -367,9 +369,9 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/product/{id}", name="product")
      */
-    public function product($id)
+    public function product($id, ManagerRegistry $doctrine)
     {
-        $product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id]);
+        $product = $doctrine->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id]);
         if(empty($product))
         	return $this->redirectToRoute('products');
         return $this->render('admin/products/products/product.html.twig', ['product' => $product[0]]);
@@ -378,7 +380,7 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/products/create", name="create_product")
      */
-    public function createProduct(Request $request) 
+    public function createProduct(Request $request, ManagerRegistry $doctrine) 
     {
     	$product = new Product();
         $form = $this->createForm(ProductType::class, $product);
@@ -392,7 +394,7 @@ class AdminProductController extends AbstractController
                 $product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
        		}
        		//Vérification qu'aucun autre Product n'a le même code.
-       		$exist = $this->getDoctrine()->getRepository(Product::class)->findBy(['code' => $product->getCode()]);
+       		$exist = $doctrine->getRepository(Product::class)->findBy(['code' => $product->getCode()]);
        		if(!empty($exist))  {
        			$errors[] = "Le code du produit existe déjà.";
        			$valid = false;
@@ -409,8 +411,8 @@ class AdminProductController extends AbstractController
                             ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
                 }
                 $product->setStock(0);
-                $this->getDoctrine()->getManager()->persist($product);
-                $this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->persist($product);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute("products");
        		}
        	}
@@ -420,9 +422,9 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/product/{id}/modify", name="modify_product")
      */
-    public function modifyProduct(Request $request, $id)
+    public function modifyProduct(Request $request, $id, ManagerRegistry $doctrine)
     {
-        $product = $this->getDoctrine()->getRepository(Product::class)->find($id);
+        $product = $doctrine->getRepository(Product::class)->find($id);
         $form = $this->createForm(productType::class, $product);
         $form->handleRequest($request);
         $errors = array();
@@ -434,7 +436,7 @@ class AdminProductController extends AbstractController
                 $product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
             }
             //Vérification qu'aucun autre Product n'a le même code.
-            $exists = $this->getDoctrine()->getRepository(Product::class)->findBy(['code' => $product->getCode()]);
+            $exists = $doctrine->getRepository(Product::class)->findBy(['code' => $product->getCode()]);
             if(!empty($exists)) {
             	$exist = false;
             	foreach($exists as $product_exist) {
@@ -466,8 +468,8 @@ class AdminProductController extends AbstractController
                     	return $this->render('admin/products/products/form_product.html.twig', 
                         	['form' => $form->createView(), 'errors' => $e[$res_save], 'create' => false]);
                 }
-                $this->getDoctrine()->getManager()->persist($product);
-                $this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->persist($product);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute("product", ['id' => $product->getId()]);
             }
         }
@@ -479,13 +481,13 @@ class AdminProductController extends AbstractController
     /**
      * @Route("admin/product/{id}/manageCategories", name="manage_categories_product")
      */
-    public function manageCategoriesProduct(Request $request, $id) {
-    	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id])[0];
-    	$former_categories = $this->getDoctrine()->getRepository(Category::class)->findCategoriesByProduct($product);
+    public function manageCategoriesProduct(Request $request, $id, ManagerRegistry $doctrine) {
+    	$product = $doctrine->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	$former_categories = $doctrine->getRepository(Category::class)->findCategoriesByProduct($product);
     	$form = $this->createForm(ManageCategoriesProductType::class, $product);
     	$form->handleRequest($request);
     	if($form->isSubmitted() && $form->isValid()) {
-    		$manager = $this->getDoctrine()->getManager();
+    		$manager = $doctrine->getManager();
     		//Enlève le Product aux Categories enlevées.
     		foreach($former_categories as $category) {
     			if(!$product->hasCategory($category)) {
@@ -515,13 +517,13 @@ class AdminProductController extends AbstractController
     /**
      * @Route("admin/product/{id}/manageVariantsProducts", name="manage_variants_products_product")
      */
-    public function manageVariantsProductsProduct(Request $request, $id) {
-    	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id])[0];
-    	$former_variants = $this->getDoctrine()->getRepository(VariantProduct::class)->findVariantsProductsByProduct($product);
+    public function manageVariantsProductsProduct(Request $request, $id, ManagerRegistry $doctrine) {
+    	$product = $doctrine->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	$former_variants = $doctrine->getRepository(VariantProduct::class)->findVariantsProductsByProduct($product);
     	$form = $this->createForm(ManageVariantsProductsProductType::class, $product);
     	$form->handleRequest($request);
     	if($form->isSubmitted() && $form->isValid()) {
-    		$manager = $this->getDoctrine()->getManager();
+    		$manager = $doctrine->getManager();
     		//Enlève le Product aux VariantsProducts enlevées.
     		foreach($former_variants as $variant_product) {
     			if(!$product->hasVariantProduct($variant_product)) {
@@ -553,24 +555,24 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/product/{id}/activate", name="activate_disactivate_product")
      */
-    public function activateDisactivateProduct($id)
+    public function activateDisactivateProduct($id, ManagerRegistry $doctrine)
     {
-    	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id]);
+    	$product = $doctrine->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id]);
     	if(empty($product))
     		return $this->redirectToRoute("products");
     	$product = $product[0];
     	$product->setActivate(!$product->getActivate());
-    	$this->getDoctrine()->getManager()->persist($product);
-    	$this->getDoctrine()->getManager()->flush();
+    	$doctrine->getManager()->persist($product);
+    	$doctrine->getManager()->flush();
         return $this->redirectToRoute('product', ['id' => $id]);
     }
 
     /**
      * @Route("/admin/product/{id}/delete", name="delete_product")
      */
-    public function deleteProduct($id)
+    public function deleteProduct($id, ManagerRegistry $doctrine)
     {
-    	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id]);
+    	$product = $doctrine->getRepository(Product::class)->findBy(['delete' => false, 'id' => $id]);
     	if(empty($product))
     		return $this->redirectToRoute("products");
     	$product = $product[0];
@@ -578,15 +580,15 @@ class AdminProductController extends AbstractController
     	//Change le Product des VariantsProducts contenuent par le Product.
     	foreach($product->getVariantsProducts() as $variant_product) {
     		$product->removeVariantProduct($variant_product);
-    		$this->getDoctrine()->getManager()->persist($variant_product);
+    		$doctrine->getManager()->persist($variant_product);
     	}
     	//Enlève le Product des Categories contenuent par le Product.
     	foreach($product->getCategories() as $category) {
     		$product->removeCategory($category);
-    		$this->getDoctrine()->getManager()->persist($category);
+    		$doctrine->getManager()->persist($category);
     	}
-    	$this->getDoctrine()->getManager()->persist($product);
-    	$this->getDoctrine()->getManager()->flush();
+    	$doctrine->getManager()->persist($product);
+    	$doctrine->getManager()->flush();
         return $this->redirectToRoute('products');
     }
 
@@ -597,7 +599,7 @@ class AdminProductController extends AbstractController
 	/**
  	 * @Route("/admin/variants_products", name="variants_products")
  	 */
-    public function variantsProducts(Request $request)
+    public function variantsProducts(Request $request, ManagerRegistry $doctrine)
     {
     	$errors = array();
     	$former_request = array();
@@ -649,7 +651,7 @@ class AdminProductController extends AbstractController
             }
 
             //Calcul le nombre de VariantsProduts et le nombre de pages.
-            $number_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+            $number_products = $doctrine->getRepository(VariantProduct::class)
                                     ->adminResearchNumberVariantsProducts($criteria)[0][1];
             $number_pages = 
                     intval( $number_products / self::NUMBER_BY_PAGE ) + 
@@ -674,14 +676,14 @@ class AdminProductController extends AbstractController
     		$criteria['page'] = 0;
     		//Calcul le nombre de VariantsProduts et de pages
     		$number_products = 
-                intval($this->getDoctrine()->getRepository(VariantProduct::class)
+                intval($doctrine->getRepository(VariantProduct::class)
                     ->adminCountNumberVariantsProducts()[0][1]);
             $number_pages = 
                 intval( $number_products / self::NUMBER_BY_PAGE ) + 
                 ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
     	}
     	//Recherche les produits à retourner.
-    	$variants_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+    	$variants_products = $doctrine->getRepository(VariantProduct::class)
             ->adminResearchVariantProduct($criteria);
 
         return $this->render('admin/products/variants_products/variants_products.html.twig', 
@@ -692,9 +694,9 @@ class AdminProductController extends AbstractController
 	/**
  	 * @Route("/admin/variant_product/{id}", name="variant_product")
  	 */
-    public function variantProduct($id)
+    public function variantProduct($id, ManagerRegistry $doctrine)
     {
-        $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
+        $variant_product = $doctrine->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
         if(empty($variant_product))
         	return $this->redirectToRoute('variants_products');
         return $this->render('admin/products/variants_products/variant_product.html.twig', ['variant_product' => $variant_product[0]]);
@@ -703,7 +705,7 @@ class AdminProductController extends AbstractController
     /**
      * @Route("/admin/variants_products/create", name="create_variant_product")
      */
-    public function createVariantProduct(Request $request)
+    public function createVariantProduct(Request $request, ManagerRegistry $doctrine)
     {
         $variant_product = new VariantProduct();
         $form = $this->createForm(VariantProductType::class, $variant_product);
@@ -717,7 +719,7 @@ class AdminProductController extends AbstractController
                 $variant_product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
        		}
        		//Vérification qu'aucune autre VariantProduct n'a le même code.
-       		$exist = $this->getDoctrine()->getRepository(Product::class)->findBy(['code' => $variant_product->getCode()]);
+       		$exist = $doctrine->getRepository(Product::class)->findBy(['code' => $variant_product->getCode()]);
        		if(!empty($exist))  {
        			$errors[] = "Le code du produit existe déjà.";
        			$valid = false;
@@ -734,9 +736,9 @@ class AdminProductController extends AbstractController
                             ['form' => $form->createView(), 'errors' => $res, 'create' => true]);
                 }
                 $variant_product->setStock(0);
-                $this->getDoctrine()->getManager()->persist($variant_product->getProduct());
-                $this->getDoctrine()->getManager()->persist($variant_product);
-                $this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->persist($variant_product->getProduct());
+                $doctrine->getManager()->persist($variant_product);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute("variants_products");
        		}
         }
@@ -749,8 +751,8 @@ class AdminProductController extends AbstractController
      */
     public function modifyVariantProduct(Request $request, $id)
     {
-        $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->find($id);
-        $former_product = $this->getDoctrine()->getRepository(Product::class)->findProductByVariantProduct($variant_product)[0];
+        $variant_product = $doctrine->getRepository(VariantProduct::class)->find($id);
+        $former_product = $doctrine->getRepository(Product::class)->findProductByVariantProduct($variant_product)[0];
         $form = $this->createForm(VariantProductType::class, $variant_product);
         $form->handleRequest($request);
         $errors = array();
@@ -762,7 +764,7 @@ class AdminProductController extends AbstractController
                 $variant_product->setCode(transliterator_transliterate('Any-Latin; Latin-ASCII; [^A-Za-z0-9_] remove; Lower()', $code));
             }
             //Vérification qu'aucune autre VariantProduct n'a le même code.
-            $exists = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['code' => $variant_product->getCode()]);
+            $exists = $doctrine->getRepository(VariantProduct::class)->findBy(['code' => $variant_product->getCode()]);
             if(!empty($exists)) {
             	$exist = false;
             	foreach($exists as $variant_product_exist) {
@@ -797,11 +799,11 @@ class AdminProductController extends AbstractController
                 }
                 if($former_product != null) {
                 	if($former_product->getId() != $variant_product->getProduct()->getId())
-			        	$this->getDoctrine()->getManager()->persist($former_product);
+			        	$doctrine->getManager()->persist($former_product);
                 }
-                $this->getDoctrine()->getManager()->persist($variant_product->getProduct());
-                $this->getDoctrine()->getManager()->persist($variant_product);
-                $this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->persist($variant_product->getProduct());
+                $doctrine->getManager()->persist($variant_product);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute("variant_product", ['id' => $variant_product->getId()]);
             }
         }
@@ -813,14 +815,14 @@ class AdminProductController extends AbstractController
     /**
      * @Route("admin/variant_product/{id}/manageCategories", name="manage_categories_variant_product")
      */
-    public function manageCategoriesVariantProduct(Request $request, $id)
+    public function manageCategoriesVariantProduct(Request $request, $id, ManagerRegistry $doctrine)
     {
-    	$variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id])[0];
-    	$former_categories = $this->getDoctrine()->getRepository(Category::class)->findCategoriesByVariantProduct($variant_product);
+    	$variant_product = $doctrine->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	$former_categories = $doctrine->getRepository(Category::class)->findCategoriesByVariantProduct($variant_product);
     	$form = $this->createForm(ManageCategoriesVariantProductType::class, $variant_product);
     	$form->handleRequest($request);
     	if($form->isSubmitted() && $form->isValid()) {
-    		$manager = $this->getDoctrine()->getManager();
+    		$manager = $doctrine->getManager();
     		//Enlève la VariantProduct aux Categories enlevées.
     		foreach($former_categories as $category) {
     			if(!$variant_product->hasCategory($category)) {
@@ -851,11 +853,11 @@ class AdminProductController extends AbstractController
     /**
      * @Route("admin/variant_product/{id}/manageProducts", name="manage_products_variant_product")
      */
-    public function manageProductsVariantProduct(Request $request, $id)
+    public function manageProductsVariantProduct(Request $request, $id, ManagerRegistry $doctrine)
     {
-    	$variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id])[0];
+    	$variant_product = $doctrine->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id])[0];
     	//Regarde si la VariantProduct a un ancien Product.
-    	$former_product = $this->getDoctrine()->getRepository(Product::class)->findProductByVariantProduct($variant_product);
+    	$former_product = $doctrine->getRepository(Product::class)->findProductByVariantProduct($variant_product);
     	if(!empty($former_products)) 
     		$former_product = $former_product[0];
     	else 
@@ -863,15 +865,15 @@ class AdminProductController extends AbstractController
     	$form = $this->createForm(ManageProductVariantProductType::class, $variant_product);
     	$form->handleRequest($request);
     	if($form->isSubmitted() && $form->isValid()) {
-			//$this->getDoctrine()->getManager()->persist($variant_product->getProduct());
+			//$doctrine->getManager()->persist($variant_product->getProduct());
 			//Enlève la VariantProduct de l'ancien Product.
     		if($former_product !== null){
     			$former_product->calculStock();
-    			$this->getDoctrine()->getManager()->persist($former_product);
+    			$doctrine->getManager()->persist($former_product);
     		}
     		$variant_product->getProduct()->calculStock();
-    		$this->getDoctrine()->getManager()->persist($variant_product);
-    		$this->getDoctrine()->getManager()->flush();
+    		$doctrine->getManager()->persist($variant_product);
+    		$doctrine->getManager()->flush();
 			return $this->redirectToRoute('variant_product', ['id' => $id]);
     	}
     	return $this->render('admin/products/variants_products/manage_product_variant_product.html.twig',
@@ -883,40 +885,40 @@ class AdminProductController extends AbstractController
      */
     public function activateDisactivateVariantProduct($id)
     {
-        $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
+        $variant_product = $doctrine->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
         if(empty($variant_product))
         	return $this->redirectToRoute('variants_products');
         $variant_product = $variant_product[0];
         $variant_product->setActivate(!$variant_product->getActivate());
-        $this->getDoctrine()->getManager()->persist($variant_product);
-        $this->getDoctrine()->getManager()->flush();
+        $doctrine->getManager()->persist($variant_product);
+        $doctrine->getManager()->flush();
         return $this->redirectToRoute('variant_product', ['id' => $id]);
     }
 
     /**
      * @Route("/admin/variant_product/{id}/delete", name="delete_variant_product")
      */
-    public function deleteVariantProduct($id)
+    public function deleteVariantProduct($id, ManagerRegistry $doctrine)
     {
-        $variant_product = $this->getDoctrine()->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
+        $variant_product = $doctrine->getRepository(VariantProduct::class)->findBy(['delete' => false, 'id' => $id]);
         if(empty($variant_product))
         	return $this->redirectToRoute('variants_products');
         $variant_product = $variant_product[0];
         $variant_product->setDelete(true);
         //Enlève la VariantProduct au Product contenu par la VariantProduct.
         if($variant_product->getProduct() !== null) {
-        	$product = $this->getDoctrine()->getRepository(Product::class)->findBy(['delete' => false, 'id' => $variant_product->getProduct()->getId()]);
+        	$product = $doctrine->getRepository(Product::class)->findBy(['delete' => false, 'id' => $variant_product->getProduct()->getId()]);
         	$variant_product->setProduct(null);
         	$product->calculStock();
-        	$this->getDoctrine()->getManager()->persist($product);
+        	$doctrine->getManager()->persist($product);
         }
         //Enlève la VariantProduct des Categories contenu par la VariantProduct.
         foreach($variant_product->getCategories() as $category) {
         	$variant_product->removeCategory($category);
-        	$this->getDoctrine()->getManager()->persist($category);
+        	$doctrine->getManager()->persist($category);
         }
-        $this->getDoctrine()->getManager()->persist($variant_product);
-        $this->getDoctrine()->getManager()->flush();
+        $doctrine->getManager()->persist($variant_product);
+        $doctrine->getManager()->flush();
         return $this->redirectToRoute('variants_products');
     }
 

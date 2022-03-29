@@ -6,7 +6,7 @@ use App\Entity\Product\VariantProduct;
 use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder as QueryBuilderOption;
 
 /**

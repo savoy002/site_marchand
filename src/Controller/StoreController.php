@@ -22,6 +22,8 @@ use App\Form\Type\Command\AddProductCommandType;
 use App\Form\Type\Command\ChangeAddressType;
 use App\Form\Type\Command\SelectTypeDeliveryType;
 
+#version 6
+use Doctrine\Persistence\ManagerRegistry;
 
 class StoreController extends AbstractController
 {
@@ -33,9 +35,9 @@ class StoreController extends AbstractController
     /**
      * @Route("/", name="store")
      */
-    public function index()
+    public function index(ManagerRegistry $doctrine)
     {
-        $var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+        $var_products = $doctrine->getRepository(VariantProduct::class)
             ->findBy(['delete' => false, 'activate' => true, 'isWellcome' => true]);
         
         return $this->render('store/wellcome_page.html.twig', ['products' => $var_products, 'basket' => $this->getBasket()]);
@@ -55,14 +57,14 @@ class StoreController extends AbstractController
     /**
      * @Route("/store/products", name="store_products")
      */
-    public function showProducts(Request $request)
+    public function showProducts(Request $request, ManagerRegistry $doctrine)
     {
         $criteria = array();
         $criteria['number_by_page'] = self::NUMBER_PRODUCTS_BY_PAGE;
         $former_request = array();
 
-        $categories = $this->getDoctrine()->getRepository(Category::class)->findBy(['activate' => true, 'delete' => false]);
-        $products = $this->getDoctrine()->getRepository(Product::class)->findBy(['activate' => true, 'delete' => false]);
+        $categories = $doctrine->getRepository(Category::class)->findBy(['activate' => true, 'delete' => false]);
+        $products = $doctrine->getRepository(Product::class)->findBy(['activate' => true, 'delete' => false]);
 
         $page = $request->request->get('page');
 
@@ -98,7 +100,7 @@ class StoreController extends AbstractController
         }
 
         //Calcul le nombre de VariantProducts et de pages
-        $number_var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+        $number_var_products = $doctrine->getRepository(VariantProduct::class)
             ->storeResearchNumberVariantProduct($criteria)[0][1];
         $number_pages = intval( $number_var_products / self::NUMBER_PRODUCTS_BY_PAGE ) + 
             ( ( $number_var_products % self::NUMBER_PRODUCTS_BY_PAGE === 0 )?0:1 );
@@ -118,7 +120,7 @@ class StoreController extends AbstractController
             $page = 1;
 
         //Recherche les VariantProducts à retourner.
-        $var_products = $this->getDoctrine()->getRepository(VariantProduct::class)
+        $var_products = $doctrine->getRepository(VariantProduct::class)
             ->storeResearchVariantProduct($criteria);
         
         return $this->render('store/variants_products/show_products.html.twig', 
@@ -129,9 +131,9 @@ class StoreController extends AbstractController
     /**
      * @Route("/store/product/{code}", name="store_product")
      */
-    public function showProduct(Request $request, $code)
+    public function showProduct(Request $request, $code, ManagerRegistry $doctrine)
     {
-        $var_product = $this->getDoctrine()->getRepository(VariantProduct::class)
+        $var_product = $doctrine->getRepository(VariantProduct::class)
             ->findOneBy(['delete' => false, 'activate' => true, 'code' => $code]);
 
         if(is_null($var_product))
@@ -158,7 +160,7 @@ class StoreController extends AbstractController
                 if(!isset($basket)) {
                     $basket = new Command();
                     $basket->setUser($this->getUser());
-                    $this->getDoctrine()->getManager()->persist($this->getUser());
+                    $doctrine->getManager()->persist($this->getUser());
                 }
                 //Vérifie si la commande possède déjà le produit.
                 // ------ Partie à vérifier. -----
@@ -170,19 +172,19 @@ class StoreController extends AbstractController
                 if(isset($former_piece_product)) {
                     $former_piece_product->setPriceProduct($var_product->getPrice());
                     $former_piece_product->setNbProducts($piece_command->getNbProducts());
-                    $this->getDoctrine()->getManager()->persist($former_piece_product);
+                    $doctrine->getManager()->persist($former_piece_product);
                 } else {
                     $piece_command->setPriceProduct($var_product->getPrice());
                     $piece_command->setProduct($var_product);
                     $piece_command->setCommand($basket);
-                    $this->getDoctrine()->getManager()->persist($var_product);
-                    $this->getDoctrine()->getManager()->persist($basket);
-                    $this->getDoctrine()->getManager()->persist($piece_command);
+                    $doctrine->getManager()->persist($var_product);
+                    $doctrine->getManager()->persist($basket);
+                    $doctrine->getManager()->persist($piece_command);
                 }
 
                 //Penser à gérer les stockes dans cette méthode ou dans la validation de la commande.
 
-                $this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute('store_basket_article');
             }
         }
@@ -194,9 +196,9 @@ class StoreController extends AbstractController
                 if($form_comment->isSubmitted() && $form_comment->isValid()) {
                     $this->getUser()->addComment($comment);
                     $var_product->addComment($comment);
-                    $this->getDoctrine()->getManager()->persist($comment);
-                    $this->getDoctrine()->getManager()->persist($this->getUser());
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($comment);
+                    $doctrine->getManager()->persist($this->getUser());
+                    $doctrine->getManager()->flush();
                     $form_comment = null;
                 }
             }
@@ -221,7 +223,7 @@ class StoreController extends AbstractController
     /**
      * @Route("/store/basket/address", name="store_basket_address")
      */
-    public function basketChoiceAddressDel(Request $request)
+    public function basketChoiceAddressDel(Request $request, ManagerRegistry $doctrine)
     {
         if($this->getBasket() !== null) {
             if(!$this->getBasket()->isEmptyProduct()) {
@@ -253,17 +255,17 @@ class StoreController extends AbstractController
                         $former_address->removeCommand($this->getBasket());
                         if($former_address->isEmptyCommand() && $former_address->isEmptyBelong())
                             $former_address->setDelete(true);
-                        $this->getDoctrine()->getManager()->persist($former_address);
+                        $doctrine->getManager()->persist($former_address);
                     }
                     //Gère les sauvegardes des adresses et du panier.
-                    $this->getDoctrine()->getManager()->persist($this->getBasket());
+                    $doctrine->getManager()->persist($this->getBasket());
                     if($request->request->get("user_address") === "user_address")
-                        $this->getDoctrine()->getManager()->persist($user_address);
+                        $doctrine->getManager()->persist($user_address);
                     else
-                        $this->getDoctrine()->getManager()->persist($address);
+                        $doctrine->getManager()->persist($address);
                     //var_dump(is_null($this->getBasket()->getPlaceDel()));
                     //die();
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->flush();
 
                     return $this->redirectToRoute('store_basket_delivery');
                 }
@@ -278,7 +280,7 @@ class StoreController extends AbstractController
     /**
      * @Route("/store/basket/delivery", name="store_basket_delivery")
      */
-    public function basketSelectDelivery(Request $request)
+    public function basketSelectDelivery(Request $request, ManagerRegistry $doctrine)
     {
         if($this->getBasket() !== null) {
             if(!$this->getBasket()->isEmptyProduct() && $this->getBasket()->getPlaceDel() !== null) {
@@ -292,10 +294,10 @@ class StoreController extends AbstractController
                 $form->handleRequest($request);
                 if($form->isSubmitted() && $form->isValid()) {
                     $typeDeliverySelected->setPriceDelivery($typeDeliverySelected->getTypeDelivery()->getPrice());
-                    $this->getDoctrine()->getManager()->persist($typeDeliverySelected->getTypeDelivery());
-                    $this->getDoctrine()->getManager()->persist($typeDeliverySelected);
-                    $this->getDoctrine()->getManager()->persist($this->getBasket());
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($typeDeliverySelected->getTypeDelivery());
+                    $doctrine->getManager()->persist($typeDeliverySelected);
+                    $doctrine->getManager()->persist($this->getBasket());
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('store_basket_payment');
                 }
                 return $this->render('store/basket/basket_select_type_delivery.html.twig', 

@@ -20,7 +20,8 @@ use App\Form\Type\Command\CompanyDeliveryType;
 use App\Form\Type\Command\DeliveryType;
 use App\Form\Type\Command\TypeDeliveryType;
 
-
+#version 6
+use Doctrine\Persistence\ManagerRegistry;
 
 class AdminCommandController extends AbstractController 
 {
@@ -40,7 +41,7 @@ class AdminCommandController extends AbstractController
 	/**
 	 * @Route("/admin/command/commands", name="commands")
 	 */
-	public function commands(Request $request) 
+	public function commands(Request $request, ManagerRegistry $doctrine) 
 	{
         $former_request = array();
         $errors = array();
@@ -141,7 +142,7 @@ class AdminCommandController extends AbstractController
             }
 
             //Calcul le nombre de commandes et de pages.
-            $number_commands = intval($this->getDoctrine()->getRepository(Command::class)
+            $number_commands = intval($doctrine->getRepository(Command::class)
                 ->adminResearchNumberCommands($criteria)[0][1]);
             $number_pages = 
                 intval( $number_commands / self::NUMBER_BY_PAGE ) + 
@@ -164,17 +165,17 @@ class AdminCommandController extends AbstractController
             $page = 1;
             if(!$this->isAdmin()){
                 $criteria['company'] = $this->getCompanyId();
-                $number_commands = intval($this->getDoctrine()->getRepository(Command::class)
+                $number_commands = intval($doctrine->getRepository(Command::class)
                     ->adminResearchNumberCommands($criteria)[0][1]);
             } else {
                 //Calcul le nombre de commandes et de pages.
-                $number_commands = intval($this->getDoctrine()->getRepository(Command::class)->countNumberCommands()[0][1]);
+                $number_commands = intval($doctrine->getRepository(Command::class)->countNumberCommands()[0][1]);
             }
             $number_pages = intval( $number_commands / self::NUMBER_BY_PAGE ) + 
                             ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
         //Recherche les commandes à retourner.
-        $commands = $this->getDoctrine()->getRepository(Command::class)->adminResearchCommands($criteria);
+        $commands = $doctrine->getRepository(Command::class)->adminResearchCommands($criteria);
 
 		return $this->render('admin/commands/commands/commands.html.twig', 
             ['commands' => $commands, 'number_pages' => $number_pages, 'page' => $page, 'request' => $former_request, 
@@ -184,13 +185,13 @@ class AdminCommandController extends AbstractController
 	/**
 	 * @Route("/admin/command/command/{id}", name="command")
 	 */
-	public function command($id) 
+	public function command($id, ManagerRegistry $doctrine) 
 	{
         if($this->isAdmin())
-            $command = $this->getDoctrine()->getRepository(Command::class)
+            $command = $doctrine->getRepository(Command::class)
                 ->findOneBy(['id' => $id, 'delete' => false, 'isBasket' => false]);
         else
-            $command = $this->getDoctrine()->getRepository(Command::class)
+            $command = $doctrine->getRepository(Command::class)
                 ->adminFindCommand($id, $this->getCompanyId());
 
 		if(is_null($command))
@@ -202,13 +203,13 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/command/commands/not_send", name="commands_not_send")
      */
-    public function commandsWithoutDelivery()
+    public function commandsWithoutDelivery(ManagerRegistry $doctrine)
     {
         if($this->isAdmin())
-            $commands = $this->getDoctrine()->getRepository(Command::class)
+            $commands = $doctrine->getRepository(Command::class)
                 ->findBy(['delete' => false, 'delivery' => null, 'isBasket' => false]);
         else
-            $commands = $this->getDoctrine()->getRepository(Command::class)
+            $commands = $doctrine->getRepository(Command::class)
                 ->adminFindCommandsWithoutDelivery($this->getCompanyId());
 
         return $this->render('admin/commands/commands/commands_not_send.html.twig', ['commands' => $commands]);
@@ -235,10 +236,10 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/companies_deliveries", name="companies_deliveries")
      */
-    public function companiesDeliveries() 
+    public function companiesDeliveries(ManagerRegistry $doctrine) 
     {
         if($this->isAdmin()) {
-            $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
+            $companies = $doctrine->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
 
             return $this->render('admin/commands/deliveries/companies_deliveries/companies_deliveries.html.twig', 
                 ['companies' => $companies]);
@@ -249,10 +250,10 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/company_delivery/{id}", name="company_delivery")
      */
-    public function companyDelivery($id)
+    public function companyDelivery($id, ManagerRegistry $doctrine)
     {
         if($this->isAdmin() || $this->getCompanyId() == $id) {
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['delete' => false, 'id' => $id]);
+            $company = $doctrine->getRepository(CompanyDelivery::class)->findOneBy(['delete' => false, 'id' => $id]);
             if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
             $departments = new Departments();
@@ -266,7 +267,7 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/companies_deliveries/create", name="create_company_delivery")
      */
-    public function createCompanyDelivery(Request $request)
+    public function createCompanyDelivery(Request $request, ManagerRegistry $doctrine)
     {
         if($this->isAdmin()) {
             $company = new CompanyDelivery();
@@ -285,12 +286,12 @@ class AdminCommandController extends AbstractController
                 }
                 if($form->get('all_france')->getData() == "yes") {
                     $company->setArea(["All"]);
-                    $this->getDoctrine()->getManager()->persist($company);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($company);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('companies_deliveries');
                 } else {
-                    $this->getDoctrine()->getManager()->persist($company);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($company);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('choice_departement_company_delivery', ['id' => $company->getId()]);
                 }
             }
@@ -303,10 +304,10 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/company_delivery/{id}/modify", name="modify_company_delivery")
      */
-    public function modifyCompanyDelivery(Request $request, $id)
+    public function modifyCompanyDelivery(Request $request, $id, ManagerRegistry $doctrine)
     {
         if($this->isAdmin() || $this->getCompanyId() == $id) {
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $company = $doctrine->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
             $option = ['create' => false];
@@ -339,15 +340,15 @@ class AdminCommandController extends AbstractController
                 }
                 if($form->get('all_france')->getData() == "yes") {
                     $company->setArea(["All"]);
-                    $this->getDoctrine()->getManager()->persist($company);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($company);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('company_delivery', ['id' => $this->getCompanyId()]);
                 } else {
                     if(in_array("All", $company->getArea()))
                         $company->setArea([]);
                     $company->setActivate(false);
-                    $this->getDoctrine()->getManager()->persist($company);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($company);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('choice_departement_company_delivery', ['id' => $company->getId()]);
                 }
             }
@@ -361,10 +362,10 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/company_delivery/{id}/choice_departement", name="choice_departement_company_delivery")
      */
-    public function choiceDepartementCompanyDelivery(Request $request, $id)
+    public function choiceDepartementCompanyDelivery(Request $request, $id, ManagerRegistry $doctrine)
     {
         if($this->isAdmin() || $this->getCompanyId() == $id) {
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $company = $doctrine->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
             $form = $this->createForm(ChoiceDepartmentType::class, $company, ['All' => (in_array("All", $company->getArea()))]);
@@ -375,8 +376,8 @@ class AdminCommandController extends AbstractController
                 //die();
                 if($form->get('select_all')->getData())
                     $company->setArea(["All"]);
-                $this->getDoctrine()->getManager()->persist($company);
-                $this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->persist($company);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute('company_delivery', ['id' => $id]);
             }
             return $this->render('admin/commands/deliveries/companies_deliveries/manage_departements.html.twig', 
@@ -388,20 +389,20 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/company_delivery/{id}/activate", name="activate_deactivate_company_delivery")
      */
-    public function activateDeactivateCompanyDelivery($id)
+    public function activateDeactivateCompanyDelivery($id, ManagerRegistry $doctrine)
     {
         if($this->isAdmin() || $this->getCompanyId() == $id) {
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $company = $doctrine->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
             $company->setActivate(!$company->getActivate());
             //Attention lorsque l'activité d'une entreprise est modifiée ses types sont modifiés avec.
             foreach ($company->getTypes() as $type) {
                 $type->setActivate($company->getActivate());
-                $this->getDoctrine()->getManager()->persist($type);
+                $doctrine->getManager()->persist($type);
             }
-            $this->getDoctrine()->getManager()->persist($company);
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persist($company);
+            $doctrine->getManager()->flush();
             return $this->redirectToRoute('company_delivery', ['id' => $id]);
         } else 
             return $this->redirectToRoute("menu_delivery");
@@ -410,22 +411,22 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/company_delivery/{id}/delete", name="delete_company_delivery")
      */
-    public function deleteCompanyDelivery($id)
+    public function deleteCompanyDelivery($id, ManagerRegistry $doctrine)
     {
         if($this->isAdmin()) {
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $company = $doctrine->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             if(is_null($company))
                 return $this->redirectToRoute('companies_deliveries');
             $company->setDelete(true);
             //Attention la suppression d'une entreprise supprime ses types et son administrateur avec.
             foreach ($company->getTypes() as $type) {
                 $type->setDelete(true);
-                $this->getDoctrine()->getManager()->persist($type);
+                $doctrine->getManager()->persist($type);
             }
             $company->getOwner()->setDelete(true);
-            $this->getDoctrine()->getManager()->persist($company->getOwner());
-            $this->getDoctrine()->getManager()->persist($company);
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persist($company->getOwner());
+            $doctrine->getManager()->persist($company);
+            $doctrine->getManager()->flush();
             return $this->redirectToRoute('companies_deliveries');
         } else 
             return $this->redirectToRoute("menu_delivery");
@@ -438,15 +439,15 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/types_deliveries", name="types_deliveries")
      */
-    public function typesDeliveries()
+    public function typesDeliveries(ManagerRegistry $doctrine)
     {
         if($this->isAdmin()) {
-            $types = $this->getDoctrine()->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
+            $types = $doctrine->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
             $company = null;
         } else {
-            $types = $this->getDoctrine()->getRepository(TypeDelivery::class)
+            $types = $doctrine->getRepository(TypeDelivery::class)
                 ->findBy(['company' => $this->getCompanyId(), 'delete' => false]);
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $company = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
         }
 
@@ -457,15 +458,15 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/type_delivery/{id}", name="type_delivery")
      */
-    public function typeDelivery($id)
+    public function typeDelivery($id, ManagerRegistry $doctrine)
     {
         if($this->isAdmin()) {
-            $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $type = $doctrine->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             $company = null;
         } else {
-            $type = $this->getDoctrine()->getRepository(TypeDelivery::class)
+            $type = $doctrine->getRepository(TypeDelivery::class)
                 ->findOneBy(['id' => $id, 'company' => $this->getCompanyId(), 'delete' => false]);
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $company = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
         }
         if(is_null($type))
@@ -478,14 +479,14 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/types_deliveries/create", name="create_type_delivery")
      */
-    public function createTypeDelivery(Request $request)
+    public function createTypeDelivery(Request $request, ManagerRegistry $doctrine)
     {
         if(!$this->isAdmin()) {
             $type = new TypeDelivery();
             $form = $this->createForm(TypeDeliveryType::class, $type);
             $form->handleRequest($request);
             $errors = array();
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $company = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
             if($form->isSubmitted() && $form->isValid()) {
                 $valid = true;
@@ -499,9 +500,9 @@ class AdminCommandController extends AbstractController
                 }
                 if($valid) {
                     $type->setCompany($company);
-                    $this->getDoctrine()->getManager()->persist($company);
-                    $this->getDoctrine()->getManager()->persist($type);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($company);
+                    $doctrine->getManager()->persist($type);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('types_deliveries');
                 }
             }
@@ -514,9 +515,9 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/type_delivery/{id}/modify", name="modify_type_delivery")
      */
-    public function modifyTypeDelivery(Request $request, $id)
+    public function modifyTypeDelivery(Request $request, $id, ManagerRegistry $doctrine)
     {
-        $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        $type = $doctrine->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($type))
             return $this->redirectToRoute('types_deliveries');
         if($this->getCompanyId() === $type->getCompany()->getId()) {
@@ -534,8 +535,8 @@ class AdminCommandController extends AbstractController
                     $valid = false;
                 }
                 if($valid) {
-                    $this->getDoctrine()->getManager()->persist($type);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($type);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('types_deliveries');
                 }
             }
@@ -549,15 +550,15 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/type_delivery/{id}/activate", name="activate_deactivate_type_delivery")
      */
-    public function activateDeactivateTypeDelivery($id)
+    public function activateDeactivateTypeDelivery($id, ManagerRegistry $doctrine)
     {
-        $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        $type = $doctrine->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             if(is_null($type))
                 return $this->redirectToRoute('types_deliveries');
         if($this->getCompanyId() === $type->getCompany()->getId() || $this->isAdmin()) {
             $type->setActivate(!$type->getActivate());
-            $this->getDoctrine()->getManager()->persist($type);
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persist($type);
+            $doctrine->getManager()->flush();
             return $this->redirectToRoute('type_delivery', ['id' => $id]);
         } else
             return $this->redirectToRoute("menu_delivery");
@@ -566,15 +567,15 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/type_delivery/{id}/delete", name="delete_type_delivery")
      */
-    public function deleteTypeDelivery($id)
+    public function deleteTypeDelivery($id, ManagerRegistry $doctrine)
     {
-        $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        $type = $doctrine->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($type))
             return $this->redirectToRoute('types_deliveries');
         if($this->getCompanyId() == $type->getCompany()->getId()) {
             $type->setDelete(true);
-            $this->getDoctrine()->getManager()->persist($type);
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persist($type);
+            $doctrine->getManager()->flush();
             return $this->redirectToRoute('types_deliveries');
         } else
             return $this->redirectToRoute("menu_delivery");
@@ -583,9 +584,9 @@ class AdminCommandController extends AbstractController
     ///**
     // * @Route("admin/delivery/company_delivery/{id}/types_deliveries", name="types_by_company")
     // */
-    /*public function typesDeliveriesByCompany($id) 
+    /*public function typesDeliveriesByCompany($id, ManagerRegistry $doctrine) 
     {
-        $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        $company = $doctrine->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($company))
             return $this->redirectToRoute('companies_deliveries');
 
@@ -600,7 +601,7 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("admin/delivery/deliveries", name="deliveries")
      */
-    public function deliveries(Request $request) 
+    public function deliveries(Request $request, ManagerRegistry $doctrine) 
     {
         $former_request = array();
         $errors = array();
@@ -612,10 +613,10 @@ class AdminCommandController extends AbstractController
         $companies = array();
         if(!$this->isAdmin()){
             $criteria['company'] = $this->getCompanyId();
-            $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $companies = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
         } else 
-            $companies = $this->getDoctrine()->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
+            $companies = $doctrine->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
             
         //Gestion de la sélection si il y an a une.
         if($request->request->get('research') === "research") {
@@ -652,7 +653,7 @@ class AdminCommandController extends AbstractController
             }
 
             //Calcul le nombre de livraisons et de pages.
-            $number_deliveries = intval($this->getDoctrine()->getRepository(Delivery::class)
+            $number_deliveries = intval($doctrine->getRepository(Delivery::class)
                 ->companyResearchNumberDeliveries($criteria)[0][1]);
             $number_pages = 
                 intval( $number_deliveries / self::NUMBER_BY_PAGE ) + 
@@ -674,20 +675,20 @@ class AdminCommandController extends AbstractController
         } else {
             $page = 1;
             //Calcul le nombre de commandes et de pages.
-            $number_deliveries = intval($this->getDoctrine()->getRepository(Delivery::class)
+            $number_deliveries = intval($doctrine->getRepository(Delivery::class)
                 ->companyResearchNumberDeliveries($criteria)[0][1]);
             $number_pages = 
                     intval( $number_deliveries / self::NUMBER_BY_PAGE ) + 
                     ( ( $number_deliveries % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
         //Recherche les livrasons à retourner.
-        $deliveries = $this->getDoctrine()->getRepository(Delivery::class)->companyResearchDeliveries($criteria);
+        $deliveries = $doctrine->getRepository(Delivery::class)->companyResearchDeliveries($criteria);
 
         //Recherche les types de livraison pour les recherches.
         /*if($this->isAdmin())
-            $types = $this->getDoctrine()->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
+            $types = $doctrine->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
         else 
-            $types = $this->getDoctrine()->getRepository(TypeDelivery::class)
+            $types = $doctrine->getRepository(TypeDelivery::class)
                 ->findBy(['delete' => false, 'company' => $this->getCompanyId()]);*/
 
         $departments = new Departments();
@@ -702,15 +703,15 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("admin/delivery/delivery/{id}", name="delivery")
      */
-    public function delivery($id) 
+    public function delivery($id, ManagerRegistry $doctrine) 
     {
         if($this->isAdmin()) {
-            $delivery = $this->getDoctrine()->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $delivery = $doctrine->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             $company = null;
         } else {
-            $delivery = $this->getDoctrine()->getRepository(Delivery::class)
+            $delivery = $doctrine->getRepository(Delivery::class)
                 ->findOneBy(['id' => $id, 'company' => $this->getCompanyId(), 'delete' => false]);
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $company = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
         }
 
@@ -727,15 +728,15 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("admin/delivery/delivery/{id}/commands", name="commands_by_delivery")
      */
-    public function commandsByDelivery($id)
+    public function commandsByDelivery($id, ManagerRegistry $doctrine)
     {
         if($this->isAdmin()) {
-            $delivery = $this->getDoctrine()->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+            $delivery = $doctrine->getRepository(Delivery::class)->findOneBy(['id' => $id, 'delete' => false]);
             $company = null;
         } else {
-            $delivery = $this->getDoctrine()->getRepository(Delivery::class)
+            $delivery = $doctrine->getRepository(Delivery::class)
                 ->findOneBy(['id' => $id, 'delete' => false, 'company' => $this->getCompanyId()]);
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $company = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
         }
 
@@ -749,11 +750,11 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("admin/delivery/create_delivery", name="create_delivery")
      */
-    public function createDelivery(Request $request)
+    public function createDelivery(Request $request, ManagerRegistry $doctrine)
     {
         if(!$this->isAdmin()) {
             $delivery = new Delivery();
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $company = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
             $errors = array();
             $form = $this->createForm(DeliveryType::class, $delivery);
@@ -763,13 +764,13 @@ class AdminCommandController extends AbstractController
                     $errors[] = "La date ne doit pas être postérieur à d'aujourd'hui.";
                 if(empty($errors)) {
                     $delivery->setCompany($company);
-                    $this->getDoctrine()->getManager()->persist($company);
-                    $this->getDoctrine()->getManager()->persist($delivery);
+                    $doctrine->getManager()->persist($company);
+                    $doctrine->getManager()->persist($delivery);
                     foreach ($delivery->getCommands() as $command) {
                         $command->setDelivery($delivery);
-                        $this->getDoctrine()->getManager()->persist($command);
+                        $doctrine->getManager()->persist($command);
                     }
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('deliveries');
                 }
             }
@@ -782,10 +783,10 @@ class AdminCommandController extends AbstractController
     ///**
     // * @Route("admin/delivery/add_command_to_delivery", name="add_command_to_delivery")
     // */
-    /*public function choiceCommandToDelivery(Request $request)
+    /*public function choiceCommandToDelivery(Request $request, ManagerRegistry $doctrine)
     {
         if(!$this->isAdmin()) {
-            $delivery = $this->getDoctrine()->getRepository(Delivery::class)
+            $delivery = $doctrine->getRepository(Delivery::class)
                 ->findOneBy(['empty' => true, 'delete' => false, 'company' => $this->getCompanyId()]);;
             if(is_null($delivery))
                 return $this->redirectToRoute('create_delivery');
@@ -793,12 +794,12 @@ class AdminCommandController extends AbstractController
             $form->handleRequest($request);
             if($form->isSubmitted() && $form->isValid()) {
                 foreach ($delivery->getCommands() as $command)
-                    $this->getDoctrine()->getManager()->persist($command);
-                $this->getDoctrine()->getManager()->persist($delivery);
-                $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($command);
+                $doctrine->getManager()->persist($delivery);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute('delivery', ['id' => $delivery->getId()]);
             }
-            $company = $this->getDoctrine()->getRepository(CompanyDelivery::class)
+            $company = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
             return $this->render('admin/commands/deliveries/deliveries/add_command_to_delivery.html.twig', 
                 ['form' => $form->createView(), 'company' => $company]);
@@ -809,9 +810,9 @@ class AdminCommandController extends AbstractController
     ///**
     // * @Route("admin/delivery/type_delivery/{id}/deliveries", name="deliveries_by_type")
     // */
-    /*public function deliveriesByType($id) 
+    /*public function deliveriesByType($id, ManagerRegistry $doctrine) 
     {
-        $type = $this->getDoctrine()->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
+        $type = $doctrine->getRepository(TypeDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($type))
             return $this->redirectToRoute('types_deliveries');
 

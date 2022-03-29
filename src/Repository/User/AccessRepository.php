@@ -4,7 +4,7 @@ namespace App\Repository\User;
 
 use App\Entity\User\Access;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Access|null find($id, $lockMode = null, $lockVersion = null)

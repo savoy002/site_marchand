@@ -5,7 +5,7 @@ namespace App\Repository\User;
 use App\Entity\User\Comment;
 use App\Entity\User\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder as QueryBuilderOption;
 
 /**

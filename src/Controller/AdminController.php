@@ -12,6 +12,8 @@ use App\Entity\User\User;
 use App\Entity\User\Comment;
 use App\Form\Type\User\UserType;
 
+#version 6
+use Doctrine\Persistence\ManagerRegistry;
 
 class AdminController extends AbstractController
 {
@@ -52,7 +54,7 @@ class AdminController extends AbstractController
     /**
      * @Route("/admin/users", name="users")
      */
-    public function users(Request $request)
+    public function users(Request $request, ManagerRegistry $doctrine)
     {
         $page = $request->request->get('page');
         $former_request = array();
@@ -113,7 +115,7 @@ class AdminController extends AbstractController
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
 
-            $number_users = $this->getDoctrine()->getRepository(User::class)->adminResearchNumberUsers($criteria)[0][1];
+            $number_users = $doctrine->getRepository(User::class)->adminResearchNumberUsers($criteria)[0][1];
             $number_pages = 
                 intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
 
@@ -130,13 +132,13 @@ class AdminController extends AbstractController
             } else
                 $page = 1;
 
-            $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
+            $users = $doctrine->getRepository(User::class)->adminResearchUser($criteria);
 
         } else {
             $criteria['page'] = 0;
             $page = 1;
-            $users = $this->getDoctrine()->getRepository(User::class)->adminResearchUser($criteria);
-            $number_users = intval($this->getDoctrine()->getRepository(User::class)->countNumberUsers()[0][1]);
+            $users = $doctrine->getRepository(User::class)->adminResearchUser($criteria);
+            $number_users = intval($doctrine->getRepository(User::class)->countNumberUsers()[0][1]);
             $number_pages = 
                 intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
@@ -148,16 +150,16 @@ class AdminController extends AbstractController
     /**
      * @Route("/admin/user/{id}/", name="user")
      */
-    public function showUser($id)
+    public function showUser($id, ManagerRegistry $doctrine)
     {
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy( ['id' => $id, 'delete' => false] );
+        $user = $doctrine->getRepository(User::class)->findOneBy( ['id' => $id, 'delete' => false] );
         return $this->render('admin/users/users/user.html.twig', ['user' => $user]);
     }
 
     /**
      * @Route("/admin/users/create_admin_user/", name="admin_create_user")
      */
-    public function createAdminUser(Request $request) 
+    public function createAdminUser(Request $request, ManagerRegistry $doctrine) 
     {
         if($this->getUser()->getSuperAdmin()) {
             $user = new User();
@@ -167,7 +169,7 @@ class AdminController extends AbstractController
             if($form->isSubmitted() && $form->isValid()) {
                 $valid = true;
                 //Regarde si le nom d'utilisateur n'a pas déjà été choisie.
-                $exist = $this->getDoctrine()->getRepository(User::class)->findBy(['username' => $user->getUsername()]);
+                $exist = $doctrine->getRepository(User::class)->findBy(['username' => $user->getUsername()]);
                 if(!empty($exist)) {
                     $errors[] = "Le nom d'utilisateur existe déjà.";
                     $valid = false;
@@ -182,8 +184,8 @@ class AdminController extends AbstractController
                     $user->setValid(true);
                     //Cryte le mot de passe.
                     $user->setPassword($this->passwordHasher->hashPassword($user, $user->getPassword()));
-                    $this->getDoctrine()->getManager()->persist($user);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($user);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute("users");
                 }
             }
@@ -195,13 +197,13 @@ class AdminController extends AbstractController
     /**
      * @Route("/admin/users/{id}/valid", name="valid_user")
      */
-    public function userValid($id)
+    public function userValid($id, ManagerRegistry $doctrine)
     {
         if($this->getUser()->getSuperAdmin()) {
-            $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+            $user = $doctrine->getRepository(User::class)->find($id);
             $user->setValid(!$user->getValid());
-            $this->getDoctrine()->getManager()->persist($user);
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persist($user);
+            $doctrine->getManager()->flush();
         }
     	return $this->redirectToRoute('user', ['id' => $id]);
     }
@@ -209,19 +211,19 @@ class AdminController extends AbstractController
     /**
      * @Route("/admin/users/{id}/delete", name="delete_user")
      */
-    public function userDelete($id) 
+    public function userDelete($id, ManagerRegistry $doctrine) 
     {
         if($this->getUser()->getSuperAdmin()) {
-        	$user = $this->getDoctrine()->getRepository(User::class)->find($id);
+        	$user = $doctrine->getRepository(User::class)->find($id);
         	if(!$user->getSuperAdmin()) {
         		$user->setDelete(true);
-                $comments = $this->getDoctrine()->getRepository(Comment::class)->findCommentsByUser($user);
+                $comments = $doctrine->getRepository(Comment::class)->findCommentsByUser($user);
                 foreach($comments as $comment) {
                     $comment->setDelete(true);
-                    $this->getDoctrine()->getManager()->persist($comment);
+                    $doctrine->getManager()->persist($comment);
                 }
-                $this->getDoctrine()->getManager()->persist($user);
-    	    	$this->getDoctrine()->getManager()->flush();
+                $doctrine->getManager()->persist($user);
+    	    	$doctrine->getManager()->flush();
         	}
         }
     	return $this->redirectToRoute('users');
@@ -233,7 +235,7 @@ class AdminController extends AbstractController
     /**
      * @Route("admin/comments", name="comments")
      */
-    public function comments(Request $request)
+    public function comments(Request $request, ManagerRegistry $doctrine)
     {
         $errors = array();
         $former_request = array();
@@ -285,7 +287,7 @@ class AdminController extends AbstractController
                 $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
             }
             //Calcul le nombre de commentaires et de pages.
-            $number_comments = $this->getDoctrine()->getRepository(Comment::class)
+            $number_comments = $doctrine->getRepository(Comment::class)
                 ->adminResearchNumberComments($criteria)[0][1];
             $number_pages = 
                 intval( $number_comments / self::NUMBER_BY_PAGE ) + 
@@ -308,7 +310,7 @@ class AdminController extends AbstractController
             //Ajoute le numéro de page.
             $page = 1;
             //Calcul le nombre de commentaires et de pages.
-            $number_comments = intval($this->getDoctrine()->getRepository(Comment::class)
+            $number_comments = intval($doctrine->getRepository(Comment::class)
                 ->countNumberComments()[0][1]);
             $number_pages = 
                 intval( $number_comments / self::NUMBER_BY_PAGE ) + 
@@ -316,7 +318,7 @@ class AdminController extends AbstractController
         }
         
         //Recherche les commentaires à retourner.
-        $comments = $this->getDoctrine()->getRepository(Comment::class)->adminResearchComment($criteria);
+        $comments = $doctrine->getRepository(Comment::class)->adminResearchComment($criteria);
 
         return $this->render("admin/users/comments/comments.html.twig", 
             ['comments' => $comments, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 
@@ -326,9 +328,9 @@ class AdminController extends AbstractController
     /**
      * @Route("admin/comment/{id}", name="comment")
      */
-    public function comment($id)
+    public function comment($id, ManagerRegistry $doctrine)
     {
-        $comment = $this->getDoctrine()->getRepository(Comment::class)->findOneBy(['id' => $id, 'delete' => false]);
+        $comment = $doctrine->getRepository(Comment::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($comment))
             return $this->redirectToRoute('comments');
 
@@ -338,15 +340,15 @@ class AdminController extends AbstractController
     /**
      * @Route("admin/comment/{id}/delete", name="delete_comment")
      */
-    public function commentDelete($id)
+    public function commentDelete($id, ManagerRegistry $doctrine)
     {
-        $comment = $this->getDoctrine()->getRepository(Comment::class)->findOneBy(['id' => $id, 'delete' => false]);
+        $comment = $doctrine->getRepository(Comment::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($comment))
             return $this->redirectToRoute('comments');
 
         $comment->setDelete(true);
-        $this->getDoctrine()->getManager()->persist($comment);
-        $this->getDoctrine()->getManager()->flush();
+        $doctrine->getManager()->persist($comment);
+        $doctrine->getManager()->flush();
 
         return $this->redirectToRoute('comment');
     }
@@ -354,9 +356,9 @@ class AdminController extends AbstractController
     /**
      * @Route("admin/user/{id}/comments", name="comments_by_user")
      */
-    public function commentsByUser($id) 
+    public function commentsByUser($id, ManagerRegistry $doctrine) 
     {
-        $user = $this->getDoctrine()->getRepository(User::class)->findOneBy(['id' => $id, 'delete' => false]);
+        $user = $doctrine->getRepository(User::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($user))
             return $this->redirectToRoute('users');
 

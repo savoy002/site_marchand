@@ -4,7 +4,7 @@ namespace App\Repository\Command;
 
 use App\Entity\Command\Command;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\QueryBuilder as QueryBuilderOption;
 
 /**

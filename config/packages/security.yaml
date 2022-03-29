@@ -1,12 +1,11 @@
 security:
     #version 4.4
-    #encoders:
-        #App\Entity\User\User:
-            #algorithm: bcrypt
+#    encoders:
+#        App\Entity\User\User:
+#            algorithm: bcrypt
     password_hashers:
         Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface: 'bcrypt'
 
-    # https://symfony.com/doc/current/security.html#where-do-users-come-from-user-providers
     providers:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
@@ -18,19 +17,24 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
         main:
-            # version 4.4 
-            #anonymous: lazy
-            #guard:
-                #authenticators:
-                    #- App\Security\LoginFormAuthenticator
+            #version 4.4 
+#            anonymous: lazy
+#            guard:
+#                authenticators:
+#                    - App\Security\LoginFormAuthenticator
             
             #version 6.0
             lazy: true
-
             provider: app_user_provider
+            form_login:
+                login_path: app_login
+                check_path: app_login
+                enable_csrf: true
             logout:
                 path: app_logout
                 target: app_login
+
+            #entry_point: App\Security\LoginFormAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -38,19 +42,31 @@ security:
             # https://symfony.com/doc/current/security/impersonating_user.html
             # switch_user: true
 
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SUPER_ADMIN: ROLE_ADMIN
 
-    # Easy way to control access for large sections of your site
-    # !!!!!! Note: Only the *first* access control that matches will be used
+    #version 4.4
+#    access_control:
+#        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
+#        - { path: ^/admin/delivery, roles: [ROLE_ADMIN, ROLE_COMPANY_ADMIN] }
+#        - { path: ^/admin/command, roles: [ROLE_ADMIN, ROLE_COMPANY_ADMIN] }
+#        - { path: ^/admin, roles: ROLE_ADMIN }
+#        #Penser à ajouter des chemins unique aux utilisateurs pour les créations de commandes et commentaires.
+#        - { path: ^/store/user/, roles: [ROLE_USER] }
+#        - { path: ^/store/basket/, roles: [ROLE_USER] }
+#        - { path: ^/store/email/change_email, roles: [ROLE_USER] }
+#        - { path: ^/store, roles: [ROLE_USER, ROLE_ADMIN, IS_AUTHENTICATED_ANONYMOUSLY] }
+#        #- { path: ^/delivery/, roles: [ROLE_COMPANY_ADMIN]}
+#        - { path: ^/, roles: [ROLE_USER, ROLE_ADMIN, IS_AUTHENTICATED_ANONYMOUSLY] }
+
+    #version 6.0
     access_control:
-        - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
-        - { path: ^/admin/delivery, roles: [ROLE_ADMIN, ROLE_COMPANY_ADMIN] }
-        - { path: ^/admin/command, roles: [ROLE_ADMIN, ROLE_COMPANY_ADMIN] }
+        - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
         #Penser à ajouter des chemins unique aux utilisateurs pour les créations de commandes et commentaires.
-        - { path: ^/store/user/\d+$, roles: [ROLE_USER] }
-        - { path: ^/store/basket/\d+$, roles: [ROLE_USER] }
-        - { path: ^/store/email/change_email, roles: [ROLE_USER] }
-        - { path: ^/store, roles: [ROLE_USER, ROLE_ADMIN, IS_AUTHENTICATED_ANONYMOUSLY] }
-        #- { path: ^/delivery/, roles: [ROLE_COMPANY_ADMIN]}
-        - { path: ^/, roles: [ROLE_USER, ROLE_ADMIN, IS_AUTHENTICATED_ANONYMOUSLY] }
+        - { path: ^/store/user, roles: [ROLE_USER] }
+        - { path: ^/store/(user|basket)/, roles: [ROLE_USER] }
+        - { path: ^/store, roles: [PUBLIC_ACCESS] }
+        - { path: ^/, roles: [PUBLIC_ACCESS] }
 

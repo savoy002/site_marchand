@@ -31,6 +31,10 @@ use App\Form\Type\User\UserType;
 use App\Form\Type\User\UploadImageType;
 
 
+#version 6.
+use Doctrine\Persistence\ManagerRegistry;
+
+
 class UserController extends AbstractController
 {
 
@@ -57,7 +61,7 @@ class UserController extends AbstractController
     /**
      * @Route("/store/create_user", name="store_create_user")
      */
-    public function createUser(Request $request) 
+    public function createUser(Request $request, ManagerRegistry $doctrine) 
     {
         if(is_null($this->getUser())) {
             $user = new User();
@@ -66,7 +70,7 @@ class UserController extends AbstractController
             $errors = array();
             if($form->isSubmitted() && $form->isValid()) {
                 $valid = true;
-                $exist = $this->getDoctrine()->getRepository(User::class)->findBy(['username' => $user->getUsername()]);
+                $exist = $doctrine->getRepository(User::class)->findBy(['username' => $user->getUsername()]);
                 if(!empty($exist)) {
                     $errors[] = "Le nom d'utilisateur existe déjà.";
                     $valid = false;
@@ -79,8 +83,8 @@ class UserController extends AbstractController
                     $user->setRoles(['ROLE_USER']);
                     $user->setAdmin(false);
                     $user->setPassword($this->passwordEncoder->hashPassword($user, $user->getPassword()));
-                    $this->getDoctrine()->getManager()->persist($user);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($user);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute("app_login");
                 }
             }
@@ -93,10 +97,10 @@ class UserController extends AbstractController
     /**
      * @Route("/store/user/change_password", name="store_change_password")
      */
-    public function changePassword(Request $request) 
+    public function changePassword(Request $request, ManagerRegistry $doctrine) 
     {
         if($this->getUser()->getRoles()[0] === "ROLE_USER") {
-            $user = $this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getId());
+            $user = $doctrine->getRepository(User::class)->find($this->getUser()->getId());
             $form = $this->createForm(ChangePasswordType::class/*, $user*/);
             $form->handleRequest($request);
             $errors = array();
@@ -113,8 +117,8 @@ class UserController extends AbstractController
                 }
                 if($valid) {
                     $user->setPassword($this->passwordEncoder->hashPassword($user, $form->get('password')->getData()));
-                    $this->getDoctrine()->getManager()->persist($user);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($user);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute("store_user");
                 }
             }
@@ -127,7 +131,7 @@ class UserController extends AbstractController
     /**
      * @Route("/store/user/change_mail", name="store_change_mail")
      */
-    public function changeMailAddress(Request $request)
+    public function changeMailAddress(Request $request, ManagerRegistry $doctrine)
     {
         if($this->getUser()->getRoles()[0] === "ROLE_USER"){
             $form = $this->createForm(ChangeMailType::class);
@@ -142,8 +146,8 @@ class UserController extends AbstractController
                 if($valid) {
                     $this->getUser()->setValid(false);
                     $this->getUser()->setEmail($form->get('email')->getData());
-                    $this->getDoctrine()->getManager()->persist($this->getUser());
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($this->getUser());
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('store_user');
                 }
             }
@@ -157,7 +161,7 @@ class UserController extends AbstractController
     /**
      * @Route("/store/email/verify_account", name="store_send_email_verify")
      */
-    public function sendEmailVerify(/*MailerInterface $mailer*/)
+    public function sendEmailVerify(/*MailerInterface $mailer*/ ManagerRegistry $doctrine)
     {
         if(!$this->getUser()->getValid()) {
             $type_access = new TypeAccess();
@@ -174,9 +178,9 @@ class UserController extends AbstractController
                 return $this->redirectToRoute('store_user');
             }
             $this->getUser()->addAccess($access);
-            $this->getDoctrine()->getManager()->persit($access);
-            $this->getDoctrine()->getManager()->persit($this->getUser());
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persit($access);
+            $doctrine->getManager()->persit($this->getUser());
+            $doctrine->getManager()->flush();
             return $this->render('store/user/info_user/verification_email_sent.html.twig', 
                 ['email_address' => $$this->getUser()->getEmail(), 'username' => $this->getUser()->getUsername()]);    
         }
@@ -187,19 +191,19 @@ class UserController extends AbstractController
     /**
      * @Route("store/user/verify/{code}", name="store_user_verify")
      */
-    public function verifyUser($code)
+    public function verifyUser($code, ManagerRegistry $doctrine)
     {
         $type_access = new TypeAccess();
         $list_type_access = $type_access->getListTypeAccess();    
-        $access = $this->getDoctrine()->getRepository(Access::class)
+        $access = $doctrine->getRepository(Access::class)
             ->findOneBy(['code' => $code, 'user' => $this->getUser()->getId(), 'used' => false, 
                 'type' => $list_type_access['verifiy_user']]);
         if(!is_null($access)) {
             $access->setUsed(true);
             $this->getUser()->setValid(true);
-            $this->getDoctrine()->getManager()->persist($access);
-            $this->getDoctrine()->getManager()->persist($this->getUser());
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persist($access);
+            $doctrine->getManager()->persist($this->getUser());
+            $doctrine->getManager()->flush();
             $this->render('store/user/info_user/message_verified_email_address.html.twig',
                 ['username' => $this->getUser()->getUsername(), 'email_address' => $this->getUser()->getEmail()]);
         }
@@ -215,7 +219,7 @@ class UserController extends AbstractController
         $form = $this->createForm(SendEmailForgotPassword::class);
         $errors = array();
         if($form->isSubmitted() && $form->isValid()) {
-            $user = $this->getDoctrine()->getRepository(User::class)
+            $user = $doctrine->getRepository(User::class)
                 ->findOneBy(['email' => $form->get('email')->getData(), 'delete' => false]);
             if(!is_null($user)) {
                 $type_access = new TypeAccess();
@@ -244,11 +248,11 @@ class UserController extends AbstractController
     /**
      * @Route("store/forgot_password/change_password/{code}", name="forgot_password_change")
      */
-    public function changeForgotPassword($code)
+    public function changeForgotPassword($code, ManagerRegistry $doctrine)
     {
         $type_access = new TypeAccess();
         $list_type_access = $type_access->getListTypeAccess();    
-        $access = $this->getDoctrine()->getRepository(Access::class)
+        $access = $doctrine->getRepository(Access::class)
             ->findOneBy(['code' => $code, 'used' => false, 
                 'type' => $list_type_access['forgot_password']]);
         if(!is_null($access)) {
@@ -264,9 +268,9 @@ class UserController extends AbstractController
                     $user = $access->getUser();
                     $user->setPassword($this->passwordEncoder->hashPassword($user, $form->get('password')->getData()));
                     $access->setUsed(true);
-                    $this->getDoctrine()->getManager()->persist($user);
-                    $this->getDoctrine()->getManager()->persist($access);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($user);
+                    $doctrine->getManager()->persist($access);
+                    $doctrine->getManager()->flush();
                     return $this->redirectToRoute('store_user');
                     //return $this->render('store/user/info_user/password_changed.html.twig');
                 }
@@ -280,13 +284,13 @@ class UserController extends AbstractController
     /**
      * @Route("store/user/delete", name="store_user_delete")
      */
-    public function deleteUser() 
+    public function deleteUser(ManagerRegistry $doctrine) 
     {
         if($this->getUser()->getRoles()[0] === "ROLE_USER") {
-            $user = $this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getId());
+            $user = $doctrine->getRepository(User::class)->find($this->getUser()->getId());
             $user->setDelete(true);
-            $this->getDoctrine()->getManager()->persist($user);
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persist($user);
+            $doctrine->getManager()->flush();
             return $this->redirectToRoute('app_logout');
         }
         return $this->redirectToRoute('store');
@@ -295,7 +299,7 @@ class UserController extends AbstractController
     /**
      * @Route("store/user/change_image", name="store_user_change_image")
      */
-    public function changeImageUser(Request $request) 
+    public function changeImageUser(Request $request, ManagerRegistry $doctrine) 
     {
         if($this->getUser()->getRoles()[0] === "ROLE_USER") {
             $form = $this->createForm(UploadImageType::class);
@@ -323,10 +327,10 @@ class UserController extends AbstractController
                             return $this->redirectToRoute('store_user', ['errors' => $e]);
                         }
                     }
-                    $user = $this->getDoctrine()->getRepository(User::class)->find($this->getUser()->getId());
+                    $user = $doctrine->getRepository(User::class)->find($this->getUser()->getId());
                     $user->setImgFileName($newImagename);
-                    $this->getDoctrine()->getManager()->persist($user);
-                    $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($user);
+                    $doctrine->getManager()->flush();
 
                 }
                 return $this->redirectToRoute('store_user');
@@ -339,7 +343,7 @@ class UserController extends AbstractController
     /**
      * @Route("store/user/change_address", name="store_user_change_address")
      */
-    public function changeAddressUser(Request $request) {
+    public function changeAddressUser(Request $request, ManagerRegistry $doctrine) {
         if($this->getUser()->getRoles()[0] === "ROLE_USER") {
             $address = new Address();
             $form = $this->createForm(ChangeAddressType::class, $address);
@@ -360,11 +364,11 @@ class UserController extends AbstractController
                         $former_address->setDelete(true);
                 }
                 $address->addBelong($this->getUser());
-                $this->getDoctrine()->getManager()->persist($this->getUser());
-                $this->getDoctrine()->getManager()->persist($address);
+                $doctrine->getManager()->persist($this->getUser());
+                $doctrine->getManager()->persist($address);
                 if($former_address !== null)
-                    $this->getDoctrine()->getManager()->persist($former_address);
-                $this->getDoctrine()->getManager()->flush();
+                    $doctrine->getManager()->persist($former_address);
+                $doctrine->getManager()->flush();
                 return $this->redirectToRoute('store_user');
             }
             return $this->render('store/user/info_user/change_address.html.twig', 
@@ -376,9 +380,9 @@ class UserController extends AbstractController
     /**
      * @Route("store/user/commands", name="store_user_commands")
      */
-    public function showCommandsUser() {
+    public function showCommandsUser(ManagerRegistry $doctrine) {
         if($this->getUser()->getRoles()[0] === "ROLE_USER") {
-            $commands = $this->getDoctrine()->getRepository(Command::class)
+            $commands = $doctrine->getRepository(Command::class)
                 ->findBy(['user' => $this->getUser(), 'delete' => false, 'isBasket' => false]);
 
             return $this->render('store/user/command/commands.html.twig', ['commands' => $commands, 'basket' => $this->getBasket()]);
@@ -389,9 +393,9 @@ class UserController extends AbstractController
     /**
      * @Route("store/user/command/{id}", name="store_user_command")
      */
-    public function showCommandUser($id) {
+    public function showCommandUser($id, ManagerRegistry $doctrine) {
         if($this->getUser()->getRoles()[0] === "ROLE_USER") {
-            $command = $this->getDoctrine()->getRepository(Command::class)->findOneBy(['user' => $this->getUser(), 'id' => $id]);
+            $command = $doctrine->getRepository(Command::class)->findOneBy(['user' => $this->getUser(), 'id' => $id]);
 
             if(is_null($command)) 
                 return $this->redirectToRoute('store_user_commands');
@@ -407,9 +411,9 @@ class UserController extends AbstractController
     /**
      * @Route("store/user/comments", name="store_user_comments")
      */
-    public function showCommentsUser() {
+    public function showCommentsUser(ManagerRegistry $doctrine) {
         if($this->getUser()->getRoles()[0] === "ROLE_USER") {
-            $comments = $this->getDoctrine()->getRepository(Comment::class)->findBy(['delete' => false, 'user' => $this->getUser()]);
+            $comments = $doctrine->getRepository(Comment::class)->findBy(['delete' => false, 'user' => $this->getUser()]);
 
             return $this->render('store/user/comments.html.twig', ['comments' => $comments, 'basket' => $this->getBasket()]);
         }
@@ -421,14 +425,14 @@ class UserController extends AbstractController
         return ($this->getUser() !== null)?($this->getUser()->getBasket()):null;
     }
 
-    /*protected function activateVerifyUser($id) 
+    /*protected function activateVerifyUser($id, ManagerRegistry $doctrine) 
     {
         $success = false;
-        $user = $this->getDoctrine()->getRepository(User::class)->find($id);
+        $user = $doctrine->getRepository(User::class)->find($id);
         if(!is_null($user)) {
             $user->setValid(true);
-            $this->getDoctrine()->getManager()->persist($user);
-            $this->getDoctrine()->getManager()->flush();
+            $doctrine->getManager()->persist($user);
+            $doctrine->getManager()->flush();
             $success = true;
         }
         return $success;

@@ -4,7 +4,7 @@ namespace App\Repository\Command;
 
 use App\Entity\Command\CompanyDelivery;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method CompanyDelivery|null find($id, $lockMode = null, $lockVersion = null)

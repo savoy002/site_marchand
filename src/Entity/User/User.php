@@ -17,12 +17,15 @@ use App\Entity\Command\Command;
 use App\Entity\Product\VariantProduct;
 use App\Entity\User\Comment;
 
+#version 6.
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\User\UserRepository")
  * @ORM\Table(name="User")
  */
-class User implements UserInterface
+class User implements UserInterface, PasswordAuthenticatedUserInterface
 {
     /**
      * @ORM\Id()
@@ -140,6 +143,11 @@ class User implements UserInterface
         $this->username = $username;
 
         return $this;
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return (string) $this->username;
     }
 
     /**

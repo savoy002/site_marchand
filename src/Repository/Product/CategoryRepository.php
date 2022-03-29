@@ -6,7 +6,7 @@ use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @method Category|null find($id, $lockMode = null, $lockVersion = null)
