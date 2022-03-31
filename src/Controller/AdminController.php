@@ -131,9 +131,7 @@ class AdminController extends AbstractController
                 }
             } else
                 $page = 1;
-
             $users = $doctrine->getRepository(User::class)->adminResearchUser($criteria);
-
         } else {
             $criteria['page'] = 0;
             $page = 1;
@@ -142,7 +140,6 @@ class AdminController extends AbstractController
             $number_pages = 
                 intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
         }
-
     	return $this->render('admin/users/users/users.html.twig', ['users' => $users, 'number_pages' => $number_pages, 
             'page' => $page, 'request' => $former_request, 'errors' => $errors]);
     }

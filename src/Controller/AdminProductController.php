@@ -749,7 +749,7 @@ class AdminProductController extends AbstractController
 	/**
      * @Route("/admin/variant_product/{id}/modify", name="modify_variant_product")
      */
-    public function modifyVariantProduct(Request $request, $id)
+    public function modifyVariantProduct(Request $request, $id, ManagerRegistry $doctrine)
     {
         $variant_product = $doctrine->getRepository(VariantProduct::class)->find($id);
         $former_product = $doctrine->getRepository(Product::class)->findProductByVariantProduct($variant_product)[0];

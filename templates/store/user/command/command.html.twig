@@ -16,7 +16,8 @@
 			<div class="row">
 				<div class="col">
 					<h4>
-						Créer le : {{ command.createdAt|format_datetime('full', 'none', locale='fr') }}.
+						{#Créer le : {{ command.createdAt|format_datetime('full', 'none', locale='fr') }}. #}
+						Créer le : {{ command.createdAt|date("d/m/Y") }}.
 					</h4>
 				</div>
 			</div>
@@ -25,7 +26,7 @@
 					<h4>
 						{{ (command.delivery is null)?
 						   ('Pas encore envoyée'):
-						   ('Envoyée le : ' ~ command.delivery.date|format_datetime('full', 'none', locale='fr')) }}.
+						   ('Envoyée le : ' ~ command.delivery.date|date("d/m/Y")) }}.
 					</h4>
 				</div>
 			</div>
@@ -34,7 +35,7 @@
 					<h4>
 						{{ (command.dateReceive is null)?
 						   ('Non reçu'):
-						   ('Reçu le : ' ~ command.dateReceive|format_datetime('full', 'none', locale='fr')) }}.
+						   ('Reçu le : ' ~ command.dateReceive|date("d/m/Y")) }}.
 					</h4>
 				</div>
 			</div>
@@ -49,7 +50,7 @@
 				<div class="col">
 					<h4>Livraison choisie : </h4>
 					<p>
-						<img src="{{ asset('img/uploads/Command/CompanyDelivery/' ~ command.typeDelSelected.company.logoFileName) }}"
+						<img src="{{ asset('img/uploads/Command/CompanyDelivery/' ~ command.typeDelSelected.typeDelivery.company.logoFileName) }}"
 							width="60" height="60" />
 						{{ command.typeDelSelected.typeDelivery.name }}
 						{{ command.typeDelSelected.priceDelivery|slice(0, command.typeDelSelected.priceDelivery|length - 2)~','~command.typeDelSelected.priceDelivery|slice(command.typeDelSelected.priceDelivery|length - 2, command.typeDelSelected.priceDelivery|length) }} &#8364

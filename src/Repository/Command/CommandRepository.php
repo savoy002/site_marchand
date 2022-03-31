@@ -94,11 +94,15 @@ class CommandRepository extends ServiceEntityRepository
         }
 
         if(array_key_exists('address', $criteria)) {
-            if($criteria['address']['type'] == 'completed')
-                $request
+            if($criteria['address']['type'] == 'completed'){
+                /*$request
                     ->andWhere("LOWER(a.street) LIKE LOWER(:address) OR LOWER(a.zipCode) LIKE LOWER(:address) OR 
                         LOWER(a.city) LIKE LOWER(:address)")
+                    ->setParameter('address', "%".$criteria['address']['value']."%");*/
+                $request
+                    ->andWhere("LOWER(CONCAT(a.street, ' ', a.zipCode, ' ', a.city)) LIKE LOWER(:address)")
                     ->setParameter('address', "%".$criteria['address']['value']."%");
+            }
             if($criteria['address']['type'] == 'street')
                 $request->andWhere("LOWER(a.street) LIKE LOWER(:address)")
                         ->setParameter('address', "%".$criteria['address']['value']."%");
