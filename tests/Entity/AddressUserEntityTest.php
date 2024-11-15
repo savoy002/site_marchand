@@ -3,14 +3,16 @@
 
 namespace App\Tests\Entity;
 
+use PHPUnit\Framework\TestCase;
+use Symfony\Bridge\PhpUnit\ExpectDeprecationTrait;
 
-use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
+//use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 use App\Entity\Command\Address;
 use App\Entity\User\User;
 
 
-class AddressUserEntityTest extends KernelTestCase 
+class AddressUserEntityTest extends TestCase 
 {
 
 	protected $user = null;
