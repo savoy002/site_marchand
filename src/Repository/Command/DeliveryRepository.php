@@ -26,15 +26,10 @@ class DeliveryRepository extends ServiceEntityRepository
 
         $request = $this->optionsResearchDeliveries($request, $criteria);
 
-        if(array_key_exists('page', $criteria))
-            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
-
         if(array_key_exists('orderBy', $criteria))
             $request->orderBy('d.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
 
-        $request->setMaxResults($criteria['number_by_page']);
-
-        return $request->getQuery()->getResult();
+        return $request->getQuery()/*->getResult()*/;
     }
 
     public function companyResearchNumberDeliveries(array $criteria) 

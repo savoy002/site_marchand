@@ -24,45 +24,50 @@
 		</div>
 
 		<div class="row  justify-content-center ">
-
-			<div class="row justify-content-center">
-				<div class="row">
-					<table class="table table-bordered">
-						<thead class="thead-dark">
-							<tr>
-								<th>Date de création</th><th>Nom de compte</th><th>Produit</th><th>Note</th>
-								<th>Texte</th><th>Voir</th>
-							</tr>
-						</thead>
-						<tbody>
-							{% for comment in user.comments %}
+			{% if comments.getTotalItemCount != 0 %}
+				<div class="row justify-content-center">
+					<div class="row">
+						<table class="table table-bordered">
+							<thead class="thead-dark">
 								<tr>
-									<td>{{ comment.createdAt|date("d/m/Y H:i") }}</td>
-									<td>{{ comment.user.username }}</td>
-									<td>{{ comment.product.name }}</td>
-									<td>
-										{% for i in 1..5 %}
-											<span class="{{ (i > comment.mark)?
-															("star_not_checked"):
-															("star_checked") }}">&#x2605;</span>
-										{% endfor %}
-									</td>
-									<td>
-										{{ (comment.text|length > number_characters)?
-										   (comment.text|slice(0, number_characters) ~ "..."):
-										   (comment.text) }}
-									</td>
-									<td>
-										<a href="{{ path("comment",  {id:comment.id}) }}" class="btn btn-info">
-											Voir
-										</a>
-									</td>
+									<th>Date de création</th><th>Nom de compte</th><th>Produit</th><th>Note</th>
+									<th>Texte</th><th>Voir</th>
 								</tr>
-							{% endfor %}
-						</tbody>
-					</table>
+							</thead>
+							<tbody>
+								{% for comment in comments %}
+									<tr>
+										<td>{{ comment.createdAt|date("d/m/Y H:i") }}</td>
+										<td>{{ comment.user.username }}</td>
+										<td>{{ comment.product.name }}</td>
+										<td>
+											{% for i in 1..5 %}
+												<span class="{{ (i > comment.mark)?
+																("star_not_checked"):
+																("star_checked") }}">&#x2605;</span>
+											{% endfor %}
+										</td>
+										<td>
+											{{ (comment.text|length > number_characters)?
+											   (comment.text|slice(0, number_characters) ~ "..."):
+											   (comment.text) }}
+										</td>
+										<td>
+											<a href="{{ path("comment",  {id:comment.id}) }}" class="btn btn-info">
+												Voir
+											</a>
+										</td>
+									</tr>
+								{% endfor %}
+							</tbody>
+						</table>
+					</div>
 				</div>
-			</div>
+			{% else %}
+				<div class="col-12 justify-content-center">
+					<p>Aucun commentaire trouvé.</p>
+				</div>
+			{% endif %}
 
 		</div>
 

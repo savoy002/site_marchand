@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 //use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -26,10 +27,9 @@ class AdminController extends AbstractController
 
     private $passwordHasher;
 
-    public function __construct(UserPasswordHasherInterface $passwordHasher) {
+    public function __construct(UserPasswordHasherInterface $passwordHasher, PaginatorInterface $paginator) {
         $this->passwordHasher = $passwordHasher;
     }
-
 
     //Partie User.
 
@@ -54,96 +54,71 @@ class AdminController extends AbstractController
     /**
      * @Route("/admin/users", name="users")
      */
-    public function users(Request $request, ManagerRegistry $doctrine)
+    public function users(Request $request, PaginatorInterface $paginator, ManagerRegistry $doctrine)
     {
-        $page = $request->request->get('page');
+        $page = $request->query->get('page', '1');
         $former_request = array();
         $errors = array();
-        $criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
+        $criteria = [];
 
-        if($request->request->get('research') === "research") {
-            if($request->request->get('username') != "" && $request->request->get('username') !== null) {
-                $criteria['username'] = array('value' => $request->request->get('username'), 
-                    'type' => $request->request->get('type_research_username'));
-                $former_request['username'] = $request->request->get('username');
-                $former_request['type_research_username'] = $request->request->get('type_research_username');
-            }
-            if($request->request->get('email') != "" && $request->request->get('email') !== null) {
-                $criteria['email'] = array('value' => $request->request->get('email'),
-                    'type' => $request->request->get('type_research_email'));
-                $former_request['email'] = $request->request->get('email');
-                $former_request['type_research_email'] = $request->request->get('type_research_email');
-            }
-            if($request->request->get('roles') != "" && $request->request->get('roles') !== null) {
-                $criteria['roles'] = $request->request->get('roles');
-                $former_request['roles'] = $request->request->get('roles');
-            }
-            if($request->request->get('valid') != "" && $request->request->get('valid') !== null) {
-                $criteria['valid'] = $request->request->get('valid');
-                $former_request['valid'] =  $request->request->get('valid');
-            }
-            if($request->request->get('createdBy') != "" && $request->request->get('createdBy') !== null) {
-                $criteria['createdBy'] = $request->request->get('createdBy');
-                $former_request['createdBy'] =  $request->request->get('createdBy');
-            }
-
-            if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null 
-             &&  $request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
-                if($request->request->get('createdBefore') >= $request->request->get('createdAfter')) {
-                    $criteria['createdBefore'] = $request->request->get('createdBefore');
-                    $former_request['createdBefore'] =  $request->request->get('createdBefore');
-                    $criteria['createdAfter'] = $request->request->get('createdAfter');
-                    $former_request['createdAfter'] =  $request->request->get('createdAfter');
-                } else {
-                    $errors[] = "La date d'avant la création ne peut pas être inférieur à la date d'après création.";
-                }
-            } else {
-                if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null) {
-                    $criteria['createdBefore'] = $request->request->get('createdBefore');
-                    $former_request['createdBefore'] =  $request->request->get('createdBefore');
-                }
-                if($request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
-                    $criteria['createdAfter'] = $request->request->get('createdAfter');
-                    $former_request['createdAfter'] =  $request->request->get('createdAfter');
-                }
-            }
-
-            if($request->request->get('orderBy_sortBy') != "" && $request->request->get('orderBy_sortBy') !== null) {
-                $criteria['orderBy'] = 
-                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
-                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
-                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
-            }
-
-            $number_users = $doctrine->getRepository(User::class)->adminResearchNumberUsers($criteria)[0][1];
-            $number_pages = 
-                intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
-
-            if($page != "" && $page !== null) {
-                if($page === 'Début') {
-                    $criteria['page'] = 0;
-                    $page = 1;
-                } else if($page === 'Fin') {
-                    $criteria['page'] = $number_pages - 1;
-                    $page = $number_pages;
-                } else {
-                    $criteria['page'] = intval($page) - 1;
-                }
-            } else
-                $page = 1;
-            $users = $doctrine->getRepository(User::class)->adminResearchUser($criteria);
-        } else {
-            $criteria['page'] = 0;
-            $page = 1;
-            $users = $doctrine->getRepository(User::class)->adminResearchUser($criteria);
-            $number_users = intval($doctrine->getRepository(User::class)->countNumberUsers()[0][1]);
-            $number_pages = 
-                intval( $number_users / self::NUMBER_BY_PAGE ) + ( ( $number_users % self::NUMBER_BY_PAGE === 0 )?0:1 );
+        if($request->request->get('username') != "" && $request->request->get('username') !== null) {
+            $criteria['username'] = array('value' => $request->request->get('username'), 
+                'type' => $request->request->get('type_research_username'));
+            $former_request['username'] = $request->request->get('username');
+            $former_request['type_research_username'] = $request->request->get('type_research_username');
         }
-    	return $this->render('admin/users/users/users.html.twig', ['users' => $users, 'number_pages' => $number_pages, 
-            'page' => $page, 'request' => $former_request, 'errors' => $errors]);
-    }
+        if($request->request->get('email') != "" && $request->request->get('email') !== null) {
+            $criteria['email'] = array('value' => $request->request->get('email'),
+                'type' => $request->request->get('type_research_email'));
+            $former_request['email'] = $request->request->get('email');
+            $former_request['type_research_email'] = $request->request->get('type_research_email');
+        }
+        if($request->request->get('roles') != "" && $request->request->get('roles') !== null) {
+            $criteria['roles'] = $request->request->get('roles');
+            $former_request['roles'] = $request->request->get('roles');
+        }
+        if($request->request->get('valid') != "" && $request->request->get('valid') !== null) {
+            $criteria['valid'] = $request->request->get('valid');
+            $former_request['valid'] =  $request->request->get('valid');
+        }
+        if($request->request->get('createdBy') != "" && $request->request->get('createdBy') !== null) {
+            $criteria['createdBy'] = $request->request->get('createdBy');
+            $former_request['createdBy'] =  $request->request->get('createdBy');
+        }
 
+        if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null 
+            &&  $request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
+            if($request->request->get('createdBefore') >= $request->request->get('createdAfter')) {
+                $criteria['createdBefore'] = $request->request->get('createdBefore');
+                $former_request['createdBefore'] =  $request->request->get('createdBefore');
+                $criteria['createdAfter'] = $request->request->get('createdAfter');
+                $former_request['createdAfter'] =  $request->request->get('createdAfter');
+            } else {
+                $errors[] = "La date d'avant la création ne peut pas être inférieur à la date d'après création.";
+            }
+        } else {
+            if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null) {
+                $criteria['createdBefore'] = $request->request->get('createdBefore');
+                $former_request['createdBefore'] =  $request->request->get('createdBefore');
+            }
+            if($request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
+                $criteria['createdAfter'] = $request->request->get('createdAfter');
+                $former_request['createdAfter'] =  $request->request->get('createdAfter');
+            }
+        }
+
+        if($request->request->get('orderBy_sortBy') != "" && $request->request->get('orderBy_sortBy') !== null) {
+            $criteria['orderBy'] = 
+                array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+            $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+            $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
+        }
+
+        $users = $paginator->paginate($doctrine->getRepository(User::class)->adminResearchUser($criteria), $page, self::NUMBER_BY_PAGE);
+        
+        return $this->render('admin/users/users/users.html.twig', ['users' => $users, 'request' => $former_request, 'errors' => $errors]);
+    }
+    
     /**
      * @Route("/admin/user/{id}/", name="user")
      */
@@ -232,94 +207,58 @@ class AdminController extends AbstractController
     /**
      * @Route("admin/comments", name="comments")
      */
-    public function comments(Request $request, ManagerRegistry $doctrine)
+    public function comments(Request $request, PaginatorInterface $paginator, ManagerRegistry $doctrine)
     {
         $errors = array();
         $former_request = array();
-        //Place le nombre de commentaire par page dans les paramètre de la recherche.
-        $criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
-        //Recherche la demande de page de l'administrateur si elle existe.
-        $page = $request->request->get('page');
+        $criteria = [];
+        $page = $request->query->get('page', '1');
 
-        //Gestion de la sélection si il y an a une.
-        if($request->request->get('research') === "research") {
-            //Création des différents paramètres de la recherche.
-            if($request->request->get('text') != "" && $request->request->get('text') !== null) {
-                $criteria['text'] = $request->request->get('text');
-                $former_request['text'] = $request->request->get('text');
+        //Création des différents paramètres de la recherche.
+        if($request->request->get('text') != "" && $request->request->get('text') !== null) {
+            $criteria['text'] = $request->request->get('text');
+            $former_request['text'] = $request->request->get('text');
+        }
+        if($request->request->get('mark') != "" && $request->request->get('mark') !== null) {
+            if($request->request->get('mark') >= 1 &&  $request->request->get('mark') <= 5) {
+                $criteria['mark'] = array('value' =>  $request->request->get('mark'), 
+                    'type' => $request->request->get('type_research_mark') );
+                $former_request['mark'] = $request->request->get('mark');
+                $former_request['type_research_mark'] = $request->request->get('type_research_mark');
             }
-            if($request->request->get('mark') != "" && $request->request->get('mark') !== null) {
-                if($request->request->get('mark') >= 1 &&  $request->request->get('mark') <= 5) {
-                    $criteria['mark'] = array('value' =>  $request->request->get('mark'), 
-                        'type' => $request->request->get('type_research_mark') );
-                    $former_request['mark'] = $request->request->get('mark');
-                    $former_request['type_research_mark'] = $request->request->get('type_research_mark');
-                }
-            }
-            if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null 
-             &&  $request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
-                if($request->request->get('createdBefore') >= $request->request->get('createdAfter')) {
-                    $criteria['createdBefore'] = $request->request->get('createdBefore');
-                    $former_request['createdBefore'] =  $request->request->get('createdBefore');
-                    $criteria['createdAfter'] = $request->request->get('createdAfter');
-                    $former_request['createdAfter'] =  $request->request->get('createdAfter');
-                } else {
-                    $errors[] = "La date d'avant la création ne peut pas être inférieur à la date d'après création.";
-                }
+        }
+        if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null 
+         &&  $request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
+            if($request->request->get('createdBefore') >= $request->request->get('createdAfter')) {
+                $criteria['createdBefore'] = $request->request->get('createdBefore');
+                $former_request['createdBefore'] =  $request->request->get('createdBefore');
+                $criteria['createdAfter'] = $request->request->get('createdAfter');
+                $former_request['createdAfter'] =  $request->request->get('createdAfter');
             } else {
-                if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null) {
-                    $criteria['createdBefore'] = $request->request->get('createdBefore');
-                    $former_request['createdBefore'] =  $request->request->get('createdBefore');
-                }
-                if($request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
-                    $criteria['createdAfter'] = $request->request->get('createdAfter');
-                    $former_request['createdAfter'] =  $request->request->get('createdAfter');
-                }
+                $errors[] = "La date d'avant la création ne peut pas être inférieur à la date d'après création.";
             }
-            //Ajout des ordres de recherches.
-            if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
-                $criteria['orderBy'] = 
-                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
-                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
-                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
-            }
-            //Calcul le nombre de commentaires et de pages.
-            $number_comments = $doctrine->getRepository(Comment::class)
-                ->adminResearchNumberComments($criteria)[0][1];
-            $number_pages = 
-                intval( $number_comments / self::NUMBER_BY_PAGE ) + 
-                    ( ( $number_comments % self::NUMBER_BY_PAGE === 0 )?0:1 );
-            //Ajout du numéro de page.
-            if($page != "" && $page !== null) {
-                if($page === 'Début') {
-                    $criteria['page'] = 0;
-                    $page = 1;
-                } else if($page === 'Fin') {
-                    $criteria['page'] = $number_pages - 1;
-                    $page = $number_pages;
-                } else {
-                    $criteria['page'] = intval($page) - 1;
-                }
-            } else
-                $page = 1;
-            
         } else {
-            //Ajoute le numéro de page.
-            $page = 1;
-            //Calcul le nombre de commentaires et de pages.
-            $number_comments = intval($doctrine->getRepository(Comment::class)
-                ->countNumberComments()[0][1]);
-            $number_pages = 
-                intval( $number_comments / self::NUMBER_BY_PAGE ) + 
-                    ( ( $number_comments % self::NUMBER_BY_PAGE === 0 )?0:1 );
+            if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null) {
+                $criteria['createdBefore'] = $request->request->get('createdBefore');
+                $former_request['createdBefore'] =  $request->request->get('createdBefore');
+            }
+            if($request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
+                $criteria['createdAfter'] = $request->request->get('createdAfter');
+                $former_request['createdAfter'] =  $request->request->get('createdAfter');
+            }
+        }
+        //Ajout des ordres de recherches.
+        if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
+            $criteria['orderBy'] = 
+                array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+            $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+            $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
         }
         
-        //Recherche les commentaires à retourner.
-        $comments = $doctrine->getRepository(Comment::class)->adminResearchComment($criteria);
+        $comments = $paginator->paginate($doctrine->getRepository(Comment::class)->adminResearchComment($criteria), $page, self::NUMBER_BY_PAGE);
 
         return $this->render("admin/users/comments/comments.html.twig", 
-            ['comments' => $comments, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 
-             'request' => $former_request, 'number_characters' => self::NUMBER_CHARACTERS]);
+            ['comments' => $comments, 'errors' => $errors, 'request' => $former_request, 'number_characters' => self::NUMBER_CHARACTERS]);
     }
     
     /**
@@ -353,14 +292,16 @@ class AdminController extends AbstractController
     /**
      * @Route("admin/user/{id}/comments", name="comments_by_user")
      */
-    public function commentsByUser($id, ManagerRegistry $doctrine) 
+    public function commentsByUser($id, PaginatorInterface $paginator, ManagerRegistry $doctrine) 
     {
         $user = $doctrine->getRepository(User::class)->findOneBy(['id' => $id, 'delete' => false]);
         if(is_null($user))
             return $this->redirectToRoute('users');
 
+        $comments = $paginator->paginate($doctrine->getRepository(Comment::class)->findCommentsByUser($user));
+
         return $this->render('admin/users/comments/comments_by_user.html.twig', 
-            ['user' => $user, 'number_characters' => self::NUMBER_CHARACTERS]);
+            ['user' => $user, 'comments' => $comments, 'number_characters' => self::NUMBER_CHARACTERS]);
     }
 
 }

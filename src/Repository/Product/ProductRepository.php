@@ -72,14 +72,10 @@ class ProductRepository extends ServiceEntityRepository
                 $request->andWhere("p.activate = :activate")->setParameter('activate', false);
         }
 
-        if(array_key_exists('page', $criteria))
-            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
         if(array_key_exists('orderBy', $criteria))
             $request->orderBy('p.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
 
-        $request->setMaxResults($criteria['number_by_page']);
-
-        return $request->getQuery()->getResult();
+        return $request->getQuery();
     }
 
 

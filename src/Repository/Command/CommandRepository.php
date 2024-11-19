@@ -25,16 +25,16 @@ class CommandRepository extends ServiceEntityRepository
 
         $request = $this->optionsResearchCommands($request, $criteria);
 
-        if(array_key_exists('page', $criteria))
-            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
+        /*if(array_key_exists('page', $criteria))
+            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);*/
 
         if(array_key_exists('orderBy', $criteria))
             $request->orderBy('c.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
 
         //if(array_key_exists('number_by_page', $criteria))
-        $request->setMaxResults($criteria['number_by_page']);
+        //$request->setMaxResults($criteria['number_by_page']);
 
-        return $request->getQuery()->getResult();
+        return $request->getQuery()/*->getResult()*/;
     }
 
     public function adminResearchNumberCommands(array $criteria) {
@@ -160,7 +160,6 @@ class CommandRepository extends ServiceEntityRepository
             $request->andWhere('t.company = :id_company')->setParameter( 'id_company', $id_company);
 
         return $request->getQuery()->getOneOrNullResult();
-
     }
 
     public function adminFindCommandsWithoutDelivery($id_company)

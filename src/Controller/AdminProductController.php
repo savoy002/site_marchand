@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Annotation\Route;
@@ -50,10 +51,10 @@ class AdminProductController extends AbstractController
 	/**
      * @Route("/admin/categories", name="categories")
      */
-    public function categories(ManagerRegistry $doctrine) 
+    public function categories(Request $request, PaginatorInterface $paginator, ManagerRegistry $doctrine) 
     {
-        $categories = $doctrine->getRepository(Category::class)->findBy(['delete' => false]);
-
+        $page = $request->query->get('page', '1');
+        $categories = $paginator->paginate($doctrine->getRepository(Category::class)->findCategories(), $page, self::NUMBER_BY_PAGE);
         return $this->render('admin/products/categories/categories.html.twig', ['categories' => $categories]);
     }
 
@@ -283,89 +284,56 @@ class AdminProductController extends AbstractController
  	/**
  	 * @Route("/admin/products", name="products")
  	 */
-    public function products(Request $request, ManagerRegistry $doctrine) 
+    public function products(Request $request, PaginatorInterface $paginator, ManagerRegistry $doctrine) 
     {
-    	$errors = array();
-    	$former_request = array();
-    	//Place le nombre de Produts par page dans les paramètre de la recherche.
-    	$criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
-    	//Recherche la demande de page de l'administrateur si elle existe.
-    	$page = $request->request->get('page');
+        $errors = array();
+        $former_request = array();
+        $criteria = [];
+        $page = $request->query->get('page', '1');
 
-    	//Gestion de la sélection si il y an a une.
-    	if($request->request->get('research') === "research") {
-    		//Création des différents paramètres de la recherche.
-    		if($request->request->get('name') != "" && $request->request->get('name') !== null) {
-                $criteria['name'] = array('value' => $request->request->get('name'), 
-                    'type' => $request->request->get('type_research_name'));
-                $former_request['name'] = $request->request->get('name');
-                $former_request['type_research_name'] = $request->request->get('type_research_name');
-            }
-            if($request->request->get('code') != "" && $request->request->get('code') !== null) {
-                $criteria['code'] = array('value' => $request->request->get('code'), 
-                    'type' => $request->request->get('type_research_code'));
-                $former_request['code'] = $request->request->get('code');
-                $former_request['type_research_code'] = $request->request->get('type_research_code');
-            }
-            if($request->request->get('stock') != "" && $request->request->get('stock') !== null) {
-                $criteria['stock'] = array('value' => $request->request->get('stock'), 
-                    'type' => $request->request->get('type_research_stock'));
-                $former_request['stock'] = $request->request->get('stock');
-                $former_request['type_research_stock'] = $request->request->get('type_research_stock');
-            }
-            if($request->request->get('description') != "" && $request->request->get('description') !== null) {
-                $criteria['description'] = $request->request->get('description');
-                $former_request['description'] =  $request->request->get('description');
-            }
-            if($request->request->get('activate') != "none" && $request->request->get('activate') !== null) {
-                $criteria['activate'] = $request->request->get('activate');
-                $former_request['activate'] =  $request->request->get('activate');
-            }
-            //Ajout des ordres de recherches.
-            if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
-            	$criteria['orderBy'] = array('attribut' => $request->request->get('orderBy_sortBy'), 
-                    'order' =>  $request->request->get('orderBy_sortDir'));
-                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
-                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
-            }
-            //Calcul le nombre de produits et de pages.
-            $number_products = $doctrine->getRepository(Product::class)
-                ->adminResearchNumberProducts($criteria)[0][1];
-            $number_pages = 
-                intval( $number_products / self::NUMBER_BY_PAGE ) + 
-                ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
-            //Ajout du numéro de page.
-            if($page != "" && $page !== null) {
-                if($page === 'Début') {
-                    $criteria['page'] = 0;
-                    $page = 1;
-                } else if($page === 'Fin') {
-                    $criteria['page'] = $number_pages - 1;
-                    $page = $number_pages;
-                } else {
-                    $criteria['page'] = intval($page) - 1;
-                }
-            } else
-                $page = 1;
-            
-    	} else {
-    		//Ajout le nombre de pages.
-    		$criteria['page'] = 0;
-            $page = 1;
-            //Calcul le nombre de produits et de pages.
-	    	$number_products = intval($doctrine->getRepository(Product::class)->countNumberProducts()[0][1]);
-            $number_pages = 
-                intval( $number_products / self::NUMBER_BY_PAGE ) + 
-                ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
-    	}
-    	//Recherche les produits à retourner.
-		$products = $doctrine->getRepository(Product::class)->adminResearchProduct($criteria);
+        //Création des différents paramètres de la recherche.
+        if($request->request->get('name') != "" && $request->request->get('name') !== null) {
+            $criteria['name'] = array('value' => $request->request->get('name'), 
+                'type' => $request->request->get('type_research_name'));
+            $former_request['name'] = $request->request->get('name');
+            $former_request['type_research_name'] = $request->request->get('type_research_name');
+        }
+        if($request->request->get('code') != "" && $request->request->get('code') !== null) {
+            $criteria['code'] = array('value' => $request->request->get('code'), 
+                'type' => $request->request->get('type_research_code'));
+            $former_request['code'] = $request->request->get('code');
+            $former_request['type_research_code'] = $request->request->get('type_research_code');
+        }
+        if($request->request->get('stock') != "" && $request->request->get('stock') !== null) {
+            $criteria['stock'] = array('value' => $request->request->get('stock'), 
+                'type' => $request->request->get('type_research_stock'));
+            $former_request['stock'] = $request->request->get('stock');
+            $former_request['type_research_stock'] = $request->request->get('type_research_stock');
+        }
+        if($request->request->get('description') != "" && $request->request->get('description') !== null) {
+            $criteria['description'] = $request->request->get('description');
+            $former_request['description'] =  $request->request->get('description');
+        }
+        if($request->request->get('activate') != "none" && $request->request->get('activate') !== null) {
+            $criteria['activate'] = $request->request->get('activate');
+            $former_request['activate'] =  $request->request->get('activate');
+        }
+        //Ajout des ordres de recherches.
+        if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
+            $criteria['orderBy'] = array('attribut' => $request->request->get('orderBy_sortBy'), 
+                'order' =>  $request->request->get('orderBy_sortDir'));
+            $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+            $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
+        }
+
+        //Recherche les produits à retourner.
+        $products = $paginator->paginate($doctrine->getRepository(Product::class)->adminResearchProduct($criteria), 
+            $page, self::NUMBER_BY_PAGE);
 
         return $this->render('admin/products/products/products.html.twig', 
-        	['products' => $products, 'errors' => $errors, 'page' => $page, 'number_pages' => $number_pages, 
-             'request' => $former_request]);
+            ['products' => $products, 'errors' => $errors, 'page', 'request' => $former_request]);
     }
-
+    
     /**
      * @Route("/admin/product/{id}", name="product")
      */
@@ -599,98 +567,61 @@ class AdminProductController extends AbstractController
 	/**
  	 * @Route("/admin/variants_products", name="variants_products")
  	 */
-    public function variantsProducts(Request $request, ManagerRegistry $doctrine)
+    public function variantsProducts(Request $request, PaginatorInterface $paginator, ManagerRegistry $doctrine)
     {
-    	$errors = array();
-    	$former_request = array();
-    	$criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
-    	//Recherche la demande de page de l'administrateur si elle existe.
-    	$page = $request->request->get('page');
+        $errors = array();
+        $former_request = array();
+        $criteria = [];
+        $page = $request->query->get('page', '1');
 
-    	//Gestion de la sélection si il y an a une.
-    	if($request->request->get('research') === "research") {
-    		//Création des différents paramètres de la recherche.
-    		if($request->request->get('name') != "" && $request->request->get('name') !== null) {
-                $criteria['name'] = array('value' => $request->request->get('name'), 
-                    'type' => $request->request->get('type_research_name'));
-                $former_request['name'] = $request->request->get('name');
-                $former_request['type_research_name'] = $request->request->get('type_research_name');
-            }
-            if($request->request->get('code') != "" && $request->request->get('code') !== null) {
-                $criteria['code'] = array('value' => $request->request->get('code'), 
-                    'type' => $request->request->get('type_research_code'));
-                $former_request['code'] = $request->request->get('code');
-                $former_request['type_research_code'] = $request->request->get('type_research_code');
-            }
-            if($request->request->get('stock') != "" && $request->request->get('stock') !== null) {
-                $criteria['stock'] = array('value' => $request->request->get('stock'), 
-                    'type' => $request->request->get('type_research_stock'));
-                $former_request['stock'] = $request->request->get('stock');
-                $former_request['type_research_stock'] = $request->request->get('type_research_stock');
-            }
-            if($request->request->get('price') != "" && $request->request->get('price') !== null) {
-            	$criteria['price'] = array('value' => intval($request->request->get('price') * 100 ), 
-                    'type' => $request->request->get('type_research_price'));
-                $former_request['price'] = $request->request->get('price');
-                $former_request['type_research_price'] = $request->request->get('type_research_price');
-            }
-            if($request->request->get('description') != "" && $request->request->get('description') !== null) {
-                $criteria['description'] = $request->request->get('description');
-                $former_request['description'] =  $request->request->get('description');
-            }
-            if($request->request->get('activate') != "none" && $request->request->get('activate') !== null) {
-                $criteria['activate'] = $request->request->get('activate');
-                $former_request['activate'] =  $request->request->get('activate');
-            }
-            //Ajout des ordres de recherches.
-            if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
-            	$criteria['orderBy'] = 
-                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
-                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
-                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
-            }
+        //Création des différents paramètres de la recherche.
+        if($request->request->get('name') != "" && $request->request->get('name') !== null) {
+            $criteria['name'] = array('value' => $request->request->get('name'), 
+                'type' => $request->request->get('type_research_name'));
+            $former_request['name'] = $request->request->get('name');
+            $former_request['type_research_name'] = $request->request->get('type_research_name');
+        }
+        if($request->request->get('code') != "" && $request->request->get('code') !== null) {
+            $criteria['code'] = array('value' => $request->request->get('code'), 
+                'type' => $request->request->get('type_research_code'));
+            $former_request['code'] = $request->request->get('code');
+            $former_request['type_research_code'] = $request->request->get('type_research_code');
+        }
+        if($request->request->get('stock') != "" && $request->request->get('stock') !== null) {
+            $criteria['stock'] = array('value' => $request->request->get('stock'), 
+                'type' => $request->request->get('type_research_stock'));
+            $former_request['stock'] = $request->request->get('stock');
+            $former_request['type_research_stock'] = $request->request->get('type_research_stock');
+        }
+        if($request->request->get('price') != "" && $request->request->get('price') !== null) {
+            $criteria['price'] = array('value' => intval($request->request->get('price') * 100 ), 
+                'type' => $request->request->get('type_research_price'));
+            $former_request['price'] = $request->request->get('price');
+            $former_request['type_research_price'] = $request->request->get('type_research_price');
+        }
+        if($request->request->get('description') != "" && $request->request->get('description') !== null) {
+            $criteria['description'] = $request->request->get('description');
+            $former_request['description'] =  $request->request->get('description');
+        }
+        if($request->request->get('activate') != "none" && $request->request->get('activate') !== null) {
+            $criteria['activate'] = $request->request->get('activate');
+            $former_request['activate'] =  $request->request->get('activate');
+        }
+        //Ajout des ordres de recherches.
+        if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
+            $criteria['orderBy'] = 
+                array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+            $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+            $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
+        }
 
-            //Calcul le nombre de VariantsProduts et le nombre de pages.
-            $number_products = $doctrine->getRepository(VariantProduct::class)
-                                    ->adminResearchNumberVariantsProducts($criteria)[0][1];
-            $number_pages = 
-                    intval( $number_products / self::NUMBER_BY_PAGE ) + 
-                    ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
-            //Ajout du numéro de page.
-            if($page != "" && $page !== null) {
-                if($page === 'Début') {
-                    $criteria['page'] = 0;
-                    $page = 1;
-                } else if($page === 'Fin') {
-                    $criteria['page'] = $number_pages - 1;
-                    $page = $number_pages;
-                } else {
-                    $criteria['page'] = intval($page) - 1;
-                }
-            } else 
-            	$page = 1;
-            
-    	} else {
-    		//Ajout du numéro de page.
-    		$page = 1;
-    		$criteria['page'] = 0;
-    		//Calcul le nombre de VariantsProduts et de pages
-    		$number_products = 
-                intval($doctrine->getRepository(VariantProduct::class)
-                    ->adminCountNumberVariantsProducts()[0][1]);
-            $number_pages = 
-                intval( $number_products / self::NUMBER_BY_PAGE ) + 
-                ( ( $number_products % self::NUMBER_BY_PAGE === 0 )?0:1 );
-    	}
-    	//Recherche les produits à retourner.
-    	$variants_products = $doctrine->getRepository(VariantProduct::class)
-            ->adminResearchVariantProduct($criteria);
+        $variants_products = $paginator->paginate($doctrine->getRepository(VariantProduct::class)
+            ->adminResearchVariantProduct($criteria), $page, self::NUMBER_BY_PAGE);
 
         return $this->render('admin/products/variants_products/variants_products.html.twig', 
-        	['variants_products' => $variants_products, 'errors' => $errors, 'request' => $former_request, 'page' => $page, 
-        	'number_pages' => $number_pages]);
+            ['variants_products' => $variants_products, 'errors' => $errors, 'request' => $former_request, 'page' => $page]);
     }
-
+    
 	/**
  	 * @Route("/admin/variant_product/{id}", name="variant_product")
  	 */

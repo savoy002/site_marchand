@@ -26,7 +26,7 @@ class CommentRepository extends ServiceEntityRepository
             ->innerJoin('c.user', 'u')
             ->where('u.id = :id')
             ->setParameter('id', $user->getId());
-        return $request->getQuery()->getResult();
+        return $request->getQuery()/*->getResult()*/;
     }
 
     public function adminResearchComment(array $criteria) {
@@ -34,15 +34,10 @@ class CommentRepository extends ServiceEntityRepository
 
         $request = $this->optionsResearchComments($request, $criteria);
 
-        if(array_key_exists('page', $criteria))
-            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
-
         if(array_key_exists('orderBy', $criteria))
             $request->orderBy('c.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
 
-        $request->setMaxResults($criteria['number_by_page']);
-
-        return $request->getQuery()->getResult();
+        return $request->getQuery()/*->getResult()*/;
     }
 
     public function adminResearchNumberComments(array $criteria) {

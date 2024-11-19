@@ -19,6 +19,13 @@ class CompanyDeliveryRepository extends ServiceEntityRepository
         parent::__construct($registry, CompanyDelivery::class);
     }
 
+    public function findCompanyDelivery()
+    {
+        $request = $this->createQueryBuilder('c')
+            ->where('c.delete = FALSE');
+        return $request->getQuery();
+    }
+
     // /**
     //  * @return CompanyDelivery[] Returns an array of CompanyDelivery objects
     //  */

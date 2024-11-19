@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+#version 6.
+use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Exception\IOExceptionInterface;
 use Symfony\Component\Filesystem\Filesystem;
@@ -29,10 +31,6 @@ use App\Form\Type\User\ChangeMailType;
 use App\Form\Type\User\ChangePasswordType;
 use App\Form\Type\User\UserType;
 use App\Form\Type\User\UploadImageType;
-
-
-#version 6.
-use Doctrine\Persistence\ManagerRegistry;
 
 
 class UserController extends AbstractController

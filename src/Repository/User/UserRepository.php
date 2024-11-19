@@ -42,15 +42,10 @@ class UserRepository extends ServiceEntityRepository //implements PasswordUpgrad
         
         $request = $this->optionsReserachUsers($request, $criteria);
 
-        if(array_key_exists('page', $criteria))
-            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);
-
         if(array_key_exists('orderBy', $criteria))
             $request->orderBy('u.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
 
-        $request->setMaxResults($criteria['number_by_page']);
-
-        return $request->getQuery()->getResult();
+        return $request->getQuery();
     }
 
     public function adminResearchNumberUsers(array $criteria) {

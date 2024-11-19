@@ -26,7 +26,7 @@
 
 	<div class="row justify-content-start offset-1">
 
-		{% if company.types|length > 0 %}
+		{% if types.getTotalItemCount != 0 %}
 
 			<div class="row">
 				<div class="col-10 offset-1 table-responsive">
@@ -52,6 +52,11 @@
 							{% endfor %}
 						</tbody>
 					</table>
+
+					<div class="row justify-content-around">
+					    {{ knp_pagination_render(types) }}
+					</div>
+
 				</div>
 			</div>
 
@@ -63,7 +68,7 @@
 
 		{% endif %}
 
-		<div class="{{ (company.types|length > 0)?('col offset-sm-1'):('col-12') }}">
+		<div class="{{ (types.getTotalItemCount != 0)?('col offset-sm-1'):('col-12') }}">
 			<a href="{{ path("create_type_delivery") }}" class="btn btn-primary">Créer un type</a>
 		</div>
 

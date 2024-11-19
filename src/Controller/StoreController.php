@@ -2,6 +2,9 @@
 
 namespace App\Controller;
 
+#version 6
+use Doctrine\Persistence\ManagerRegistry;
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -22,8 +25,6 @@ use App\Form\Type\Command\AddProductCommandType;
 use App\Form\Type\Command\ChangeAddressType;
 use App\Form\Type\Command\SelectTypeDeliveryType;
 
-#version 6
-use Doctrine\Persistence\ManagerRegistry;
 
 class StoreController extends AbstractController
 {
@@ -57,7 +58,7 @@ class StoreController extends AbstractController
     /**
      * @Route("/store/products", name="store_products")
      */
-    public function showProducts(Request $request, ManagerRegistry $doctrine)
+    public function showProducts(Request $request, PaginatorInterface $paginator, ManagerRegistry $doctrine)
     {
         $criteria = array();
         $criteria['number_by_page'] = self::NUMBER_PRODUCTS_BY_PAGE;
@@ -66,7 +67,7 @@ class StoreController extends AbstractController
         $categories = $doctrine->getRepository(Category::class)->findBy(['activate' => true, 'delete' => false]);
         $products = $doctrine->getRepository(Product::class)->findBy(['activate' => true, 'delete' => false]);
 
-        $page = $request->request->get('page');
+        $page = $request->query->get('page', "1");
 
         //Gestion de la recheche.
         if($request->request->get('research') === "research") {
@@ -99,35 +100,14 @@ class StoreController extends AbstractController
 
         }
 
-        //Calcul le nombre de VariantProducts et de pages
-        $number_var_products = $doctrine->getRepository(VariantProduct::class)
-            ->storeResearchNumberVariantProduct($criteria)[0][1];
-        $number_pages = intval( $number_var_products / self::NUMBER_PRODUCTS_BY_PAGE ) + 
-            ( ( $number_var_products % self::NUMBER_PRODUCTS_BY_PAGE === 0 )?0:1 );
+        $var_products = $paginator->paginate($doctrine->getRepository(VariantProduct::class)
+            ->storeResearchVariantProduct($criteria), $page, self::NUMBER_PRODUCTS_BY_PAGE);
 
-        //Ajoute le numéro de page
-        if($page != "" && $page !== null) {
-            if($page === 'Début') {
-                $criteria['page'] = 0;
-                $page = 1;
-            } else if($page === 'Fin') {
-                $criteria['page'] = $number_pages - 1;
-                $page = $number_pages;
-            } else {
-                $criteria['page'] = intval($page) - 1;
-            }
-        } else 
-            $page = 1;
-
-        //Recherche les VariantProducts à retourner.
-        $var_products = $doctrine->getRepository(VariantProduct::class)
-            ->storeResearchVariantProduct($criteria);
-        
         return $this->render('store/variants_products/show_products.html.twig', 
-            [ 'var_products' => $var_products, 'categories' => $categories, 'products' => $products, 'number' => $number_var_products,
-              'page' => $page, 'number_pages' => $number_pages, 'former_request' => $former_request, 'basket' => $this->getBasket() ]);
+            [ 'var_products' => $var_products, 'categories' => $categories, 'products' => $products,'former_request' => $former_request, 
+              'basket' => $this->getBasket() ]);
     }
-
+    
     /**
      * @Route("/store/product/{code}", name="store_product")
      */

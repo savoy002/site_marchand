@@ -173,7 +173,7 @@
 				{# Début des résultats de recherches #}
 
 				<div class="row justify-content-center">
-					{% if users|length > 0 %}
+					{% if users.getTotalItemCount != 0 %}
 						<div class="row">
 							<table class="table table-bordered">
 								<thead class="thead-dark">
@@ -214,7 +214,7 @@
 							<p>Aucun utilisateur trouvé.</p>
 						</div>
 					{% endif %}
-					<div class="{{ (users|length > 0)?('col offset-sm-1'):('col-12') }}">
+					<div class="{{ (users.getTotalItemCount != 0)?('col offset-sm-1'):('col-12') }}">
 						<a href="{{ path("admin_create_user") }}" class="btn btn-primary">Créer un utilisateur</a>
 					</div>
 				</div>
@@ -225,19 +225,7 @@
 
 				<div class="row justify-content-around ">
 					<div class="col-5">
-						<nav aria-label="Page navigation example">
-						  <ul class="pagination">
-						    <li class="page-item">
-						      <input type="submit" value="Début" name="page" class="btn {{ (page != 1)?("btn-primary"):("btn-secondary") }}">
-						    </li>
-						    {% for num in range(1, number_pages) %}
-						    	<input type="submit" value="{{ num }}" name="page" class="btn {{ (num != page )?("btn-primary"):("btn-secondary") }}">
-						    {% endfor %}
-						    <li class="page-item">
-						      <input type="submit" value="Fin" name="page" class="btn {{ (page != number_pages)?("btn-primary"):("btn-secondary") }}">
-						    </li>
-						  </ul>
-						</nav>
+						{{ knp_pagination_render(users) }}
 					</div>
 					<div class="col-5">
 					</div>

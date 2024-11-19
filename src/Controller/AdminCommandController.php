@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use DateTime;
 
+use Knp\Component\Pager\PaginatorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Filesystem\Filesystem;
 use Symfony\Component\Routing\Annotation\Route;
@@ -41,147 +42,110 @@ class AdminCommandController extends AbstractController
 	/**
 	 * @Route("/admin/command/commands", name="commands")
 	 */
-	public function commands(Request $request, ManagerRegistry $doctrine) 
-	{
+    public function commands(Request $request, PaginatorInterface $paginator, ManagerRegistry $doctrine) 
+    {
         $former_request = array();
         $errors = array();
-        $criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
-        //Recherche la demande de page de l'administrateur si elle existe.
-        $page = $request->request->get('page');
+        $criteria = [];
+        $page = $request->query->get('page', '1');
 
-        //Gestion de la sélection si il y an a une.
-        if($request->request->get('research') === "research") {
-
-        	//Création des différents paramètres de la recherche.
-        	if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null 
-             &&  $request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
-                if($request->request->get('createdBefore') >= $request->request->get('createdAfter')) {
-                    $criteria['createdBefore'] = $request->request->get('createdBefore');
-                    $former_request['createdBefore'] =  $request->request->get('createdBefore');
-                    $criteria['createdAfter'] = $request->request->get('createdAfter');
-                    $former_request['createdAfter'] =  $request->request->get('createdAfter');
-                } else {
-                    $errors[] = "La date d'avant la création ne peut pas être inférieur à la date d'après création.";
-                }
+        //Création des différents paramètres de la recherche.
+        if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null 
+         &&  $request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
+            if($request->request->get('createdBefore') >= $request->request->get('createdAfter')) {
+                $criteria['createdBefore'] = $request->request->get('createdBefore');
+                $former_request['createdBefore'] =  $request->request->get('createdBefore');
+                $criteria['createdAfter'] = $request->request->get('createdAfter');
+                $former_request['createdAfter'] =  $request->request->get('createdAfter');
             } else {
-                if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null) {
-                    $criteria['createdBefore'] = $request->request->get('createdBefore');
-                    $former_request['createdBefore'] =  $request->request->get('createdBefore');
-                }
-                if($request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
-                    $criteria['createdAfter'] = $request->request->get('createdAfter');
-                    $former_request['createdAfter'] =  $request->request->get('createdAfter');
-                }
+                $errors[] = "La date d'avant la création ne peut pas être inférieur à la date d'après création.";
             }
-            if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null 
-             &&  $request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
-                if($request->request->get('sentBefore') >= $request->request->get('sentAfter')) {
-                    $criteria['sentBefore'] = $request->request->get('sentBefore');
-                    $former_request['sentBefore'] =  $request->request->get('sentBefore');
-                    $criteria['sentAfter'] = $request->request->get('sentAfter');
-                    $former_request['sentAfter'] =  $request->request->get('sentAfter');
-                } else {
-                    $errors[] = "La date d'avant l'envoie ne peut pas être inférieur à la date d'après l'envoie.";
-                }
-            } else {
-                if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null) {
-                    $criteria['sentBefore'] = $request->request->get('sentBefore');
-                    $former_request['sentBefore'] =  $request->request->get('sentBefore');
-                }
-                if($request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
-                    $criteria['sentAfter'] = $request->request->get('sentAfter');
-                    $former_request['sentAfter'] =  $request->request->get('sentAfter');
-                }
-            }
-            if($request->request->get('receivedBefore') != "" && $request->request->get('receivedBefore') !== null 
-             &&  $request->request->get('receivedAfter') != "" && $request->request->get('receivedAfter') !== null) {
-                if($request->request->get('receivedBefore') >= $request->request->get('receivedBefore')) {
-                    $criteria['receivedBefore'] = $request->request->get('receivedBefore');
-                    $former_request['receivedBefore'] =  $request->request->get('receivedBefore');
-                    $criteria['receivedAfter'] = $request->request->get('receivedAfter');
-                    $former_request['receivedAfter'] =  $request->request->get('receivedAfter');
-                } else {
-                    $errors[] = "La date d'avant la réception ne peut pas être inférieur à la date d'après la réception.";
-                }
-            } else {
-                if($request->request->get('receivedBefore') != "" && $request->request->get('receivedBefore') !== null) {
-                    $criteria['receivedBefore'] = $request->request->get('receivedBefore');
-                    $former_request['receivedBefore'] =  $request->request->get('receivedBefore');
-                }
-                if($request->request->get('receivedAfter') != "" && $request->request->get('receivedAfter') !== null) {
-                    $criteria['receivedAfter'] = $request->request->get('receivedAfter');
-                    $former_request['receivedAfter'] =  $request->request->get('receivedAfter');
-                }
-            }
-
-            if($request->request->get('price') != "" && $request->request->get('price') !== null) {
-            	$criteria['price'] = array('value' => intval($request->request->get('price') * 100 ), 
-                    'type' => $request->request->get('type_research_price'));
-                $former_request['price'] = $request->request->get('price');
-                $former_request['type_research_price'] = $request->request->get('type_research_price');
-            }
-
-            if($request->request->get('address_value') != "" && $request->request->get('address_value') !== null) {
-                $criteria['address'] = array('value' => $request->request->get('address_value'), 
-                    'type' => $request->request->get('type_research_address'));
-                $former_request['address_value'] = $request->request->get('address_value');
-                $former_request['type_research_address'] = $request->request->get('type_research_address');
-            }
-
-            if($request->request->get('status') != "" && $request->request->get('status') !== null) {
-                $criteria['status'] = $request->request->get('status');
-                $former_request['status'] = $request->request->get('status');
-            }
-
-            //Ajout des ordres de recherches.
-            if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
-            	$criteria['orderBy'] = 
-                    array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
-                $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
-                $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
-            }
-
-            //Calcul le nombre de commandes et de pages.
-            $number_commands = intval($doctrine->getRepository(Command::class)
-                ->adminResearchNumberCommands($criteria)[0][1]);
-            $number_pages = 
-                intval( $number_commands / self::NUMBER_BY_PAGE ) + 
-                ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
-
-            if($page != "" && $page !== null) {
-                if($page === 'Début') {
-                    $criteria['page'] = 0;
-                    $page = 1;
-                } else if($page === 'Fin') {
-                    $criteria['page'] = $number_pages - 1;
-                    $page = $number_pages;
-                } else {
-                    $criteria['page'] = intval($page) - 1;
-                }
-            } else
-                $page = 1;
-            
         } else {
-            $page = 1;
-            if(!$this->isAdmin()){
-                $criteria['company'] = $this->getCompanyId();
-                $number_commands = intval($doctrine->getRepository(Command::class)
-                    ->adminResearchNumberCommands($criteria)[0][1]);
-            } else {
-                //Calcul le nombre de commandes et de pages.
-                $number_commands = intval($doctrine->getRepository(Command::class)->countNumberCommands()[0][1]);
+            if($request->request->get('createdBefore') != "" && $request->request->get('createdBefore') !== null) {
+                $criteria['createdBefore'] = $request->request->get('createdBefore');
+                $former_request['createdBefore'] =  $request->request->get('createdBefore');
             }
-            $number_pages = intval( $number_commands / self::NUMBER_BY_PAGE ) + 
-                            ( ( $number_commands % self::NUMBER_BY_PAGE === 0 )?0:1 );
+            if($request->request->get('createdAfter') != "" && $request->request->get('createdAfter') !== null) {
+                $criteria['createdAfter'] = $request->request->get('createdAfter');
+                $former_request['createdAfter'] =  $request->request->get('createdAfter');
+            }
         }
-        //Recherche les commandes à retourner.
-        $commands = $doctrine->getRepository(Command::class)->adminResearchCommands($criteria);
+        if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null 
+         &&  $request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
+            if($request->request->get('sentBefore') >= $request->request->get('sentAfter')) {
+                $criteria['sentBefore'] = $request->request->get('sentBefore');
+                $former_request['sentBefore'] =  $request->request->get('sentBefore');
+                $criteria['sentAfter'] = $request->request->get('sentAfter');
+                $former_request['sentAfter'] =  $request->request->get('sentAfter');
+            } else {
+                $errors[] = "La date d'avant l'envoie ne peut pas être inférieur à la date d'après l'envoie.";
+            }
+        } else {
+            if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null) {
+                $criteria['sentBefore'] = $request->request->get('sentBefore');
+                $former_request['sentBefore'] =  $request->request->get('sentBefore');
+            }
+            if($request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
+                $criteria['sentAfter'] = $request->request->get('sentAfter');
+                $former_request['sentAfter'] =  $request->request->get('sentAfter');
+            }
+        }
+        if($request->request->get('receivedBefore') != "" && $request->request->get('receivedBefore') !== null 
+         &&  $request->request->get('receivedAfter') != "" && $request->request->get('receivedAfter') !== null) {
+            if($request->request->get('receivedBefore') >= $request->request->get('receivedBefore')) {
+                $criteria['receivedBefore'] = $request->request->get('receivedBefore');
+                $former_request['receivedBefore'] =  $request->request->get('receivedBefore');
+                $criteria['receivedAfter'] = $request->request->get('receivedAfter');
+                $former_request['receivedAfter'] =  $request->request->get('receivedAfter');
+            } else {
+                $errors[] = "La date d'avant la réception ne peut pas être inférieur à la date d'après la réception.";
+            }
+        } else {
+            if($request->request->get('receivedBefore') != "" && $request->request->get('receivedBefore') !== null) {
+                $criteria['receivedBefore'] = $request->request->get('receivedBefore');
+                $former_request['receivedBefore'] =  $request->request->get('receivedBefore');
+            }
+            if($request->request->get('receivedAfter') != "" && $request->request->get('receivedAfter') !== null) {
+                $criteria['receivedAfter'] = $request->request->get('receivedAfter');
+                $former_request['receivedAfter'] =  $request->request->get('receivedAfter');
+            }
+        }
 
-		return $this->render('admin/commands/commands/commands.html.twig', 
-            ['commands' => $commands, 'number_pages' => $number_pages, 'page' => $page, 'request' => $former_request, 
+        if($request->request->get('price') != "" && $request->request->get('price') !== null) {
+            $criteria['price'] = array('value' => intval($request->request->get('price') * 100 ), 
+                'type' => $request->request->get('type_research_price'));
+            $former_request['price'] = $request->request->get('price');
+            $former_request['type_research_price'] = $request->request->get('type_research_price');
+        }
+
+        if($request->request->get('address_value') != "" && $request->request->get('address_value') !== null) {
+            $criteria['address'] = array('value' => $request->request->get('address_value'), 
+                'type' => $request->request->get('type_research_address'));
+            $former_request['address_value'] = $request->request->get('address_value');
+            $former_request['type_research_address'] = $request->request->get('type_research_address');
+        }
+
+        if($request->request->get('status') != "" && $request->request->get('status') !== null) {
+            $criteria['status'] = $request->request->get('status');
+            $former_request['status'] = $request->request->get('status');
+        }
+
+        //Ajout des ordres de recherches.
+        if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
+            $criteria['orderBy'] = 
+                array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
+            $former_request['orderBy_sortBy'] = $request->request->get('orderBy_sortBy');
+            $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
+        }
+
+        $commands = $paginator->paginate($doctrine->getRepository(Command::class)->adminResearchCommands($criteria), 
+            $page, self::NUMBER_BY_PAGE);
+
+        return $this->render('admin/commands/commands/commands.html.twig', 
+            ['commands' => $commands, /*'number_pages' => $number_pages, 'page' => $page,*/ 'request' => $former_request, 
             'errors' => $errors]);
-	}
-
+    }
+	
 	/**
 	 * @Route("/admin/command/command/{id}", name="command")
 	 */
@@ -203,14 +167,16 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/command/commands/not_send", name="commands_not_send")
      */
-    public function commandsWithoutDelivery(ManagerRegistry $doctrine)
+    public function commandsWithoutDelivery(Request $request, ManagerRegistry $doctrine, PaginatorInterface $paginator)
     {
-        if($this->isAdmin())
-            $commands = $doctrine->getRepository(Command::class)
-                ->findBy(['delete' => false, 'delivery' => null, 'isBasket' => false]);
-        else
-            $commands = $doctrine->getRepository(Command::class)
-                ->adminFindCommandsWithoutDelivery($this->getCompanyId());
+        $page = $request->query->get('page', '1');
+        if($this->isAdmin()) {
+            $commands = $paginator->paginate($doctrine->getRepository(Command::class)
+                ->findBy(['delete' => false, 'delivery' => null, 'isBasket' => false]), $page, self::NUMBER_BY_PAGE);
+        } else {
+            $commands = $paginator->paginate($doctrine->getRepository(Command::class)->adminFindCommandsWithoutDelivery($this->getCompanyId()), 
+                $page, self::NUMBER_BY_PAGE);
+        }
 
         return $this->render('admin/commands/commands/commands_not_send.html.twig', ['commands' => $commands]);
     }
@@ -236,13 +202,15 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/companies_deliveries", name="companies_deliveries")
      */
-    public function companiesDeliveries(ManagerRegistry $doctrine) 
+    public function companiesDeliveries(Request $request, ManagerRegistry $doctrine, PaginatorInterface $paginator) 
     {
         if($this->isAdmin()) {
-            $companies = $doctrine->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
-
+            $page = $request->query->get('page', '1');
+            //$companies = $doctrine->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
+            $companies = $paginator->paginate($doctrine->getRepository(CompanyDelivery::class)->findCompanyDelivery(), 
+                $page, self::NUMBER_BY_PAGE);
             return $this->render('admin/commands/deliveries/companies_deliveries/companies_deliveries.html.twig', 
-                ['companies' => $companies]);
+                ['companies' => $companies, 'page' => $page]);
         } else 
             return $this->redirectToRoute("menu_delivery");
     }
@@ -439,16 +407,22 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("/admin/delivery/types_deliveries", name="types_deliveries")
      */
-    public function typesDeliveries(ManagerRegistry $doctrine)
+    public function typesDeliveries(Request $request, ManagerRegistry $doctrine, PaginatorInterface $paginator)
     {
+        $page = $request->query->get('page', '1');
         if($this->isAdmin()) {
-            $types = $doctrine->getRepository(TypeDelivery::class)->findBy(['delete' => false]);
+            $types = $paginator->paginate($doctrine->getRepository(TypeDelivery::class)->adminFindTypesDelivery(null), 
+                $page, self::NUMBER_BY_PAGE);
             $company = null;
         } else {
-            $types = $doctrine->getRepository(TypeDelivery::class)
-                ->findBy(['company' => $this->getCompanyId(), 'delete' => false]);
             $company = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
+            if($company != null) {
+                $types = $paginator->paginate($doctrine->getRepository(TypeDelivery::class)->adminFindTypesDelivery($company->getId()), 
+                        $page, self::NUMBER_BY_PAGE);
+            } else {
+                return $this->redirectToRoute("menu_delivery");
+            }
         }
 
         return $this->render('admin/commands/deliveries/types_deliveries/types_deliveries.html.twig', 
@@ -581,19 +555,6 @@ class AdminCommandController extends AbstractController
             return $this->redirectToRoute("menu_delivery");
     }
 
-    ///**
-    // * @Route("admin/delivery/company_delivery/{id}/types_deliveries", name="types_by_company")
-    // */
-    /*public function typesDeliveriesByCompany($id, ManagerRegistry $doctrine) 
-    {
-        $company = $doctrine->getRepository(CompanyDelivery::class)->findOneBy(['id' => $id, 'delete' => false]);
-        if(is_null($company))
-            return $this->redirectToRoute('companies_deliveries');
-
-        return $this->render('admin/commands/deliveries/types_deliveries/types_deliveries_by_company_delivery.html.twig',
-            ['company' => $company]);
-    }*/
-
     //
     //Partie Delivery.
     //
@@ -601,13 +562,13 @@ class AdminCommandController extends AbstractController
     /**
      * @Route("admin/delivery/deliveries", name="deliveries")
      */
-    public function deliveries(Request $request, ManagerRegistry $doctrine) 
+    public function deliveries(Request $request, ManagerRegistry $doctrine, PaginatorInterface $paginator) 
     {
         $former_request = array();
         $errors = array();
-        $criteria = ['number_by_page' => self::NUMBER_BY_PAGE];
+        $criteria = [];
         //Recherche la demande de page de l'administrateur si elle existe.
-        $page = $request->request->get('page');
+        $page = $request->query->get('page', '1');
 
         //Ajout le critère d'entreprise is il n'est pas un administrateur du site ou récupère les entreprises pour la recherche sinon.
         $companies = array();
@@ -615,74 +576,45 @@ class AdminCommandController extends AbstractController
             $criteria['company'] = $this->getCompanyId();
             $companies = $doctrine->getRepository(CompanyDelivery::class)
                 ->findOneBy(['id' => $this->getCompanyId(), 'delete' => false]);
-        } else 
-            $companies = $doctrine->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
-            
-        //Gestion de la sélection si il y an a une.
-        if($request->request->get('research') === "research") {
-
-            if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null 
-             &&  $request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
-                if($request->request->get('sentBefore') >= $request->request->get('sentAfter')) {
-                    $criteria['sentBefore'] = $request->request->get('sentBefore');
-                    $former_request['sentBefore'] =  $request->request->get('sentBefore');
-                    $criteria['sentAfter'] = $request->request->get('sentAfter');
-                    $former_request['sentAfter'] =  $request->request->get('sentAfter');
-                } else {
-                    $errors[] = "La date d'avant l'envoie ne peut pas être inférieur à la date d'après l'envoie.";
-                }
-            } else {
-                if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null) {
-                    $criteria['sentBefore'] = $request->request->get('sentBefore');
-                    $former_request['sentBefore'] =  $request->request->get('sentBefore');
-                }
-                if($request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
-                    $criteria['sentAfter'] = $request->request->get('sentAfter');
-                    $former_request['sentAfter'] =  $request->request->get('sentAfter');
-                }
-            }
-
-            /*if($request->request->get('type') != "" && $request->request->get('type') !== null) {
-                $criteria['type'] = $request->request->get('type');
-                $former_request['type'] = $request->request->get('type');
-            }*/
-
-            if($request->request->get('company') != "" && $request->request->get('company') !== null) {
-                $criteria['company'] = $request->request->get('company');
-                $former_request['company'] = $request->request->get('company');
-            }
-
-            //Calcul le nombre de livraisons et de pages.
-            $number_deliveries = intval($doctrine->getRepository(Delivery::class)
-                ->companyResearchNumberDeliveries($criteria)[0][1]);
-            $number_pages = 
-                intval( $number_deliveries / self::NUMBER_BY_PAGE ) + 
-                ( ( $number_deliveries % self::NUMBER_BY_PAGE === 0 )?0:1 );
-
-            if($page != "" && $page !== null) {
-                if($page === 'Début') {
-                    $criteria['page'] = 0;
-                    $page = 1;
-                } else if($page === 'Fin') {
-                    $criteria['page'] = $number_pages - 1;
-                    $page = $number_pages;
-                } else {
-                    $criteria['page'] = intval($page) - 1;
-                }
-            } else
-                $page = 1;
-
         } else {
-            $page = 1;
-            //Calcul le nombre de commandes et de pages.
-            $number_deliveries = intval($doctrine->getRepository(Delivery::class)
-                ->companyResearchNumberDeliveries($criteria)[0][1]);
-            $number_pages = 
-                    intval( $number_deliveries / self::NUMBER_BY_PAGE ) + 
-                    ( ( $number_deliveries % self::NUMBER_BY_PAGE === 0 )?0:1 );
+            $companies = $doctrine->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
         }
+            
+        if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null 
+         &&  $request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
+            if($request->request->get('sentBefore') >= $request->request->get('sentAfter')) {
+                $criteria['sentBefore'] = $request->request->get('sentBefore');
+                $former_request['sentBefore'] =  $request->request->get('sentBefore');
+                $criteria['sentAfter'] = $request->request->get('sentAfter');
+                $former_request['sentAfter'] =  $request->request->get('sentAfter');
+            } else {
+                $errors[] = "La date d'avant l'envoie ne peut pas être inférieur à la date d'après l'envoie.";
+            }
+        } else {
+            if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null) {
+                $criteria['sentBefore'] = $request->request->get('sentBefore');
+                $former_request['sentBefore'] =  $request->request->get('sentBefore');
+            }
+            if($request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
+                $criteria['sentAfter'] = $request->request->get('sentAfter');
+                $former_request['sentAfter'] =  $request->request->get('sentAfter');
+            }
+        }
+
+        /*if($request->request->get('type') != "" && $request->request->get('type') !== null) {
+            $criteria['type'] = $request->request->get('type');
+            $former_request['type'] = $request->request->get('type');
+        }*/
+
+        if($request->request->get('company') != "" && $request->request->get('company') !== null) {
+            $criteria['company'] = $request->request->get('company');
+            $former_request['company'] = $request->request->get('company');
+        }
+
         //Recherche les livrasons à retourner.
-        $deliveries = $doctrine->getRepository(Delivery::class)->companyResearchDeliveries($criteria);
+        //$deliveries = $doctrine->getRepository(Delivery::class)->companyResearchDeliveries($criteria);
+        $deliveries = $paginator->paginate($doctrine->getRepository(Delivery::class)->companyResearchDeliveries($criteria), 
+            $page, self::NUMBER_BY_PAGE);
 
         //Recherche les types de livraison pour les recherches.
         /*if($this->isAdmin())
@@ -695,9 +627,8 @@ class AdminCommandController extends AbstractController
         $list_departments = $departments->getListDepartment();
 
         return $this->render('admin/commands/deliveries/deliveries/deliveries.html.twig', 
-            ['deliveries' => $deliveries, 'number_pages' => $number_pages, 'page' => $page, 'request' => $former_request, 
-             'errors' => $errors, 'companies' => $companies, 'is_admin' => $this->isAdmin(), 
-             'departments' => $list_departments]);
+            ['deliveries' => $deliveries, 'request' => $former_request, 'errors' => $errors, 
+            'companies' => $companies, 'is_admin' => $this->isAdmin(), 'departments' => $list_departments]);
     }
 
     /**

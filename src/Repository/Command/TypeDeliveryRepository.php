@@ -19,6 +19,16 @@ class TypeDeliveryRepository extends ServiceEntityRepository
         parent::__construct($registry, TypeDelivery::class);
     }
 
+    public function adminFindTypesDelivery($id_company)
+    {
+        $request = $this->createQueryBuilder('t')
+            ->where('t.delete = FALSE');
+        if($id_company != null) {
+            $request->andWhere("t.id_company = :id_company")->setParameter('id_company', $id_company);
+        }
+        return $request->getQuery();
+    }
+
     public function findFormSelectTypeDelivery($zip_code)
     {
         $request = $this->createQueryBuilder('t');

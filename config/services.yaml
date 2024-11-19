@@ -34,5 +34,6 @@ services:
 
     twig.extension.intl:
         class: Twig\Extensions\IntlExtension
+        lazy: true
         tags:
             - { name: twig.extension }

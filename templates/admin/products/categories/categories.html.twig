@@ -24,7 +24,7 @@
 
 		<div class="row justify-content-start">
 
-			{% if categories|length > 0 %}
+			{% if categories.getTotalItemCount != 0 %}
 				<div class="row">
 					<div class="col-10 offset-2 table-responsive">
 						<table class="table table-bordered">
@@ -54,7 +54,7 @@
 					<p>Aucune catégorie trouvée.</p>
 				</div>
 			{% endif %}
-			<div class="{{ (categories|length > 0)?('col-12 offset-1'):('col offset-sm-1') }}">
+			<div class="{{ (categories.getTotalItemCount != 0)?('col-12 offset-1'):('col offset-sm-1') }}">
 				<a href="{{ path("create_category") }}" class="btn btn-primary">Créer une catégorie.</a>
 			</div>
 
