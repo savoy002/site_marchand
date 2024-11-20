@@ -24,7 +24,7 @@ class TypeDeliveryRepository extends ServiceEntityRepository
         $request = $this->createQueryBuilder('t')
             ->where('t.delete = FALSE');
         if($id_company != null) {
-            $request->andWhere("t.id_company = :id_company")->setParameter('id_company', $id_company);
+            $request->andWhere("t.company = :id_company")->setParameter('id_company', $id_company);
         }
         return $request->getQuery();
     }

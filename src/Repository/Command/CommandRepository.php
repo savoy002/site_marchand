@@ -25,14 +25,8 @@ class CommandRepository extends ServiceEntityRepository
 
         $request = $this->optionsResearchCommands($request, $criteria);
 
-        /*if(array_key_exists('page', $criteria))
-            $request->setFirstResult($criteria['page'] * $criteria['number_by_page']);*/
-
         if(array_key_exists('orderBy', $criteria))
             $request->orderBy('c.'.$criteria['orderBy']['attribut'], $criteria['orderBy']['order']);
-
-        //if(array_key_exists('number_by_page', $criteria))
-        //$request->setMaxResults($criteria['number_by_page']);
 
         return $request->getQuery()/*->getResult()*/;
     }
@@ -123,6 +117,8 @@ class CommandRepository extends ServiceEntityRepository
             if($criteria['status'] === 'notSend')
                 $request->andWhere('c.delivery IS NULL');
         }
+
+
 
         return $request;
     }

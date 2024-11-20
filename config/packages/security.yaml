@@ -43,7 +43,7 @@ security:
             # switch_user: true
 
     role_hierarchy:
-        ROLE_ADMIN: ROLE_USER
+        ROLE_ADMIN: [ROLE_USER, ROLE_COMPANY_ADMIN]
         ROLE_SUPER_ADMIN: ROLE_ADMIN
 
     #version 4.4
@@ -64,9 +64,11 @@ security:
     access_control:
         - { path: ^/login$, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/delivery, roles: [ROLE_ADMIN, ROLE_COMPANY_ADMIN]}
+        - { path: ^/command, roles: [ROLE_ADMIN, ROLE_COMPANY_ADMIN]}
         #Penser à ajouter des chemins unique aux utilisateurs pour les créations de commandes et commentaires.
         - { path: ^/store/user, roles: [ROLE_USER] }
         - { path: ^/store/(user|basket)/, roles: [ROLE_USER] }
         - { path: ^/store, roles: [PUBLIC_ACCESS] }
+        #Trouver un moyen d'aller à la page de présentation sans donner l'accès public à tous les chemins sans rôle défini.
         - { path: ^/, roles: [PUBLIC_ACCESS] }
-

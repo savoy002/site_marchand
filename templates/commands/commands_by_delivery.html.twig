@@ -6,7 +6,7 @@
 
 	<div class="row">
 		<div class="offset-sm-1">
-			<h1>Commandes.</h1>
+			<h1>Les commandes de la livraison numéro {{ delivery.num }}.</h1>
 		</div>
 	</div>
 
@@ -14,19 +14,21 @@
 		<div class="offset-sm-1"
 			<nav aria-label="breadcrumb">
 			  <ol class="breadcrumb">
-			    <li class="breadcrumb-item"><a href="{{ path("admin") }}">Administrateur</a></li>
-			    <li class="breadcrumb-item"><a href="{{ path("commands") }}">Commandes</a></li>
-			    <li class="breadcrumb-item active" aria-current="page">Commandes pas envoyées</li>
+			    <li class="breadcrumb-item"><a href="{{ path("menu_delivery") }}">Menu Livraison</a></li>
+			    {% if not is_admin %}
+			    	<li class="breadcrumb-item"><a href="{{ path("company_delivery", {id:company.id}) }}">{{ company.name }}</a></li>
+			    {% endif %}
+			    <li class="breadcrumb-item"><a href="{{ path("deliveries") }}">Livraisons</a></li>
+			    <li class="breadcrumb-item"><a href="{{ path("delivery", {id:delivery.id}) }}">Livraison</a></li>
+			    <li class="breadcrumb-item active" aria-current="page">Commandes</li>
 			  </ol>
 			</nav>
 		</div>
 	</div>
 
-	{# Début des résultats de recherche. #}
-
 	<div class="row justify-content-center">
 
-		{% if commands.getTotalItemCount != 0 %}
+		{% if delivery.commands|length > 0 %}
 			<div class="row">
 				<div class="col-10 offset-1 table-responsive">
 					<table class="table table-bordered">
@@ -36,13 +38,14 @@
 								<th>Date de création</th>
 								<th>Complète</th>
 								<th>Adresse de livraison</th>
-								<th>Type de livraison</th>
+								<th>Date de livraison</th>
+								<th>Date de réception</th>
 								<th>Prix total</th>
 								<th>Voir</th>
 							</tr>
 						</thead>
 						<tbody>
-							{% for command in commands %}
+							{% for command in delivery.commands %}
 								<tr>
 									<td>{{ command.num }}</td>
 									<td>{{ command.createdAt|date("d/m/Y") }}</td>
@@ -54,7 +57,15 @@
 											("Non définie") 
 										}}
 									</td>
-									<td>{{ command.typeDelSelected.typeDelivery.name }}</td>
+									<td>
+										{{ 
+											(command.delivery is not null)?
+											( (command.delivery.date is not null)?(command.delivery.date|date("d/m/Y")):
+											("Pas envoyé") ):
+											("Pas envoyé")
+										}}
+									</td>
+									<td>{{ (command.dateReceive is not null)?(command.dateReceive|date("d/m/Y")):("Pas reçue") }}</td>
 									<td>
 										{{ 
 											(command.priceTotal is not null)?
@@ -74,18 +85,7 @@
 			</div>
 		{% endif %}
 
-		{# Fin des résultats de recherche. #}
-
-		{# Début des paginations. #}
-
-		<div class="row justify-content-around ">
-			<div class="offset-1 col-6">
-				{{ knp_pagination_render(commands) }}
-			</div>
-		</div>
-
-		{# Fin des paginations. #}
-
 	</div>
+
 
 {% endblock %}
