@@ -404,7 +404,7 @@ class AdminDeliveryController extends AbstractController
             $companies = $doctrine->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
         }
         
-        //Corriger les recherches.
+        //Corriger les recherches avec les dates.
         if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null 
          &&  $request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
             if($request->request->get('sentBefore') <= $request->request->get('sentAfter')) {

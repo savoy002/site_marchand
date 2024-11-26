@@ -43,17 +43,10 @@ class DeliveryRepository extends ServiceEntityRepository
 
     private function optionsResearchDeliveries(QueryBuilderOption $request, array $criteria) 
     {
-        /*if(array_key_exists('company', $criteria))
-            $request->innerJoin('d.type', 't');*/
-
         if(array_key_exists('sentBefore', $criteria))
-            $request->andWhere('DATE_DIFF(d.date, :sentBefore) <= 0')->setParameter('sentBefore', $criteria['sentBefore']);
+            $request->andWhere('DATE_DIFF(d.date, :sentBefore) >= 0')->setParameter('sentBefore', $criteria['sentBefore']);
         if(array_key_exists('sentAfter', $criteria))
-            $request->andWhere('DATE_DIFF(d.date, :sentAfter) >= 0')->setParameter('sentAfter', $criteria['sentAfter']);
-
-        /*if(array_key_exists('type', $criteria))
-            $request->andWhere('d.type = :id_type')->setParameter('id_type', $criteria['type']);*/
-
+            $request->andWhere('DATE_DIFF(d.date, :sentAfter) <= 0')->setParameter('sentAfter', $criteria['sentAfter']);
         if(array_key_exists('company', $criteria))
             $request->andWhere('d.company = :id_company')->setParameter('id_company', $criteria['company']);
 
