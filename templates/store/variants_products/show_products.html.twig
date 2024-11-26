@@ -1,6 +1,10 @@
 {% extends 'base.html.twig' %}
 
-{% block stylesheets %} {# {{ knp_pagination_rel_links(var_products) }} #} {% endblock %}
+{% block stylesheets %}
+	{% include('structure/paginator/paginator.html.twig') %}
+	{% include('structure/paginator/script.html.twig') %}
+ 	{# {{ knp_pagination_rel_links(var_products) }} #} 
+ {% endblock %}
 
 {% block title %} Recherche Produits {% endblock %}
 
@@ -12,7 +16,7 @@
 
 	<div class="row">
 		<div class="col-3">
-			<form class="form" method="post" action="{{ path("store_products") }}">
+			<form name="form" class="form" method="post" action="{{ path("store_products") }}">
 				<input hidden="hidden" name="research" value="research">
 				<div class="row">
 					<label>Catégories</label>

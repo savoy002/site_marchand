@@ -1,0 +1,20 @@
+<script>
+	
+	document.addEventListener("DOMContentLoaded", function(event) {
+
+		var links = document.getElementsByClassName('paginationLink')
+
+		for(let i = 0; i < links.length; i++) {
+			links[i].addEventListener("click", function(event) {
+				console.log("link event")
+				event.preventDefault()
+				let href = event.srcElement.getAttribute("href")
+				let form = document.getElementsByName("form")[0]
+				form.setAttribute('action', href)
+				form.submit()				
+			}, false);
+		}
+
+	});	
+
+</script>
