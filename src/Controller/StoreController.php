@@ -103,10 +103,11 @@ class StoreController extends AbstractController
         $var_products = $paginator->paginate($doctrine->getRepository(VariantProduct::class)
             ->storeResearchVariantProduct($criteria), $page, self::NUMBER_PRODUCTS_BY_PAGE);
 
-        while($var_products->count() <= 0 && $page > 0) {
-            $new_page = intval($page) - 1;
+        $new_page = intval($page) - 1;
+        while($var_products->count() <= 0 && $new_page > 0) {
             $var_products = $paginator->paginate($doctrine->getRepository(VariantProduct::class)
                 ->storeResearchVariantProduct($criteria), $new_page, self::NUMBER_PRODUCTS_BY_PAGE);
+            $new_page = intval($page) - 1;
         }
         
         return $this->render('store/variants_products/show_products.html.twig', 

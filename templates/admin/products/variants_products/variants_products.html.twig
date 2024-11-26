@@ -1,5 +1,11 @@
 {% extends 'base_admin.html.twig' %}
 
+{% block stylesheets %}
+	{{ encore_entry_link_tags('app') }}
+	{% include('structure/paginator/paginator.html.twig') %}
+	{% include('structure/paginator/script.html.twig') %}
+ {% endblock %}
+
 {% block title %} Variantes de produits {% endblock %}
 
 {% block body %} 
@@ -22,11 +28,9 @@
 		</div>
 	</div>
 
-
-
 	<div class="row justify-content-center">
 
-		<form class="form" action="{{ path("variants_products") }}" method="post">
+		<form name="form" class="form" action="{{ path("variants_products") }}" method="post">
 
 			{% if errors is not empty %}
 				<ul>

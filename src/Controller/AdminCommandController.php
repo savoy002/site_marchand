@@ -129,7 +129,7 @@ class AdminCommandController extends AbstractController
             $former_request['status'] = $request->request->get('status');
         }
 
-        //Ajout des ordres de recherches.
+        //remplacer avec la pagination.
         if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
             $criteria['orderBy'] = 
                 array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
@@ -137,9 +137,15 @@ class AdminCommandController extends AbstractController
             $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
         }
 
-
         $commands = $paginator->paginate($doctrine->getRepository(Command::class)->adminResearchCommands($criteria), 
             $page, self::NUMBER_BY_PAGE);
+
+        $new_page = intval($page) - 1;
+        while($commands->count() <= 0 && $new_page > 0) {
+            $commands = $paginator->paginate($doctrine->getRepository(Command::class)->adminResearchCommands($criteria), 
+                $new_page, self::NUMBER_BY_PAGE);
+            $new_page = intval($new_page) - 1;
+        }
 
         return $this->render('commands/commands.html.twig', 
             ['commands' => $commands, /*'number_pages' => $number_pages, 'page' => $page,*/ 'request' => $former_request, 

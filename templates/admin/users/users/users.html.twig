@@ -1,5 +1,12 @@
 {% extends 'base_admin.html.twig' %}
 
+{% block stylesheets %}
+	{{ encore_entry_link_tags('app') }}
+	{% include('structure/paginator/paginator.html.twig') %}
+	{% include('structure/paginator/script.html.twig') %}
+ 	{# {{ knp_pagination_rel_links(var_products) }} #} 
+ {% endblock %}
+
 {% block title %} Utilisateurs {% endblock %}
 
 {% block body %}
@@ -23,7 +30,7 @@
 
 		<div class="row  justify-content-center ">
 
-			<form class="form" action="{{ path("users") }}" method="post">
+			<form name="form" class="form" action="{{ path("users") }}" method="post">
 
 				{% if errors is not empty %}
 					<ul>

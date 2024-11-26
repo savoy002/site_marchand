@@ -403,10 +403,11 @@ class AdminDeliveryController extends AbstractController
         } else {
             $companies = $doctrine->getRepository(CompanyDelivery::class)->findBy(['delete' => false]);
         }
-            
+        
+        //Corriger les recherches.
         if($request->request->get('sentBefore') != "" && $request->request->get('sentBefore') !== null 
          &&  $request->request->get('sentAfter') != "" && $request->request->get('sentAfter') !== null) {
-            if($request->request->get('sentBefore') >= $request->request->get('sentAfter')) {
+            if($request->request->get('sentBefore') <= $request->request->get('sentAfter')) {
                 $criteria['sentBefore'] = $request->request->get('sentBefore');
                 $former_request['sentBefore'] =  $request->request->get('sentBefore');
                 $criteria['sentAfter'] = $request->request->get('sentAfter');
@@ -435,10 +436,15 @@ class AdminDeliveryController extends AbstractController
             $former_request['company'] = $request->request->get('company');
         }
 
-        //Recherche les livrasons à retourner.
-        //$deliveries = $doctrine->getRepository(Delivery::class)->companyResearchDeliveries($criteria);
         $deliveries = $paginator->paginate($doctrine->getRepository(Delivery::class)->companyResearchDeliveries($criteria), 
             $page, self::NUMBER_BY_PAGE);
+
+        $new_page = intval($page) - 1;
+        while($deliveries->count() <= 0 && $new_page > 0) {
+            $deliveries = $paginator->paginate($doctrine->getRepository(Delivery::class)->companyResearchDeliveries($criteria), 
+                $new_page, self::NUMBER_BY_PAGE);
+            $new_page = intval($new_page) - 1;
+        }
 
         //Recherche les types de livraison pour les recherches.
         /*if($this->isAdmin())

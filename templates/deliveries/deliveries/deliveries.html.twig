@@ -1,5 +1,11 @@
 {% extends 'base_admin.html.twig' %}
 
+{% block stylesheets %}
+	{{ encore_entry_link_tags('app') }}
+	{% include('structure/paginator/paginator.html.twig') %}
+	{% include('structure/paginator/script.html.twig') %}
+ {% endblock %}
+
 {% block title %} Livraisons {% endblock %}
 
 {% block body %} 
@@ -26,7 +32,7 @@
 
 	<div class="row justify-content-center">
 
-		<form class="form " action="{{ path("deliveries") }}" method="post">
+		<form name="form" class="form" action="{{ path("deliveries") }}" method="post">
 
 			{% if errors is not empty %}
 				<ul>

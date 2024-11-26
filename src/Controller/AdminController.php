@@ -107,6 +107,7 @@ class AdminController extends AbstractController
             }
         }
 
+        //refaire les tries avec la pagination.
         if($request->request->get('orderBy_sortBy') != "" && $request->request->get('orderBy_sortBy') !== null) {
             $criteria['orderBy'] = 
                 array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
@@ -115,6 +116,13 @@ class AdminController extends AbstractController
         }
 
         $users = $paginator->paginate($doctrine->getRepository(User::class)->adminResearchUser($criteria), $page, self::NUMBER_BY_PAGE);
+
+        $new_page = intval($page) - 1;
+        while($users->count() <= 0 && $new_page > 0) {
+            $users = $paginator->paginate($doctrine->getRepository(User::class)->adminResearchUser($criteria), 
+                $new_page, self::NUMBER_BY_PAGE);
+            $new_page = intval($new_page) - 1;
+        }
         
         return $this->render('admin/users/users/users.html.twig', ['users' => $users, 'request' => $former_request, 'errors' => $errors]);
     }
@@ -247,7 +255,7 @@ class AdminController extends AbstractController
                 $former_request['createdAfter'] =  $request->request->get('createdAfter');
             }
         }
-        //Ajout des ordres de recherches.
+        //refaire les tries avec la pagination.
         if($request->request->get('orderBy_sortBy') != "none" && $request->request->get('orderBy_sortBy') !== null) {
             $criteria['orderBy'] = 
                 array('attribut' => $request->request->get('orderBy_sortBy'), 'order' =>  $request->request->get('orderBy_sortDir'));
@@ -256,6 +264,13 @@ class AdminController extends AbstractController
         }
         
         $comments = $paginator->paginate($doctrine->getRepository(Comment::class)->adminResearchComment($criteria), $page, self::NUMBER_BY_PAGE);
+
+        $new_page = intval($page) - 1;
+        while($comments->count() <= 0 && $new_page > 0) {
+            $comments = $paginator->paginate($doctrine->getRepository(Comment::class)->adminResearchComment($criteria), 
+                $new_page, self::NUMBER_BY_PAGE);
+            $new_page = intval($new_page) - 1;
+        }
 
         return $this->render("admin/users/comments/comments.html.twig", 
             ['comments' => $comments, 'errors' => $errors, 'request' => $former_request, 'number_characters' => self::NUMBER_CHARACTERS]);

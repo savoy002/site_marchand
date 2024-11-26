@@ -1,7 +1,12 @@
 {% extends 'base_admin.html.twig' %}
 
-{% block title %} Commentaires {% endblock %}
+{% block stylesheets %}
+	{{ encore_entry_link_tags('app') }}
+	{% include('structure/paginator/paginator.html.twig') %}
+	{% include('structure/paginator/script.html.twig') %}
+ {% endblock %}
 
+{% block title %} Commentaires {% endblock %}
 
 {% block javascripts %}
 	{{ parent() }}
@@ -29,7 +34,7 @@
 
 		<div class="row  justify-content-center ">
 
-			<form  class="form" action="{{ path("comments") }}" method="post">
+			<form name="form" class="form" action="{{ path("comments") }}" method="post">
 
 				{% if errors is not empty %}
 					<ul>

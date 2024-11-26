@@ -330,6 +330,13 @@ class AdminProductController extends AbstractController
         $products = $paginator->paginate($doctrine->getRepository(Product::class)->adminResearchProduct($criteria), 
             $page, self::NUMBER_BY_PAGE);
 
+        $new_page = intval($page) - 1;
+        while($products->count() <= 0 && $new_page > 0) {
+            $products = $paginator->paginate($doctrine->getRepository(Product::class)->adminResearchProduct($criteria), 
+                $new_page, self::NUMBER_BY_PAGE);
+            $new_page = intval($new_page) - 1;
+        }
+
         return $this->render('admin/products/products/products.html.twig', 
             ['products' => $products, 'errors' => $errors, 'page', 'request' => $former_request]);
     }
@@ -615,8 +622,15 @@ class AdminProductController extends AbstractController
             $former_request['orderBy_sortDir'] = $request->request->get('orderBy_sortDir');
         }
 
-        $variants_products = $paginator->paginate($doctrine->getRepository(VariantProduct::class)
-            ->adminResearchVariantProduct($criteria), $page, self::NUMBER_BY_PAGE);
+        $variants_products = $paginator->paginate($doctrine->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria), 
+            $page, self::NUMBER_BY_PAGE);
+
+        $new_page = intval($page) - 1;
+        while($variants_products->count() <= 0 && $new_page > 0) {
+            $variants_products = $paginator->paginate($doctrine->getRepository(VariantProduct::class)->adminResearchVariantProduct($criteria), 
+                $new_page, self::NUMBER_BY_PAGE);
+            $new_page = intval($new_page) - 1;
+        }
 
         return $this->render('admin/products/variants_products/variants_products.html.twig', 
             ['variants_products' => $variants_products, 'errors' => $errors, 'request' => $former_request, 'page' => $page]);
