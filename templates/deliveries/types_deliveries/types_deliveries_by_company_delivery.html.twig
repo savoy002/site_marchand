@@ -43,7 +43,10 @@
 							{% for type in company.types %}
 								<tr>
 									<td>{{ type.name }}</td>
-									<td>{{ type.price|slice(0, type.price|length - 2)~','~type.price|slice(type.price|length - 2, type.price|length) }}</td>
+									<td>
+										{% set price = type.price %}
+										{{ include('structure/price/price.html.twig') }}
+									</td>
 									<td>{{ type.timeMin ~ " à " ~ type.timeMax ~ " jours" }}</td>
 									<td>{{ (type.activate)?('Actif'):('Inactif') }}</td>
 									<td><a class="btn btn-info" href="{{ path("type_delivery", {id:type.id}) }}">Voir</a></td>

@@ -37,7 +37,8 @@
 								<td>{{ piece_command.product.name }}</td>
 								<td>{{ piece_command.nbProducts }}</td>
 								<td>
-									{{ piece_command.product.price|slice(0, piece_command.product.price|length - 2)~','~piece_command.product.price|slice(piece_command.product.price|length - 2, piece_command.product.price|length) }}
+									{% set price = piece_command.product.price %}
+									{{ include('structure/price/price.html.twig') }}
 								</td>
 							</tr>
 							{% set total_price = total_price + piece_command.nbProducts * piece_command.product.price %}
@@ -45,7 +46,8 @@
 						<tr>
 							<td colspan="2">Le prix total est : </td>
 							<td>
-								{{ total_price|slice(0, total_price|length - 2)~','~total_price|slice(total_price|length - 2, total_price|length) }}
+								{% set price = piece_command.product.price %}
+								{{ include('structure/price/price.html.twig') }}
 							</td>
 						</tr>
 					</tbody>

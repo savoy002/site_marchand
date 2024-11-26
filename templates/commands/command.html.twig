@@ -92,12 +92,14 @@
 										{% if piece_product.product %}
 											<td>{{ piece_product.product.name }}</td>
 											<td>
-												{{ piece_product.priceProduct|slice(0, piece_product.priceProduct|length - 2)~','~piece_product.priceProduct|slice(piece_product.priceProduct|length - 2, piece_product.priceProduct|length) }}
+												{% set price = piece_product.priceProduct %}
+												{% include('structure/price/price.html.twig') %}
 											</td>
 											<td>{{ piece_product.nbProducts }}</td>
 											{% set total_price = piece_product.priceProduct * piece_product.nbProducts %}
 											<td>
-												{{ total_price|slice(0, total_price|length - 2)~','~total_price|slice(total_price|length - 2, total_price|length) }}
+												{% set price = total_price %}
+												{% include('structure/price/price.html.twig') %}
 											</td>
 											{% if isAdmin %}<td>
 												<a href="{{ path('variant_product', {id:piece_product.product.id}) }}" 
@@ -122,7 +124,8 @@
 								<tr>
 									<td colspan="3">Livraison de {{ command.typeDelSelected.typeDelivery.company.name }}</td>
 									<td>
-										{{ command.typeDelSelected.priceDelivery|slice(0, command.typeDelSelected.priceDelivery|length - 2)~','~command.typeDelSelected.priceDelivery|slice(command.typeDelSelected.priceDelivery|length - 2, command.typeDelSelected.priceDelivery|length) }}
+										{% set price = command.typeDelSelected.priceDelivery %}
+										{% include('structure/price/price.html.twig') %}
 									</td>
 									{% if isAdmin %}<td><a class="btn btn-info" href="">Voir</a></td>{% endif %}
 								</tr>
@@ -131,7 +134,12 @@
 								<tr class="table-primary">
 									<th colspan="3">Le prix total de la commande est de </th>
 									<th>
-										{{ command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) }}
+										{% if command.priceTotal is not null %}
+										{% set price = command.priceTotal %}
+										{% include('structure/price/price.html.twig') %}
+										{% else %}
+										{{ 'Pas terminé' }}
+										{% endif %}
 									</th>
 									{% if isAdmin %}<th></th>{% endif %}
 								</tr>

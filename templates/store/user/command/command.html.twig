@@ -1,6 +1,5 @@
 {% extends 'base.html.twig' %}
 
-
 {% block title %} Commande {% endblock %}
 
 {% block body %}
@@ -53,7 +52,8 @@
 						<img src="{{ asset('img/uploads/Command/CompanyDelivery/' ~ command.typeDelSelected.typeDelivery.company.logoFileName) }}"
 							width="60" height="60" />
 						{{ command.typeDelSelected.typeDelivery.name }}
-						{{ command.typeDelSelected.priceDelivery|slice(0, command.typeDelSelected.priceDelivery|length - 2)~','~command.typeDelSelected.priceDelivery|slice(command.typeDelSelected.priceDelivery|length - 2, command.typeDelSelected.priceDelivery|length) }} &#8364
+						{% set price = command.typeDelSelected.priceDelivery %}
+						{{ include('structure/price/price.html.twig') }}
 					</p>
 				</div>
 			</div>
@@ -76,7 +76,8 @@
 											{{ piece_product.product.name }} (le produit est temporairement retiré des ventes)
 										{% endif %}
 									{% endif %}
-									{{ piece_product.priceProduct|slice(0, piece_product.priceProduct|length - 2)~','~piece_product.priceProduct|slice(piece_product.priceProduct|length - 2, piece_product.priceProduct|length) }} &#8364
+									{% set price = piece_product.priceProduct %}
+									{{ include('structure/price/price.html.twig') }}
 								</p>
 							</div>
 						{% endfor %}
@@ -85,7 +86,8 @@
 			</div>
 			<div class="row">
 				<div class="col">
-					<h4>Le prix totale est de : {{ command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) }} &#8364</h4>
+					{% set price = command.priceTotal %}
+					<h4>Le prix totale est de : {{ include('structure/price/price.html.twig') }}</h4>
 				</div>
 			</div>
 		</div>

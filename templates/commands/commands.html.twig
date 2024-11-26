@@ -226,10 +226,12 @@
 											</td>
 											<td>{{ (command.dateReceive is not null)?(command.dateReceive|date("d/m/Y")):("Pas reçue") }}</td>
 											<td>
-												{{ 
-													(command.priceTotal is not null)?
-													( command.priceTotal|slice(0, command.priceTotal|length - 2)~','~command.priceTotal|slice(command.priceTotal|length - 2, command.priceTotal|length) )
-												}}
+												{% if command.priceTotal is not null %}
+												{% set price = command.priceTotal %}
+												{{ include('structure/price/price.html.twig') }}
+												{% else %}
+												{{ 'Pas terminé' }}
+												{% endif %}
 											</td>
 											<td><a href="{{ path('command', {id:command.id}) }}" class="btn btn-info">Voir</a></td>
 										</tr>

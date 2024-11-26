@@ -15,7 +15,8 @@
 
 	<div class="row justify-content-center under_title">
 		<div class="col-4 offset-1">
-			<p>Prix unitaire : {{ product.price|slice(0, product.price|length - 2)~','~product.price|slice(product.price|length - 2, product.price|length) }} &#8364 </p>
+			{% set price = product.price %}
+			<p>Prix unitaire : {{ include('structure/price/price.html.twig') }}</p>
 			<p> {{( (product.stock > 0)?(product.stock ~ ' produits restant.'):('Rupture de stock.') )}} </p>
 			<div>
 				{% if form_command is not null %}

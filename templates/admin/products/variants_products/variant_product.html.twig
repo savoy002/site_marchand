@@ -43,7 +43,10 @@
 							<td>{{ variant_product.code }}</td>
 							<td>{{ variant_product.description }}</td>
 							<td>{{ variant_product.stock }}</td>
-							<td>{{ variant_product.price|slice(0, variant_product.price|length - 2)~','~variant_product.price|slice(variant_product.price|length - 2, variant_product.price|length) }}</td>
+							<td>
+								{% set price = variant_product.price %}
+								{{ include('structure/price/price.html.twig') }}
+							</td>
 							<td>{{ (variant_product.activate)?('Actif'):('Inactif') }}</td>
 						</tr>
 					</tbody>
