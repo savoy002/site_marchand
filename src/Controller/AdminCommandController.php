@@ -31,13 +31,7 @@ class AdminCommandController extends AbstractController
     //Attention si vous changez la valeur de cette constante pensez aussi à changer celle du test.
 	const NUMBER_BY_PAGE = 5;
 
-    //
-    //Partie Command.
-    //
-
-	/**
-	 * @Route("commands", name="commands")
-	 */
+    #[Route('commands', name:'commands')]
     public function commands(Request $request, ManagerRegistry $doctrine, PaginatorInterface $paginator) 
     {
         $former_request = array();
@@ -152,9 +146,7 @@ class AdminCommandController extends AbstractController
             'errors' => $errors]);
     }
 	
-	/**
-	 * @Route("command/{id}", name="command")
-	 */
+    #[Route('command/{id}', name:'command')]
 	public function command($id, ManagerRegistry $doctrine) 
 	{
         if($this->isAdmin())
@@ -164,15 +156,19 @@ class AdminCommandController extends AbstractController
             $command = $doctrine->getRepository(Command::class)
                 ->adminFindCommand($id, $this->getCompanyId());
 
-		if(is_null($command))
-			return $this->redirect('commands');
+		if(is_null($command)) {
+            //die();
+            if($this->isAdmin()) {
+                return $this->redirectToRoute('commands');
+            } else {
+                return $this->redirectToRoute('deliveries');
+            }
+        }
 
 		return $this->render('commands/command.html.twig', ['command' => $command, "isAdmin" => $this->isAdmin()]);
 	}
 
-    /**
-     * @Route("commands/not_send", name="commands_not_send")
-     */
+    #[Route('commands/not_send', name:'commands_not_send')]
     public function commandsWithoutDelivery(Request $request, ManagerRegistry $doctrine, PaginatorInterface $paginator)
     {
         $page = $request->query->get('page', '1');
