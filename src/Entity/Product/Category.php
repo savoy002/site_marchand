@@ -9,59 +9,62 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Product\Product;
 use App\Entity\Product\VariantProduct;
 
+use App\Repository\Product\CategoryRepository;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Product\CategoryRepository")
- * @ORM\Table(name="Category")
- */
+#[ORM\Entity(repositoryClass: CategoryRepository::class)]
+#[ORM\Table(name: 'Category')]
 class Category
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[Id]
+    #[Column(type: 'integer')]
+    #[GeneratedValue]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, name="name_cat")
-     */
+    #[Column(type: 'string', length: 255, name: 'name_cat')]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true, name="img_cat")
-     */
+    #[Column(type: 'string', length: 255, nullable: true, name: 'img_cat')]
     private $imgFileName;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true, name="code_cat")
-     */
+    #[Column(type: 'string', length: 255, unique: true, name: 'code_cat')]
     private $code;
 
-    /**
-     * @ORM\Column(type="boolean", name="activate_cat", options={"default":false})
-     */
+    ///**
+    // * @ORM\Column(type="boolean", name="activate_cat", options={"default":false})
+    // */
+    #[Column(type: 'boolean', name: 'activate_cat')]
     private $activate;
 
-    /**
-     * @ORM\Column(type="boolean", name="deleted_cat", options={"default":false})
-     */
+    ///**
+    // * @ORM\Column(type="boolean", name="deleted_cat", options={"default":false})
+    // */
+    #[Column(type: 'boolean', name: 'deleted_cat')]
     private $delete;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Product\Product", inversedBy="categories")
-     * @ORM\JoinTable(name="CategoriesProducts", 
-     *          joinColumns={@ORM\JoinColumn(name="prod_id_cat", referencedColumnName="id")},
-     *          inverseJoinColumns={@ORM\JoinColumn(name="cat_id_prod", referencedColumnName="id")})
-     */
+    ///**
+    // * @ORM\ManyToMany(targetEntity="App\Entity\Product\Product", inversedBy="categories")
+    // * @ORM\JoinTable(name="CategoriesProducts", 
+    // *          joinColumns={@ORM\JoinColumn(name="prod_id_cat", referencedColumnName="id")},
+    // *          inverseJoinColumns={@ORM\JoinColumn(name="cat_id_prod", referencedColumnName="id")})
+    // */
+
+    #[ManyToMany(targetEntity: Product::class, inversedBy: 'categories')]
+    #[JoinTable(name: 'CategoriesProducts')]
+    #[JoinColumn(name: 'prod_id_cat', referencedColumnName: 'id')]
+    #[InverseJoinColumn(name: 'cat_id_prod', referencedColumnName: 'id')]
     private $products;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Product\VariantProduct", inversedBy="categories")
-     * @ORM\JoinTable(name="CategoriesVariantsProducts", 
-     *          joinColumns={@ORM\JoinColumn(name="prod_var_id_cat", referencedColumnName="id")},
-     *          inverseJoinColumns={@ORM\JoinColumn(name="cat_id_prod_var", referencedColumnName="id")})
-     */
+    ///**
+    // * @ORM\ManyToMany(targetEntity="App\Entity\Product\VariantProduct", inversedBy="categories")
+    // * @ORM\JoinTable(name="CategoriesVariantsProducts", 
+    // *          joinColumns={@ORM\JoinColumn(name="prod_var_id_cat", referencedColumnName="id")},
+    // *          inverseJoinColumns={@ORM\JoinColumn(name="cat_id_prod_var", referencedColumnName="id")})
+    // */
+    
+    #[ManyToMany(targetEntity: VariantProduct::class, inversedBy: 'categories')]
+    #[JoinTable(name: 'CategoriesVariantsProducts')]
+    #[JoinColumn(name: 'prod_var_id_cat', referencedColumnName: 'id')]
+    #[InverseJoinColumn(name: 'cat_id_prod', referencedColumnName: 'id')]
     private $variantsProducts;
 
     public function __construct()

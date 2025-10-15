@@ -13,79 +13,77 @@ use App\Entity\User\Comment;
 use App\Entity\Product\Category;
 use App\Entity\Product\Product;
 
+use App\Repository\Product\VariantProductRepository;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Product\VariantProductRepository")
- * @ORM\Table(name="VariantProduct")
- */
+#[ORM\Entity(repositoryClass: VariantProductRepository::class)]
+#[ORM\Table(name: 'VariantProduct')]
 class VariantProduct
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[Id]
+    #[Column(type: 'integer')]
+    #[GeneratedValue]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, name="name_var_prod")
-     */
+    #[Column(type: 'string', length: 255, name: 'name_var_prod')]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true, name="img_var_prod")
-     */
+    #[Column(type: 'string', length: 255, nullable: true, name: 'img_var_prod')]
     private $imgFileName;
 
-    /**
-     * @ORM\Column(type="text", nullable=true, name="desc_var_prod")
-     */
+    #[Column(type: 'text', nullable: true, name: 'desc_var_prod')]
     private $description;
 
-    /**
-     * @ORM\Column(type="integer", name="stock_var_prod")
-     */
+    #[Column(type: 'integer', name: 'stock_var_prod')]
     private $stock;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true, name="code_var_prod")
-     */
+    #[Column(type: 'string', length: 255, unique: true, name: 'code_var_prod')]
     private $code;
 
-    /**
-     * @ORM\Column(type="integer")
-     */
+    #[Column(type: 'integer')]
     private $price;
 
-    /**
-     * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"}, name="created_at_var_prod")
-     */
+    ///**
+    // * @ORM\Column(type="datetime", options={"default": "CURRENT_TIMESTAMP"}, name="created_at_var_prod")
+    // */
+
+    #[Column(type: 'datetime', name: 'created_at_var_prod')]
     private $createdAt;
 
-    /**
-     * @ORM\Column(type="boolean", options={"default": false}, name="is_wellcome_var_prod")
-     */
+    ///**
+    // * @ORM\Column(type="boolean", options={"default": false}, name="is_wellcome_var_prod")
+    // */
+
+    #[Column(type: 'boolean', name: 'is_wellcome_var_prod')]
     private $isWellcome;
 
-    /**
-     * @ORM\Column(type="boolean", name="activate_var_prod", options={"default":false})
-     */
+    ///**
+    // * @ORM\Column(type="boolean", name="activate_var_prod", options={"default":false})
+    // */
+
+    #[Column(type: 'boolean', name: 'activate_var_prod')]
     private $activate;
 
-    /**
-     * @ORM\Column(type="boolean", name="deleted_var_prod", options={"default":false})
-     */
+    ///**
+    // * @ORM\Column(type="boolean", name="deleted_var_prod", options={"default":false})
+    // */
+    
+    #[Column(type: 'boolean', name: 'deleted_var_prod')]
     private $delete;
 
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Product\Product", inversedBy="variantsProducts")
-     * @ORM\JoinColumn(name="prod_id_var_prod", referencedColumnName="id")
-     */
+    ///**
+    // * @ORM\ManyToOne(targetEntity="App\Entity\Product\Product", inversedBy="variantsProducts")
+    // * @ORM\JoinColumn(name="prod_id_var_prod", referencedColumnName="id")
+    // */
+
+    #[ManyToOne(targetEntity: Product::class, inversedBy: 'variantsProducts')]
+    #[JoinColumn(name: 'prod_id_var_prod', referencedColumnName: 'id')]
     private $product;
     
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Product\Category", mappedBy="variantsProducts")
-     */
+    ///**
+    // * @ORM\ManyToMany(targetEntity="App\Entity\Product\Category", mappedBy="variantsProducts")
+    // */
+
+    #[ManyToMany(targetEntity: Category::class, mappedBy: 'variantsProducts')]
     private $categories;
 
     /**
@@ -110,16 +108,25 @@ class VariantProduct
         $this->comments = new ArrayCollection();
     }
 
+    /**
+     *  @return int
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     *  @return string
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
+    /**
+     *  @return self
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -127,11 +134,17 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return string
+     */
     public function getImgFileName(): ?string
     {
         return $this->imgFileName;
     }
 
+    /**
+     *  @return self
+     */
     public function setImgFileName(?string $imgFileName): self
     {
         $this->imgFileName = $imgFileName;
@@ -139,11 +152,17 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return strin
+     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
+    /**
+     *  @return self
+     */
     public function setDescription(?string $description): self
     {
         $this->description = $description;
@@ -151,11 +170,17 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return int
+     */
     public function getStock(): ?int
     {
         return $this->stock;
     }
 
+    /**
+     *  @return self
+     */
     public function setStock(int $stock): self
     {
         $this->stock = $stock;
@@ -163,11 +188,17 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return string
+     */
     public function getCode(): ?string
     {
         return $this->code;
     }
 
+    /**
+     *  @return self
+     */
     public function setCode(string $code): self
     {
         $this->code = $code;
@@ -175,23 +206,35 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return int
+     */
     public function getPrice(): ?int
     {
         return $this->price;
     }
 
-    public function setPrice(int $price)
+    /**
+     *  @return self
+     */
+    public function setPrice(int $price): self
     {
         $this->price = $price;
 
         return $this;
     }
 
+    /**
+     *  @return DateTime
+     */
     public function getCreatedAt(): DateTime
     {
         return $this->createdAt;
     }
 
+    /**
+     *  @return self
+     */
     public function setCreatedAt(DateTime $createdAt): self
     {
         $this->createdAt = $createdAt;
@@ -199,11 +242,17 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return bool
+     */
     public function getIsWellcome(): bool
     {
         return $this->isWellcome;
     }
 
+    /**
+     *  @return self
+     */
     public function setIsWellcome(bool $isWellcome): self
     {
         $this->isWellcome = $isWellcome;
@@ -211,11 +260,17 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return bool
+     */
     public function getActivate(): bool
     {
         return $this->activate;
     }
 
+    /**
+     *  @return self
+     */
     public function setActivate(bool $activate): self
     {
         $this->activate = $activate;
@@ -223,11 +278,17 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return bool
+     */
     public function getDelete(): bool
     {
         return $this->delete;
     }
 
+    /**
+     *  @return self
+     */
     public function setDelete(bool $delete): self
     {
         $this->delete = $delete;
@@ -235,11 +296,17 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return Product
+     */
     public function getProduct(): ?Product
     {
         return $this->product;
     }
 
+    /**
+     *  @return self
+     */
     public function setProduct(?Product $product): self
     {
         if($this->product != null)
@@ -251,16 +318,25 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return Collection
+     */
     public function getCategories(): Collection
     {
         return $this->categories;
     }
 
+    /**
+     *  @return bool
+     */
     public function hasCategory(Category $category): bool
     {
         return $this->categories->contains($category);
     }
 
+    /**
+     *  @return self
+     */
     public function addCategory(Category $category): self
     {
         if(!$this->categories->contains($category)) {
@@ -271,12 +347,15 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return self
+     */
     public function removeCategory(Category $category): self
     {
         if($this->categories->contains($category)) {
             $this->categories->removeElement($category);
             if($category->hasVariantProduct($this))
-                $category->removeVariantProcut($this);
+                $category->removeVariantProduct($this);
         }
         return $this;
     }
@@ -289,11 +368,17 @@ class VariantProduct
         return $this->commands;
     }
 
+    /**
+     *  @return bool
+     */
     public function hasCommand(PieceCommand $pieceCommand): bool
     {
         return $this->commands->contains($pieceCommand);
     }
 
+    /**
+     *  @return self
+     */
     public function addCommand(PieceCommand $command): self
     {
         if (!$this->commands->contains($command)) {
@@ -304,6 +389,9 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return self
+     */
     public function removeCommand(PieceCommand $command): self
     {
         if ($this->commands->contains($command)) {
@@ -324,6 +412,9 @@ class VariantProduct
         return $this->comments;
     }
 
+    /**
+     *  @return self
+     */
     public function addComment(Comment $comment): self
     {
         if (!$this->comments->contains($comment)) {
@@ -334,6 +425,9 @@ class VariantProduct
         return $this;
     }
 
+    /**
+     *  @return self
+     */
     public function removeComment(Comment $comment): self
     {
         if ($this->comments->contains($comment)) {

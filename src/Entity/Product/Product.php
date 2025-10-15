@@ -9,62 +9,56 @@ use Doctrine\ORM\Mapping as ORM;
 use App\Entity\Product\Category;
 use App\Entity\Product\VariantProduct;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\Product\ProductRepository")
- * @ORM\Table(name="Product")
- */
+use App\Repository\Product\ProductRepository;
+
+#[ORM\Entity(repositoryClass: ProductRepository::class)]
+#[ORM\Table(name: 'Product')]
 class Product
 {
-    /**
-     * @ORM\Id()
-     * @ORM\GeneratedValue()
-     * @ORM\Column(type="integer")
-     */
+    #[Id]
+    #[Column(type: 'integer')]
+    #[GeneratedValue]
     private $id;
 
-    /**
-     * @ORM\Column(type="string", length=255, name="name_prod")
-     */
+    #[Column(type: 'string', length: 255, name: 'name_prod')]
     private $name;
 
-    /**
-     * @ORM\Column(type="string", length=255, nullable=true, name="img_prod")
-     */
+    #[Column(type: 'string', length: 255, nullable: true, name: 'img_prod')]
     private $imgFileName;
 
-    /**
-     * @ORM\Column(type="text", nullable=true, name="desc_prod")
-     */
+    #[Column(type: 'text', nullable: true, name: 'desc_prod')]
     private $description;
 
-    /**
-     * @ORM\Column(type="integer", name="stock_prod")
-     */
+    #[Column(type: 'integer', name: 'stock_prod')]
     private $stock;
 
-    /**
-     * @ORM\Column(type="string", length=255, unique=true, name="code_prod")
-     */
+    #[Column(type: 'string', length: 255, unique: true, name: 'code_prod')]
     private $code;
 
-    /**
-     * @ORM\Column(type="boolean", name="activate_prod", options={"default":false})
-     */
+    ///**
+    // * @ORM\Column(type="boolean", name="activate_prod", options={"default":false})
+    // */
+    #[Column(type: 'boolean', name: 'activate_prod')]
     private $activate;
 
-    /**
-     * @ORM\Column(type="boolean", name="deleted_prod", options={"default":false})
-     */
+    ///**
+    // * @ORM\Column(type="boolean", name="deleted_prod", options={"default":false})
+    // */
+    #[Column(type: 'boolean', name: 'deleted_prod')]
     private $delete;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="App\Entity\Product\Category", mappedBy="products")
-     */
+    ///**
+    // * @ORM\ManyToMany(targetEntity="App\Entity\Product\Category", mappedBy="products")
+    // */
+
+    #[ManyToMany(targetEntity: Category::class, mappedBy: 'products')]
     private $categories;
 
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Product\VariantProduct", mappedBy="product", orphanRemoval=false)
-     */
+    ///**
+    // * @ORM\OneToMany(targetEntity="App\Entity\Product\VariantProduct", mappedBy="product", orphanRemoval=false)
+    // */
+
+    #[OneToMany(targetEntity: VariantProduct::class, mappedBy: 'product', orphanRemoval: false)]
     private $variantsProducts;
 
     public function __construct()
@@ -75,16 +69,25 @@ class Product
         $this->variantsProducts = new ArrayCollection();
     }
 
+    /**
+     *  @return int
+     */
     public function getId(): ?int
     {
         return $this->id;
     }
 
+    /**
+     *  @return string
+     */
     public function getName(): ?string
     {
         return $this->name;
     }
 
+    /**
+     *  @return self
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -92,11 +95,17 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return string
+     */
     public function getImgFileName(): ?string
     {
         return $this->imgFileName;
     }
 
+    /**
+     *  @return self
+     */
     public function setImgFileName(string $imgFileName): self
     {
         $this->imgFileName = $imgFileName;
@@ -104,11 +113,17 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return string
+     */
     public function getDescription(): ?string
     {
         return $this->description;
     }
 
+    /**
+     *  @return self
+     */
     public function setDescription(?string $description): self
     {
         $this->description = $description;
@@ -116,11 +131,17 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return int
+     */
     public function getStock(): ?int
     {
         return $this->stock;
     }
 
+    /**
+     *  @return self
+     */
     public function setStock(int $stock): self
     {
         $this->stock = $stock;
@@ -128,6 +149,9 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return self
+     */
     public function calculStock(): self {
         $this->stock = 0;
         foreach($this->variantsProducts as $variant_product) {
@@ -137,11 +161,17 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return string
+     */
     public function getCode(): ?string
     {
         return $this->code;
     }
 
+    /**
+     *  @return self
+     */
     public function setCode(string $code): self
     {
         $this->code = $code;
@@ -149,11 +179,17 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return bool
+     */
     public function getActivate(): bool
     {
         return $this->activate;
     }
 
+    /**
+     *  @return self
+     */
     public function setActivate(bool $activate): self
     {
         $this->activate = $activate;
@@ -161,11 +197,17 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return bool
+     */
     public function getDelete(): bool
     {
         return $this->delete;
     }
 
+    /**
+     *  @return self
+     */
     public function setDelete(bool $delete): self
     {
         $this->delete = $delete;
@@ -181,11 +223,17 @@ class Product
         return $this->categories;
     }
 
+    /**
+     *  @return bool
+     */
     public function hasCategory(Category $category):bool
     {
         return $this->categories->contains($category);
     }
 
+    /**
+     *  @return self
+     */
     public function addCategory(Category $category): self
     {
         if (!$this->categories->contains($category)) {
@@ -197,6 +245,9 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return self
+     */
     public function removeCategory(Category $category): self
     {
         if ($this->categories->contains($category)) {
@@ -216,11 +267,17 @@ class Product
         return $this->variantsProducts;
     }
 
+    /**
+     *  @return bool
+     */
     public function hasVariantProduct(VariantProduct $variantProduct): bool
     {
         return $this->variantsProducts->contains($variantProduct);
     }
 
+    /**
+     *  @return self
+     */
     public function addVariantProduct(VariantProduct $variantProduct): self
     {
         if (!$this->hasVariantProduct($variantProduct)) {
@@ -232,6 +289,9 @@ class Product
         return $this;
     }
 
+    /**
+     *  @return self
+     */
     public function removeVariantProduct(VariantProduct $variantProduct): self
     {
         if ($this->hasVariantProduct($variantProduct)) {
